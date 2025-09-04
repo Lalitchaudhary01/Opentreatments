@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -8,7 +8,15 @@ import Image from "next/image";
 export default function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mode = searchParams.get("mode") || "login"; // "login" ya "register"
+
+  // ✅ Track mode in state
+  const [mode, setMode] = useState<"login" | "register">("login");
+
+  useEffect(() => {
+    const m = searchParams.get("mode");
+    if (m === "register") setMode("register");
+    else setMode("login");
+  }, [searchParams]);
 
   const [form, setForm] = useState({
     name: "",
@@ -47,7 +55,7 @@ export default function AuthForm() {
       <div className="w-full max-w-md bg-card p-6 rounded-2xl shadow-lg flex flex-col gap-6">
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
-          <Image src="/logo.png" alt="Logo" width={110} height={110} />
+          <Image src="/logo.png" alt="Logo" width={80} height={80} />
           <h1 className="text-2xl font-bold">
             {mode === "login"
               ? "Login to Open Treatment"
@@ -55,7 +63,7 @@ export default function AuthForm() {
           </h1>
         </div>
 
-        {/* Google Button */}
+        {/* Google Button only for login */}
         {mode === "login" && (
           <button
             onClick={() => signIn("google", { callbackUrl: "/" })}
