@@ -13,14 +13,18 @@ enum Role {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String?
-  password  String? // null if Google OAuth
-  createdAt DateTime  @default(now())
-  role      Role      @default(USER) // ✅ add this
-  accounts  Account[]
-  sessions  Session[]
+  id         String    @id @default(cuid())
+  email      String    @unique
+  name       String?
+  phone      String?   @unique
+  password   String? // null if Google OAuth
+  isVerified Boolean   @default(false)
+  otp        String?
+  otpExpiry  DateTime?
+  createdAt  DateTime  @default(now())
+  role       Role      @default(USER)
+  accounts   Account[]
+  sessions   Session[]
 }
 
 model Account {

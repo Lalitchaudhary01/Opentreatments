@@ -27,6 +27,11 @@ export const authOptions = {
 
         if (!user || !user.password) return null;
 
+        // Check if user is verified
+        if (!user.isVerified) {
+          throw new Error("Please verify your email before logging in");
+        }
+
         const valid = await compare(credentials.password, user.password);
         if (!valid) return null;
 
@@ -35,7 +40,7 @@ export const authOptions = {
           name: user.name,
           email: user.email,
           role: user.role!,
-        } as any; // 👈 cast kar de
+        } as any;
       },
     }),
   ],
