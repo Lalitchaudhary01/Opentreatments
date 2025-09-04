@@ -1,33 +1,36 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-
-// ✅ Dark/Light Toggle import
-import ThemeToggleButton from "../ui/theme-toggle-button";
 import Image from "next/image";
+import ThemeToggleButton from "../ui/theme-toggle-button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const menuItems = [
-    { label: "About", href: "/about" },
-    { label: "Skills", href: "/skills" },
-    { label: "Project", href: "/projects" },
-    { label: "Testimonials", href: "/testimonials" },
-    { label: "Contact", href: "/contact" },
-  ];
+  const user = session?.user;
 
   return (
     <header
@@ -37,32 +40,53 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* LOGO */}
           <Image
             src="/logo.png"
             alt="Logo"
-            width={120} // bada kiya
-            height={120} // bada kiya
-            className="object-contain w-28 h-28 md:w-32 md:h-32"
+            width={190}
+            height={190}
+            className="w-32 h-32 md:w-40 md:h-40"
+            priority
           />
 
           {/* Desktop Menu */}
           <nav className="hidden md:flex items-center gap-6">
-            {menuItems.map((item) => (
-              <a
-                href={item.href}
-                key={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
-
-            {/* ✅ Dark/Light Mode Toggle */}
             <ThemeToggleButton />
 
-            <Button variant={"default"} size={"sm"} className="gap-2">
-              Login/SignUp
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src={user.image || ""} alt={user.name || ""} />
+                    <AvatarFallback>
+                      {user?.name?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => signOut({ callbackUrl: "/auth/login" })}
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="default" size="sm">
+                <Link href="/auth/login">Login / Signup</Link>
+              </Button>
+            )}
           </nav>
 
           {/* MOBILE MENU BUTTON */}
@@ -91,24 +115,18 @@ const Header = () => {
             className="md:hidden border-t bg-background"
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-              {menuItems.map((item) => (
-                <a
-                  href={item.href}
-                  key={item.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-all"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </a>
-              ))}
-
-              {/* ✅ Mobile menu me bhi toggle */}
               <ThemeToggleButton />
 
-              <Button>
-                <Download className="w-4 h-4" />
-                Resume{" "}
-              </Button>
+              {user ? (
+                <Button
+                  variant="destructive"
+                  onClick={() => signOut({ callbackUrl: "/auth/login" })}
+                >
+                  Logout
+                </Button>
+              ) : (
+                <Button variant="default">Login / Signup</Button>
+              )}
             </nav>
           </motion.div>
         )}
