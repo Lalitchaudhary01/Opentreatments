@@ -84,7 +84,7 @@ const Header = () => {
               </DropdownMenu>
             ) : (
               <Button variant="default" size="sm">
-                <Link href="/auth/login">Login / Signup</Link>
+                <Link href="/auth">Login / Signup</Link>
               </Button>
             )}
           </nav>
