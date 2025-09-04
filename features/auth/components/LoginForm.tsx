@@ -4,20 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [mode, setMode] = useState<"login" | "register" | "verify">("login");
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const m = searchParams.get("mode");
-    if (m === "register") setMode("register");
-    else if (m === "verify") setMode("verify");
-    else setMode("login");
-  }, [searchParams]);
+  const [emailForOtp, setEmailForOtp] = useState<string>("");
 
   const [form, setForm] = useState({
     name: "",
@@ -28,43 +22,54 @@ export default function AuthForm() {
     otp: "",
   });
 
+  // Track mode from URL query
+  useEffect(() => {
+    const m = searchParams.get("mode") as
+      | "login"
+      | "register"
+      | "verify"
+      | null;
+    setMode(m ?? "login");
+  }, [searchParams?.toString()]);
+
+  // Handle Registration
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
+    if (form.password !== form.confirm) {
+      alert("Passwords do not match!");
+      return;
+    }
+
     const res = await fetch("/api/auth/register", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: form.name,
         email: form.email,
         phone: form.phone,
         password: form.password,
-        confirmPassword: form.confirm,
       }),
-      headers: { "Content-Type": "application/json" },
     });
 
     const data = await res.json();
-
     if (res.ok) {
-      setUserId(data.userId);
+      setEmailForOtp(form.email);
       router.push("/auth?mode=verify");
     } else {
       alert(data.error || "Registration failed");
     }
   }
 
+  // Handle OTP verification
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     const res = await fetch("/api/auth/verify-otp", {
       method: "POST",
-      body: JSON.stringify({
-        email: form.email,
-        otp: form.otp,
-      }),
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailForOtp, otp: form.otp }),
     });
 
     const data = await res.json();
-
     if (res.ok) {
       alert("Email verified successfully! You can now login.");
       router.push("/auth?mode=login");
@@ -73,6 +78,7 @@ export default function AuthForm() {
     }
   }
 
+  // Handle Login
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     const res = await signIn("credentials", {
@@ -80,6 +86,7 @@ export default function AuthForm() {
       email: form.email,
       password: form.password,
     });
+
     if (!res?.error) router.push("/");
     else alert("Login failed: " + res.error);
   }
@@ -97,7 +104,7 @@ export default function AuthForm() {
           </h1>
         </div>
 
-        {/* Google Button only for login */}
+        {/* Google Sign-In */}
         {mode === "login" && (
           <button
             onClick={() => signIn("google", { callbackUrl: "/" })}
@@ -111,8 +118,8 @@ export default function AuthForm() {
         {mode === "verify" ? (
           <form onSubmit={handleVerifyOtp} className="flex flex-col gap-3">
             <p className="text-sm text-muted-foreground">
-              We've sent an OTP to your email. Please enter it below to verify
-              your account.
+              We've sent an OTP to your email. Enter it below to verify your
+              account.
             </p>
             <input
               type="text"
@@ -120,6 +127,7 @@ export default function AuthForm() {
               value={form.otp}
               onChange={(e) => setForm({ ...form, otp: e.target.value })}
               className="border px-3 py-2 rounded-md bg-background"
+              required
             />
             <button
               type="submit"
@@ -193,22 +201,22 @@ export default function AuthForm() {
           {mode === "login" ? (
             <>
               Don&apos;t have an account?{" "}
-              <a
+              <Link
                 href="/auth?mode=register"
                 className="text-blue-600 hover:underline"
               >
                 Register
-              </a>
+              </Link>
             </>
           ) : mode === "register" ? (
             <>
               Already have an account?{" "}
-              <a
+              <Link
                 href="/auth?mode=login"
                 className="text-blue-600 hover:underline"
               >
                 Login
-              </a>
+              </Link>
             </>
           ) : (
             <>
