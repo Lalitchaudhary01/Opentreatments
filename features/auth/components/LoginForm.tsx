@@ -108,7 +108,7 @@ export default function AuthForm() {
         {mode === "login" && (
           <button
             onClick={() => signIn("google", { callbackUrl: "/" })}
-            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+            className="w-full bg-white hover:bg-red-600 text-black py-2 rounded-lg transition"
           >
             Sign in with Google
           </button>
