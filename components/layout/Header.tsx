@@ -76,7 +76,7 @@ const Header = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={() => signOut({ callbackUrl: "/auth/login" })}
+                    onClick={() => signOut({ callbackUrl: "/auth" })}
                   >
                     Logout
                   </DropdownMenuItem>
