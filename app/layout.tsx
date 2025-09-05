@@ -3,8 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-// ✅ import wrapper
-import Header from "@/components/layout/Header";
+
 import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,7 +26,6 @@ export default function RootLayout({
           {" "}
           {/* ✅ ab yaha safe hai */}
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Header />
             {children}
             <Toaster />
           </ThemeProvider>
