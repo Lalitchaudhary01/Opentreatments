@@ -4,14 +4,20 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [mode, setMode] = useState<"login" | "register" | "verify">("login");
-  const [emailForOtp, setEmailForOtp] = useState<string>("");
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const m = searchParams.get("mode");
+    if (m === "register") setMode("register");
+    else if (m === "verify") setMode("verify");
+    else setMode("login");
+  }, [searchParams]);
 
   const [form, setForm] = useState({
     name: "",
@@ -22,54 +28,43 @@ export default function AuthForm() {
     otp: "",
   });
 
-  // Track mode from URL query
-  useEffect(() => {
-    const m = searchParams.get("mode") as
-      | "login"
-      | "register"
-      | "verify"
-      | null;
-    setMode(m ?? "login");
-  }, [searchParams?.toString()]);
-
-  // Handle Registration
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    if (form.password !== form.confirm) {
-      alert("Passwords do not match!");
-      return;
-    }
-
     const res = await fetch("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: form.name,
         email: form.email,
         phone: form.phone,
         password: form.password,
+        confirmPassword: form.confirm,
       }),
+      headers: { "Content-Type": "application/json" },
     });
 
     const data = await res.json();
+
     if (res.ok) {
-      setEmailForOtp(form.email);
+      setUserId(data.userId);
       router.push("/auth?mode=verify");
     } else {
       alert(data.error || "Registration failed");
     }
   }
 
-  // Handle OTP verification
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     const res = await fetch("/api/auth/verify-otp", {
       method: "POST",
+      body: JSON.stringify({
+        email: form.email,
+        otp: form.otp,
+      }),
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailForOtp, otp: form.otp }),
     });
 
     const data = await res.json();
+
     if (res.ok) {
       alert("Email verified successfully! You can now login.");
       router.push("/auth?mode=login");
@@ -78,7 +73,6 @@ export default function AuthForm() {
     }
   }
 
-  // Handle Login
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     const res = await signIn("credentials", {
@@ -86,7 +80,6 @@ export default function AuthForm() {
       email: form.email,
       password: form.password,
     });
-
     if (!res?.error) router.push("/");
     else alert("Login failed: " + res.error);
   }
@@ -104,30 +97,12 @@ export default function AuthForm() {
           </h1>
         </div>
 
-        {/* Google Sign-In - Updated Style */}
+        {/* Google Button only for login */}
         {mode === "login" && (
           <button
             onClick={() => signIn("google", { callbackUrl: "/" })}
-            className="w-full bg-white hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg transition border border-gray-300 flex items-center justify-center gap-2 font-medium"
+            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
             Sign in with Google
           </button>
         )}
@@ -136,8 +111,8 @@ export default function AuthForm() {
         {mode === "verify" ? (
           <form onSubmit={handleVerifyOtp} className="flex flex-col gap-3">
             <p className="text-sm text-muted-foreground">
-              We've sent an OTP to your email. Enter it below to verify your
-              account.
+              We've sent an OTP to your email. Please enter it below to verify
+              your account.
             </p>
             <input
               type="text"
@@ -145,7 +120,6 @@ export default function AuthForm() {
               value={form.otp}
               onChange={(e) => setForm({ ...form, otp: e.target.value })}
               className="border px-3 py-2 rounded-md bg-background"
-              required
             />
             <button
               type="submit"
@@ -219,22 +193,22 @@ export default function AuthForm() {
           {mode === "login" ? (
             <>
               Don&apos;t have an account?{" "}
-              <Link
+              <a
                 href="/auth?mode=register"
                 className="text-blue-600 hover:underline"
               >
                 Register
-              </Link>
+              </a>
             </>
           ) : mode === "register" ? (
             <>
               Already have an account?{" "}
-              <Link
+              <a
                 href="/auth?mode=login"
                 className="text-blue-600 hover:underline"
               >
                 Login
-              </Link>
+              </a>
             </>
           ) : (
             <>
