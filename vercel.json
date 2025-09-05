@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+  "scripts": {
+    "postinstall": "prisma generate && prisma migrate deploy"
+  }
+}
