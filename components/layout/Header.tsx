@@ -25,7 +25,7 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: session } = useSession();
-  const searchInputRef = useRef(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -41,7 +41,7 @@ const Header = () => {
 
   // Close search on Escape key
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isSearchOpen) {
         setIsSearchOpen(false);
         setSearchQuery("");
@@ -61,7 +61,7 @@ const Header = () => {
     { name: "Consultations", href: "/consultations" },
   ];
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Handle search logic here
@@ -298,7 +298,12 @@ const Header = () => {
                         size="sm"
                         onClick={() => {
                           setSearchQuery(suggestion);
-                          handleSearch({ preventDefault: () => {} });
+                          if (suggestion.trim()) {
+                            // Handle search logic here
+                            console.log("Searching for:", suggestion);
+                            setIsSearchOpen(false);
+                            setSearchQuery("");
+                          }
                         }}
                         className="text-xs bg-muted/50 hover:bg-muted border-0 rounded-lg transition-colors duration-200"
                       >

@@ -108,7 +108,7 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <div className="w-full max-w-md bg-card p-6 rounded-2xl shadow-lg flex flex-col gap-6">
+      <div className="w-full max-w-xl bg-card p-6 rounded-2xl shadow-lg flex flex-col gap-6">
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
           <Image src="/logo.png" alt="Logo" width={80} height={80} />
@@ -134,7 +134,7 @@ export default function AuthForm() {
               Security First, Transparency Always
             </h1>
             <p className="text-[#1FB6E8] font-semibold whitespace-nowrap">
-              We’ve sent a verification code to your email
+              We've sent a verification code to your email
             </p>
           </div>
         )}
@@ -215,56 +215,97 @@ export default function AuthForm() {
             className="flex flex-col gap-3"
           >
             {mode === "register" && (
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="border px-3 py-2 rounded-md bg-background"
-                required
-                disabled={isLoading}
-              />
+              <>
+                {/* Full Name - Full Width */}
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-md bg-background"
+                  required
+                  disabled={isLoading}
+                />
+
+                {/* Email and Phone - Flex Row */}
+                <div className="flex gap-3">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                    className="flex-1 border px-3 py-2 rounded-md bg-background"
+                    required
+                    disabled={isLoading}
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm({ ...form, phone: e.target.value })
+                    }
+                    className="flex-1 border px-3 py-2 rounded-md bg-background"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+
+                {/* Password and Confirm Password - Flex Row */}
+                <div className="flex gap-3">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                    className="flex-1 border px-3 py-2 rounded-md bg-background"
+                    required
+                    disabled={isLoading}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={form.confirm}
+                    onChange={(e) =>
+                      setForm({ ...form, confirm: e.target.value })
+                    }
+                    className="flex-1 border px-3 py-2 rounded-md bg-background"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </>
             )}
-            <input
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="border px-3 py-2 rounded-md bg-background"
-              required
-              disabled={isLoading}
-            />
-            {mode === "register" && (
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="border px-3 py-2 rounded-md bg-background"
-                required
-                disabled={isLoading}
-              />
+
+            {mode === "login" && (
+              <>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="border px-3 py-2 rounded-md bg-background"
+                  required
+                  disabled={isLoading}
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                  className="border px-3 py-2 rounded-md bg-background"
+                  required
+                  disabled={isLoading}
+                />
+              </>
             )}
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="border px-3 py-2 rounded-md bg-background"
-              required
-              disabled={isLoading}
-            />
-            {mode === "register" && (
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                value={form.confirm}
-                onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-                className="border px-3 py-2 rounded-md bg-background"
-                required
-                disabled={isLoading}
-              />
-            )}
+
             <button
               type="submit"
               disabled={isLoading}
