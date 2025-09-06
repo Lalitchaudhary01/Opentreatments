@@ -4,8 +4,16 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
+import { Particles } from "@/components/magicui/particles";
+import { useTheme } from "next-themes";
 
 export default function AuthForm() {
+  const { resolvedTheme } = useTheme();
+  const [color, setColor] = useState("#ffffff");
+
+  useEffect(() => {
+    setColor(resolvedTheme === "dark" ? "#ffffff" : "#000000");
+  }, [resolvedTheme]);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -108,6 +116,13 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <Particles
+        className="absolute inset-0 z-0"
+        quantity={100}
+        ease={80}
+        color={color}
+        refresh
+      />
       <div className="w-full max-w-xl bg-card p-6 rounded-2xl shadow-lg flex flex-col gap-6">
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">

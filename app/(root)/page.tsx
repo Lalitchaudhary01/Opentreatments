@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,8 +30,13 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Header from "@/components/layout/Header";
+import { useTheme } from "next-themes";
+import { LineShadowText } from "@/components/magicui/line-shadow-text";
+import { DotPattern } from "@/components/magicui/dot-pattern";
 
 export default function HealthcareCostComparison() {
+  const theme = useTheme();
+  const shadowColor = theme.resolvedTheme === "dark" ? "white" : "black";
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -40,7 +46,9 @@ export default function HealthcareCostComparison() {
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <h1 className="text-4xl text-[#10B981] md:text-6xl font-bold  mb-6 text-balance">
-            Know the cost before you step in.
+            <LineShadowText className="italic" shadowColor={shadowColor}>
+              Know the cost before you step in.
+            </LineShadowText>
           </h1>
           <p className="text-xl text-[#1FB6E8] mb-12 text-pretty">
             Compare hospital, medicine, and consultation prices in minutes.
