@@ -1,381 +1,425 @@
 "use client";
-
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   Search,
-  Shield,
-  FileText,
+  MapPin,
+  Hospital,
   Calculator,
-  Heart,
-  ArrowRight,
+  Shield,
   CheckCircle,
-  ChevronLeft,
-  ChevronRight,
+  ArrowRight,
+  Star,
+  Users,
+  Award,
+  TrendingUp,
 } from "lucide-react";
+import Header from "@/components/layout/Header";
+import { useTheme } from "next-themes";
+import { LineShadowText } from "@/components/magicui/line-shadow-text";
+import { DotPattern } from "@/components/magicui/dot-pattern";
+import KeyFeatures from "./KeyFeatures";
 
-const Hero = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState("treatment");
-  const [location, setLocation] = useState("");
-
-  // Sample data
-  const features = [
-    {
-      icon: <FileText className="w-6 h-6" />,
-      title: "Compare hospital costs",
-      description: "See real prices from hospitals near you",
-    },
-    {
-      icon: <Calculator className="w-6 h-6" />,
-      title: "AI estimator",
-      description: "Get accurate cost predictions for procedures",
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "Verified bills",
-      description: "Authentic bills submitted by real patients",
-    },
-    {
-      icon: <Heart className="w-6 h-6" />,
-      title: "Insurance calculator",
-      description: "See what your insurance will actually cover",
-    },
-  ];
-
-  const steps = [
-    {
-      title: "Search & compare",
-      description:
-        "Find hospitals and treatments in your area with transparent pricing",
-    },
-    {
-      title: "Check coverage",
-      description:
-        "See what your insurance covers and estimate out-of-pocket costs",
-    },
-    {
-      title: "Book or consult",
-      description: "Schedule an appointment or get a virtual consultation",
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: "Rahul Sharma",
-      location: "Delhi",
-      text: "Saved 40% on my mother's knee replacement surgery by comparing prices.",
-    },
-    {
-      name: "Priya Patel",
-      location: "Mumbai",
-      text: "The insurance calculator helped me understand my coverage better than my insurance agent did!",
-    },
-    {
-      name: "Arjun Kumar",
-      location: "Bangalore",
-      text: "Verified bills gave me confidence in the pricing before my appendix surgery.",
-    },
-  ];
-
-  const blogPosts = [
-    {
-      title: "Appendix surgery cost in Delhi—2025 guide",
-      excerpt: "Complete breakdown of appendectomy costs across top hospitals",
-    },
-    {
-      title: "How to save on cardiac procedures",
-      excerpt: "Smart strategies to reduce your heart surgery expenses",
-    },
-    {
-      title: "Understanding insurance co-pays",
-      excerpt: "What you really pay despite having health insurance",
-    },
-  ];
-
-  const partners = [
-    { name: "Hospital 1", logo: "/placeholder-logo1.png" },
-    { name: "Hospital 2", logo: "/placeholder-logo2.png" },
-    { name: "Hospital 3", logo: "/placeholder-logo3.png" },
-    { name: "Hospital 4", logo: "/placeholder-logo4.png" },
-  ];
-
+export default function Home() {
+  const theme = useTheme();
+  const shadowColor = theme.resolvedTheme === "dark" ? "white" : "black";
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <Header />
+
       {/* Hero Section */}
-      <section className="bg-slate-50 py-20 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h1 className="text-4xl text-[#10B981] md:text-6xl font-bold  mb-6 text-balance">
+            <LineShadowText className="italic" shadowColor={shadowColor}>
               Know the cost before you step in.
-            </h1>
-            <p className="text-lg text-slate-600 mb-8">
-              Compare hospital, medicine, and consultation prices in minutes.
-            </p>
+            </LineShadowText>
+          </h1>
+          <p className="text-xl text- [#1FB6E8]mb-12 text-pretty">
+            Compare hospital, medicine, and consultation prices in minutes.
+          </p>
 
-            <div className="bg-white rounded-lg shadow-sm p-2 flex flex-col sm:flex-row gap-2 mb-6">
-              <label htmlFor="search-type" className="sr-only">
-                Search type
-              </label>
-              <select
-                id="search-type"
-                className="px-4 py-3 border border-slate-200 rounded-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={searchType}
-                onChange={(e) => setSearchType(e.target.value)}
-              >
-                <option value="treatment">Treatment</option>
-                <option value="hospital">Hospital</option>
-                <option value="medicine">Medicine</option>
-              </select>
-
-              <input
-                type="text"
-                placeholder="Enter location"
-                className="flex-1 px-4 py-3 border border-slate-200 rounded-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium flex items-center justify-center gap-2 transition-colors">
-                <Search className="w-5 h-5" />
-                Compare Costs
-              </button>
+          {/* Search Bar */}
+          <div className="bg-card border border-border rounded-xl p-6 mb-8 shadow-sm">
+            <div className="flex flex-col md:flex-row gap-4">
+              <Select>
+                <SelectTrigger className="md:w-48">
+                  <SelectValue placeholder="Treatment Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="treatment">Treatment</SelectItem>
+                  <SelectItem value="hospital">Hospital</SelectItem>
+                  <SelectItem value="medicine">Medicine</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex-1 relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input placeholder="Enter your location" className="pl-10" />
+              </div>
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search treatments, hospitals..."
+                  className="pl-10"
+                />
+              </div>
             </div>
+          </div>
 
-            <button className="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-2">
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              className="text-lg px-8 bg-[#10B981] hover:bg-[#0ea271] text-white"
+            >
+              Compare Costs
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-8 bg-transparent"
+            >
               Consult a Doctor
-              <ArrowRight className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
+        </div>
+      </section>
 
-          <div className="hidden md:block">
-            {/* Placeholder for healthcare illustration */}
-            <div className="bg-blue-100 rounded-xl h-80 flex items-center justify-center">
-              <div className="text-center text-blue-600">
-                <Heart className="w-16 h-16 mx-auto mb-4" />
-                <p>Healthcare Illustration</p>
+      {/* Key Features */}
+      <KeyFeatures />
+
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-balance">
+            How It Works
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-8 h-8 text-primary-foreground" />
               </div>
+              <h3 className="text-xl font-semibold mb-4">
+                1. Search & Compare
+              </h3>
+              <p className="text-muted-foreground">
+                Enter your treatment and location to see costs from multiple
+                providers in your area.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                <Shield className="w-8 h-8 text-accent-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">2. Check Coverage</h3>
+              <p className="text-muted-foreground">
+                Use our insurance calculator to understand your out-of-pocket
+                costs.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Hospital className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">3. Book or Consult</h3>
+              <p className="text-muted-foreground">
+                Schedule your appointment or consult with a doctor directly
+                through our platform.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-slate-50 rounded-lg p-6 border border-slate-200"
-              >
-                <div className="text-blue-600 mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-16 px-4 md:px-8 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
-            How it works
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
-                  {index + 1}
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-slate-600">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Trust & Safety Section */}
-      <section className="py-16 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
-            Trust & safety
-          </h2>
-
-          {/* Transparency Badge */}
-          <div className="bg-blue-50 rounded-xl p-8 mb-12 text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
-            <h3 className="text-2xl font-semibold text-slate-900 mb-2">
-              Transparency Verified
-            </h3>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              All prices are verified through actual patient bills and hospital
-              records. We never share your personal information without consent.
+      {/* Trust & Safety */}
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
+              Trusted by thousands of patients
+            </h2>
+            <p className="text-xl text-muted-foreground text-pretty">
+              Our commitment to transparency and accuracy in healthcare pricing
             </p>
           </div>
 
-          {/* Partner Logos */}
-          <div className="mb-12">
-            <h3 className="text-xl font-semibold text-slate-900 text-center mb-8">
-              Our trusted partners
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {partners.map((partner, index) => (
-                <div
-                  key={index}
-                  className="bg-slate-100 h-24 rounded-lg flex items-center justify-center"
-                >
-                  <span className="text-slate-500">{partner.name}</span>
-                </div>
-              ))}
-            </div>
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <Card className="text-center">
+              <CardHeader>
+                <Badge variant="secondary" className="mx-auto mb-4 w-fit">
+                  <Award className="w-4 h-4 mr-2" />
+                  Verified Data
+                </Badge>
+                <CardTitle>100% Transparent</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  All pricing data is verified and sourced directly from
+                  healthcare providers.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Badge variant="secondary" className="mx-auto mb-4 w-fit">
+                  <Users className="w-4 h-4 mr-2" />
+                  50K+ Users
+                </Badge>
+                <CardTitle>Trusted Platform</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Join thousands of patients who have saved money using our
+                  platform.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Badge variant="secondary" className="mx-auto mb-4 w-fit">
+                  <Shield className="w-4 h-4 mr-2" />
+                  HIPAA Compliant
+                </Badge>
+                <CardTitle>Secure & Private</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Your health information is protected with enterprise-grade
+                  security.
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Testimonial Carousel */}
-          <div>
-            <h3 className="text-xl font-semibold text-slate-900 text-center mb-8">
-              What our users say
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, index) => (
-                <div
-                  key={index}
-                  className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">
-                      {testimonial.name.charAt(0)}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-slate-500">{testimonial.location}</p>
-                    </div>
-                  </div>
-                  <p className="text-slate-700">"{testimonial.text}"</p>
+          {/* Testimonial */}
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="pt-6">
+              <div className="flex items-center mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                ))}
+              </div>
+              <blockquote className="text-lg mb-4">
+                "MedCost helped me save over $3,000 on my surgery. I wish I had
+                known about this platform earlier!"
+              </blockquote>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-muted rounded-full mr-3"></div>
+                <div>
+                  <p className="font-semibold">Sarah Johnson</p>
+                  <p className="text-sm text-muted-foreground">
+                    Knee Surgery Patient
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      {/* Latest Insights Section */}
-      <section className="py-16 px-4 md:px-8 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
-            Latest insights
+      {/* Latest Insights */}
+      <section id="insights" className="py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-balance">
+            Latest Healthcare Cost Insights
           </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-muted rounded-t-lg"></div>
+              <CardHeader>
+                <Badge variant="outline" className="w-fit mb-2">
+                  Cost Guide
+                </Badge>
+                <CardTitle className="text-lg">
+                  Appendix Surgery Cost in Delhi — 2025 Guide
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Complete breakdown of appendectomy costs across major
+                  hospitals in Delhi, including insurance coverage options.
+                </CardDescription>
+                <Button variant="ghost" className="mt-4 p-0 h-auto">
+                  Read More <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </CardContent>
+            </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.map((post, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-lg overflow-hidden shadow-sm border border-slate-200"
-              >
-                <div className="h-40 bg-blue-100"></div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-slate-600 mb-4">{post.excerpt}</p>
-                  <button className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2">
-                    Read more
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+            <Card className="hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-muted rounded-t-lg"></div>
+              <CardHeader>
+                <Badge variant="outline" className="w-fit mb-2">
+                  Analysis
+                </Badge>
+                <CardTitle className="text-lg">
+                  How to Choose the Right Health Insurance Plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Expert tips on selecting health insurance that covers your
+                  needs while minimizing out-of-pocket costs.
+                </CardDescription>
+                <Button variant="ghost" className="mt-4 p-0 h-auto">
+                  Read More <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-muted rounded-t-lg"></div>
+              <CardHeader>
+                <Badge variant="outline" className="w-fit mb-2">
+                  Trends
+                </Badge>
+                <CardTitle className="text-lg">
+                  Healthcare Price Transparency: What's New in 2025
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Latest regulations and how they're making healthcare pricing
+                  more transparent for patients.
+                </CardDescription>
+                <Button variant="ghost" className="mt-4 p-0 h-auto">
+                  Read More <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Healthcare Cost</h3>
-            <p className="text-slate-300">
-              Transparent medical pricing for informed healthcare decisions.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
-            <ul className="space-y-2 text-slate-300">
-              <li>
-                <a href="#" className="hover:text-white">
-                  Blog
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Cost Guides
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Insurance Tips
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4">Company</h4>
-            <ul className="space-y-2 text-slate-300">
-              <li>
-                <a href="#" className="hover:text-white">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Contact
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white">
-                  Privacy Policy
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4">Subscribe</h4>
-            <p className="text-slate-300 mb-4">
-              Get the latest healthcare cost updates
-            </p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="px-4 py-2 rounded-l-md text-slate-900 flex-1 focus:outline-none"
-              />
-              <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-md">
-                Subscribe
-              </button>
+      <footer className="bg-muted/50 border-t border-border py-12 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <Hospital className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-xl font-bold">MedCost</span>
+              </div>
+              <p className="text-muted-foreground">
+                Making healthcare costs transparent and accessible for everyone.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Cost Comparison
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Insurance Calculator
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Doctor Consultation
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Careers
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Terms of Service
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    HIPAA Compliance
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-slate-700 text-center text-slate-400">
-          <p>© 2025 Healthcare Cost Comparison. All rights reserved.</p>
+          <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
+            <p>&copy; 2025 MedCost. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default Hero;
+}
