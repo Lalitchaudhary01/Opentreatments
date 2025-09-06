@@ -32,8 +32,9 @@ import {
 import Header from "@/components/layout/Header";
 import { useTheme } from "next-themes";
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
-import { DotPattern } from "@/components/magicui/dot-pattern";
+
 import KeyFeatures from "./KeyFeatures";
+import HowWork from "./HowWork";
 
 export default function Home() {
   const theme = useTheme();
@@ -51,7 +52,7 @@ export default function Home() {
               Know the cost before you step in.
             </LineShadowText>
           </h1>
-          <p className="text-xl text- [#1FB6E8]mb-12 text-pretty">
+          <p className="text-xl text-[#1FB6E8] mb-12 text-pretty">
             Compare hospital, medicine, and consultation prices in minutes.
           </p>
 
@@ -60,7 +61,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row gap-4">
               <Select>
                 <SelectTrigger className="md:w-48">
-                  <SelectValue placeholder="Treatment Type" />
+                  <SelectValue placeholder="Search For" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="treatment">Treatment</SelectItem>
@@ -107,49 +108,7 @@ export default function Home() {
       <KeyFeatures />
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-20 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-balance">
-            How It Works
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4">
-                1. Search & Compare
-              </h3>
-              <p className="text-muted-foreground">
-                Enter your treatment and location to see costs from multiple
-                providers in your area.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                <Shield className="w-8 h-8 text-accent-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4">2. Check Coverage</h3>
-              <p className="text-muted-foreground">
-                Use our insurance calculator to understand your out-of-pocket
-                costs.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Hospital className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4">3. Book or Consult</h3>
-              <p className="text-muted-foreground">
-                Schedule your appointment or consult with a doctor directly
-                through our platform.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HowWork />
 
       {/* Trust & Safety */}
       <section className="py-20 px-4 bg-muted/30">

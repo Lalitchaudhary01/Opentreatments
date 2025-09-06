@@ -126,7 +126,7 @@ export default function AuthForm() {
       <div className="w-full max-w-xl bg-card p-6 rounded-2xl shadow-lg flex flex-col gap-6">
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
-          <Image src="/logo.png" alt="Logo" width={80} height={80} />
+          <Image src="/logos.png" alt="Logo" width={130} height={130} />
           <h1 className="text-2xl font-bold">
             {mode === "login"}
             {mode === "register"}
