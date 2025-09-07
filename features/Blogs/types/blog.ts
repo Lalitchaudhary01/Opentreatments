@@ -16,9 +16,9 @@ export interface Blog {
     name?: string | null;
     email: string;
   };
-  comments: Comment[];
-  likes: Like[];
+  comments: Comment[]; // ✅ full Comment[] type
+  likes: Like[];       // ✅ full Like[] type
   tags: {
-    tag: Tag;
+    tag: Tag;          // ✅ correct relation (because connectOrCreate in prisma)
   }[];
 }

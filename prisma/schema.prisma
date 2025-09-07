@@ -59,10 +59,12 @@ model Session {
 }
 
 model Blog {
-  id        String    @id @default(cuid())
-  title     String
-  content   String
-  authorId  String
+  id       String  @id @default(cuid())
+  title    String
+  content  String
+  authorId String
+  image    String? // optional image
+
   author    User      @relation(fields: [authorId], references: [id])
   comments  Comment[] // comments on blog
   likes     Like[] // likes on blog
