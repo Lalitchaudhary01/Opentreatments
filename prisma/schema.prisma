@@ -23,8 +23,13 @@ model User {
   otpExpiry  DateTime?
   createdAt  DateTime  @default(now())
   role       Role      @default(USER)
-  accounts   Account[]
-  sessions   Session[]
+
+  // Relations
+  accounts Account[]
+  sessions Session[]
+  blogs    Blog[] // authored blogs
+  comments Comment[] // user comments
+  likes    Like[] // user likes
 }
 
 model Account {
@@ -51,4 +56,54 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id])
+}
+
+model Blog {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  comments  Comment[] // comments on blog
+  likes     Like[] // likes on blog
+  tags      BlogTag[] // many-to-many tags
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  blogId    String
+  userId    String
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  author    User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  blogId    String
+  userId    String
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([blogId, userId]) // prevent duplicate likes
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  blogs BlogTag[]
+}
+
+model BlogTag {
+  blogId String
+  tagId  String
+  blog   Blog   @relation(fields: [blogId], references: [id])
+  tag    Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([blogId, tagId]) // composite primary key for many-to-many
 }
