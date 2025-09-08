@@ -28,12 +28,9 @@ export default async function BlogDetailsPage({ params }: BlogDetailsProps) {
 
       {/* Like Button */}
       <LikeButton
-        initialLiked={false} // TODO: check from user session
+        blogId={blog.id}
+        initialLiked={blog.likes.some((like) => like.user.id === blog.author.id)}
         initialCount={blog.likes.length}
-        onLike={async () => {
-          await likeBlog({ blogId: blog.id });
-        }}
-        onUnlike={async () => await unlikeBlog({ blogId: blog.id })}
       />
 
       {/* Comments */}

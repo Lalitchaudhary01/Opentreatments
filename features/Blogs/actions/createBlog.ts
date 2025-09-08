@@ -13,13 +13,11 @@ interface CreateBlogInput {
 }
 
 export async function createBlog(data: CreateBlogInput): Promise<Blog> {
-  // ✅ Ensure the user is logged in
   const user = await getCurrentUser();
   if (!user) {
     throw new Error("Unauthorized");
   }
 
-  // ✅ Create the blog in the database
   const blog = await prisma.blog.create({
     data: {
       title: data.title,
@@ -27,10 +25,13 @@ export async function createBlog(data: CreateBlogInput): Promise<Blog> {
       image: data.image ?? null,
       authorId: user.id,
       tags: {
-        //@ts-ignore
-        connectOrCreate: data.tags?.map((t) => ({
-          where: { name: t },
-          create: { name: t },
+        create: data.tags?.map((t) => ({
+          tag: {
+            connectOrCreate: {
+              where: { name: t },
+              create: { name: t },
+            },
+          },
         })),
       },
     },
@@ -42,8 +43,7 @@ export async function createBlog(data: CreateBlogInput): Promise<Blog> {
     },
   });
 
-  // ✅ Revalidate cache so /blog page updates immediately
   revalidatePath("/blog");
-  //@ts-ignore
+  // @ts-ignore
   return blog;
 }
