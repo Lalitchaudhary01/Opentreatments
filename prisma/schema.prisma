@@ -104,8 +104,8 @@ model Tag {
 model BlogTag {
   blogId String
   tagId  String
-  blog   Blog   @relation(fields: [blogId], references: [id])
+  blog   Blog   @relation(fields: [blogId], references: [id], onDelete: Cascade)
   tag    Tag    @relation(fields: [tagId], references: [id])
 
-  @@id([blogId, tagId]) // composite primary key for many-to-many
+  @@id([blogId, tagId])
 }

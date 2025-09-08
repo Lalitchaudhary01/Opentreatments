@@ -1,32 +1,33 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 
-interface DeleteBlogInput {
-  id: string;
-}
-
-export async function deleteBlog({ id }: DeleteBlogInput): Promise<void> {
+export async function deleteBlog(id: string) {
+  // ✅ Get current logged-in user
   const user = await getCurrentUser();
   if (!user) throw new Error("Unauthorized");
 
-  // ✅ check ownership
+  if (!id) throw new Error("Blog ID is required");
+
+  // ✅ Check if the blog exists and ownership
   const existingBlog = await prisma.blog.findUnique({
     where: { id },
     select: { authorId: true },
   });
 
   if (!existingBlog) throw new Error("Blog not found");
-  if (existingBlog.authorId !== user.id) throw new Error("Forbidden");
+  if (existingBlog.authorId !== user.id) {
+    throw new Error("You are not allowed to delete this blog");
+  }
 
-  // ✅ delete blog
-  await prisma.blog.delete({
-    where: { id },
-  });
+  // ✅ Delete related rows first to avoid foreign key constraint error
+  await prisma.blogTag.deleteMany({ where: { blogId: id } });
+  await prisma.comment.deleteMany({ where: { blogId: id } });
+  await prisma.like.deleteMany({ where: { blogId: id } });
 
-  // ✅ revalidate cache
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${id}`);
+  // ✅ Now delete the blog itself
+  await prisma.blog.delete({ where: { id } });
+
+  return { success: true };
 }
