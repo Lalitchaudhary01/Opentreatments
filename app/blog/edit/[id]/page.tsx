@@ -4,23 +4,25 @@ import { getBlogById } from "@/features/Blogs/actions/getBlogById";
 import { updateBlog } from "@/features/Blogs/actions/updateBlog";
 import BlogForm from "@/features/Blogs/components/BlogForm";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 
 interface EditBlogProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function EditBlogPage({ params }: EditBlogProps) {
   const router = useRouter();
+  const { id } = use(params); // ✅ unwrap params here
+
   const [blog, setBlog] = useState<any>(null);
 
   useEffect(() => {
     async function fetchBlog() {
-      const data = await getBlogById(params.id);
+      const data = await getBlogById(id);
       setBlog(data);
     }
     fetchBlog();
-  }, [params.id]);
+  }, [id]);
 
   async function handleUpdate(data: {
     title: string;
@@ -28,8 +30,8 @@ export default function EditBlogPage({ params }: EditBlogProps) {
     image?: string;
     tags?: string[];
   }) {
-    await updateBlog({ id: params.id, ...data });
-    router.push(`/blog/${params.id}`);
+    await updateBlog({ id, ...data });
+    router.push(`/blog/${id}`);
   }
 
   if (!blog) return <p>Loading...</p>;

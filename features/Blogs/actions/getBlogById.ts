@@ -3,7 +3,7 @@
 import prisma from "@/lib/prisma";
 import { Blog } from "../types/blog";
 
-export async function getBlogById(id: string): Promise<Blog> {
+export async function getBlogById(id: string): Promise<Blog | null> {
   if (!id) throw new Error("Blog ID is required");
 
   const blog = await prisma.blog.findUnique({
@@ -45,10 +45,6 @@ export async function getBlogById(id: string): Promise<Blog> {
       },
     },
   });
-
-  if (!blog) {
-    throw new Error("Blog not found");
-  }
 
   return blog;
 }

@@ -7,15 +7,17 @@ import { Blog } from "../types/blog";
 
 interface UpdateBlogInput {
   id: string;
-  title?: string;
-  content?: string;
-  image?: string | null;
+  title: string;
+  content: string;
   tags?: string[];
+  image?: string;
 }
 
 export async function updateBlog(data: UpdateBlogInput): Promise<Blog> {
   const user = await getCurrentUser();
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
 
   // ✅ check ownership
   const existingBlog = await prisma.blog.findUnique({
@@ -33,16 +35,18 @@ export async function updateBlog(data: UpdateBlogInput): Promise<Blog> {
       title: data.title,
       content: data.content,
       image: data.image ?? null,
-      //@ts-ignore
-      tags: data.tags
-        ? {
-            set: [], // clear old tags
-            connectOrCreate: data.tags.map((t) => ({
+      tags: {
+        // clear old tags before reassigning
+        deleteMany: {},
+        create: data.tags?.map((t) => ({
+          tag: {
+            connectOrCreate: {
               where: { name: t },
               create: { name: t },
-            })),
-          }
-        : undefined,
+            },
+          },
+        })),
+      },
     },
     include: {
       author: true,
@@ -53,7 +57,6 @@ export async function updateBlog(data: UpdateBlogInput): Promise<Blog> {
   });
 
   revalidatePath("/blog");
-  revalidatePath(`/blog/${data.id}`);
-  //@ts-ignore
+  // @ts-ignore
   return blog;
 }

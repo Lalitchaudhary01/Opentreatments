@@ -1,15 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 
+// ✅ make globalThis type-safe
 declare global {
   var prisma: PrismaClient | undefined;
 }
 
+// ✅ use globalThis instead of global
 const prisma =
-  global.prisma ||
+  globalThis.prisma ||
   new PrismaClient({
     log: ["error", "warn"],
   });
 
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+// ✅ only assign in dev to avoid multiple instances
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
 
-export default prisma; // ✅ now default import works
+export default prisma;

@@ -27,7 +27,6 @@ export const authOptions = {
 
         if (!user || !user.password) return null;
 
-        // Check if user is verified
         if (!user.isVerified) {
           throw new Error("Please verify your email before logging in");
         }
@@ -35,10 +34,12 @@ export const authOptions = {
         const valid = await compare(credentials.password, user.password);
         if (!valid) return null;
 
+        // ✅ Include phone here
         return {
           id: user.id,
           name: user.name,
           email: user.email,
+          phone: user.phone, // ✅ added phone
           role: user.role!,
         } as any;
       },
@@ -46,6 +47,26 @@ export const authOptions = {
   ],
   session: { strategy: "jwt" as const },
   pages: { signIn: "/auth" },
+
+  // ✅ Session callback updated to include phone
+  callbacks: {
+    async jwt({ token, user }: { token: any; user?: any }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.phone = user.phone; // ✅ add phone
+      }
+      return token;
+    },
+    async session({ session, token }: { session: any; token: any }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.phone = token.phone as string; // ✅ add phone
+      }
+      return session;
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);

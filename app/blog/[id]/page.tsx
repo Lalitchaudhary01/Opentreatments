@@ -29,7 +29,9 @@ export default async function BlogDetailsPage({ params }: BlogDetailsProps) {
       {/* Like Button */}
       <LikeButton
         blogId={blog.id}
-        initialLiked={blog.likes.some((like) => like.user.id === blog.author.id)}
+        initialLiked={blog.likes.some(
+          (like) => like.user.id === blog.author.id
+        )}
         initialCount={blog.likes.length}
       />
 

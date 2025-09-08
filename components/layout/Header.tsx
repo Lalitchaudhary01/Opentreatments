@@ -145,6 +145,15 @@ const Header = () => {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/${session.user?.id}/user`}
+                        className="w-full cursor-pointer"
+                      >
+                        My Profile
+                      </Link>
+                    </DropdownMenuItem>
+
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onClick={() => signOut({ callbackUrl: "/auth" })}
