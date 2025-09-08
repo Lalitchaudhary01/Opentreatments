@@ -72,9 +72,9 @@ export default function MyProfile() {
     <div className="min-h-[calc(100vh-4rem)] bg-white text-black dark:bg-black dark:text-white">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-gradient-to-r from-purple-400/10 to-pink-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-400/20 dark:bg-green-600/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-purple-400/10 dark:bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       {/* Header Section */}
@@ -196,8 +196,8 @@ function ProfileCard({ user }: { user: any }) {
         {/* Contact Info Display */}
         {!isEditing ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200/50 dark:border-blue-800/50 hover:shadow-lg transition-all duration-300 group/info">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg group-hover/info:scale-110 transition-transform duration-300">
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200/50 dark:border-blue-800/50 hover:shadow-lg transition-all duration-300 group/info">
+              <div className="p-2 bg-blue-500 dark:bg-blue-600 rounded-lg shadow-lg group-hover/info:scale-110 transition-transform duration-300">
                 <Mail className="h-4 w-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
@@ -210,8 +210,8 @@ function ProfileCard({ user }: { user: any }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 border border-green-200/50 dark:border-green-800/50 hover:shadow-lg transition-all duration-300 group/info">
-              <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-lg group-hover/info:scale-110 transition-transform duration-300">
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/50 border border-green-200/50 dark:border-green-800/50 hover:shadow-lg transition-all duration-300 group/info">
+              <div className="p-2 bg-green-500 dark:bg-green-600 rounded-lg shadow-lg group-hover/info:scale-110 transition-transform duration-300">
                 <Phone className="h-4 w-4 text-white" />
               </div>
               <div className="flex-1">
@@ -229,7 +229,7 @@ function ProfileCard({ user }: { user: any }) {
             <div className="flex justify-center">
               <Button
                 onClick={() => setIsEditing(true)}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
               >
                 <Edit3 className="h-4 w-4 mr-2" />
                 Edit Profile
@@ -270,7 +270,7 @@ function ProfileCard({ user }: { user: any }) {
                 type="email"
                 value={user.email}
                 readOnly
-                className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800 cursor-not-allowed opacity-70 rounded-xl px-4 py-3"
+                className="bg-gray-50 dark:bg-slate-700 cursor-not-allowed opacity-70 rounded-xl px-4 py-3"
               />
             </div>
 
@@ -296,7 +296,7 @@ function ProfileCard({ user }: { user: any }) {
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-xl py-3"
+                className="flex-1 bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-xl py-3"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -320,7 +320,7 @@ function ProfileCard({ user }: { user: any }) {
         )}
 
         {success && (
-          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-xl shadow-lg animate-in slide-in-from-top duration-500">
+          <div className="p-4 bg-green-50 dark:bg-green-950/20 border-2 border-green-200 dark:border-green-800 rounded-xl shadow-lg animate-in slide-in-from-top duration-500">
             <p className="text-green-800 dark:text-green-200 text-sm font-semibold text-center flex items-center justify-center gap-2">
               <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs">✓</span>
@@ -416,7 +416,7 @@ function UserBlogs({ userId }: { userId: string }) {
             </div>
           </div>
           <Link href="/blog/create">
-            <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border-0">
+            <Button className="bg-blue-500 hover:bg-blue-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border-0">
               <Plus className="h-4 w-4 mr-2" />
               New Blog
             </Button>
@@ -428,19 +428,19 @@ function UserBlogs({ userId }: { userId: string }) {
         {blogs.length === 0 ? (
           <div className="text-center py-16">
             <div className="relative mb-6">
-              <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-950 dark:to-purple-950 rounded-2xl mx-auto flex items-center justify-center">
-                <BookOpen className="h-10 w-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600" />
+              <div className="w-20 h-20 bg-blue-100 dark:bg-blue-950 rounded-2xl mx-auto flex items-center justify-center">
+                <BookOpen className="h-10 w-10 text-blue-500 dark:text-blue-400" />
               </div>
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-400/20 to-purple-600/20 rounded-3xl blur-xl animate-pulse"></div>
+              <div className="absolute -inset-4 bg-blue-400/20 dark:bg-blue-600/20 rounded-3xl blur-xl animate-pulse"></div>
             </div>
-            <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 mb-3">
+            <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-3">
               No blogs yet
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
               Start sharing your thoughts with the world!
             </p>
             <Link href="/blog/create">
-              <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 px-8 py-4 text-lg rounded-xl">
+              <Button className="bg-blue-500 hover:bg-blue-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 px-8 py-4 text-lg rounded-xl">
                 <Plus className="h-5 w-5 mr-2" />
                 Create Your First Blog
               </Button>
@@ -451,7 +451,7 @@ function UserBlogs({ userId }: { userId: string }) {
             {blogs.map((blog, index) => (
               <Card
                 key={blog.id}
-                className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden"
+                className="group hover:shadow-xl transition-all duration-300 border-0 bg-white dark:bg-slate-800 hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden"
               >
                 {/* Premium Hover Border */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
@@ -463,7 +463,7 @@ function UserBlogs({ userId }: { userId: string }) {
                       <div className="flex items-center gap-3 mb-3">
                         <Badge
                           variant="secondary"
-                          className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 px-3 py-1"
+                          className="text-xs bg-blue-500 text-white border-0 px-3 py-1"
                         >
                           #{index + 1}
                         </Badge>
@@ -476,7 +476,7 @@ function UserBlogs({ userId }: { userId: string }) {
                         </Badge>
                       </div>
 
-                      <h4 className="text-xl font-bold mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300 line-clamp-2">
+                      <h4 className="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-300 line-clamp-2">
                         {blog.title}
                       </h4>
 

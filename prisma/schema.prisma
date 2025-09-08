@@ -109,3 +109,72 @@ model BlogTag {
 
   @@id([blogId, tagId])
 }
+
+model Hospital {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  address     String?
+  city        String?
+  state       String?
+  country     String?
+  phone       String?
+  email       String?
+  website     String?
+  logo        String? // optional logo image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  services   Service[]
+  facilities Facility[]
+  insurances Insurance[]
+  doctors    Doctor[]
+  procedures Procedure[]
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  cost        Float?
+  description String?
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+model Facility {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+model Insurance {
+  id         String   @id @default(cuid())
+  name       String
+  provider   String?
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+model Doctor {
+  id             String   @id @default(cuid())
+  name           String
+  specialization String
+  experience     Int? // years of experience
+  profilePic     String?
+  hospitalId     String
+  hospital       Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+model Procedure {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  cost        Float?
+  duration    String? // e.g., "2 hours", "3 days"
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id])
+}
