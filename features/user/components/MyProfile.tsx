@@ -341,7 +341,7 @@ function UserBlogs({ userId }: { userId: string }) {
   useEffect(() => {
     const loadBlogs = async () => {
       try {
-        const data = await getUserBlogs(userId);
+        const data = await getUserBlogs();
         setBlogs(data);
       } catch (err) {
         console.error(err);

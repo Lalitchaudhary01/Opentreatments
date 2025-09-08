@@ -19,7 +19,6 @@ export default function CreateBlogPag() {
 
   return (
     <main className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Create Blog</h1>
       <BlogForm onSubmit={handleCreate} />
     </main>
   );

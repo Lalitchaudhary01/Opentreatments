@@ -37,17 +37,15 @@ export default function EditBlogPage({ params }: EditBlogProps) {
   if (!blog) return <p>Loading...</p>;
 
   return (
-    <main className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Blog</h1>
-      <BlogForm
-        initialData={{
-          title: blog.title,
-          content: blog.content,
-          image: blog.image,
-          tags: blog.tags.map((t: any) => t.tag.name),
-        }}
-        onSubmit={handleUpdate}
-      />
-    </main>
+    <BlogForm
+      initialData={{
+        title: blog.title,
+        content: blog.content,
+        image: blog.image,
+        tags: blog.tags.map((t: any) => t.tag.name),
+      }}
+      onSubmit={handleUpdate}
+      isEditing={true}
+    />
   );
 }
