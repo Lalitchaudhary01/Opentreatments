@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
 import Image from "next/image";
 import { getHospitalBySlug } from "@/features/Hospitals/actions/getHospitalBySlug";
 import { Hospital } from "@/features/Hospitals/types/hospital";
@@ -25,11 +24,11 @@ export default function HospitalDetailPage() {
       }
     }
 
-    fetchHospital();
+    if (slug) fetchHospital();
   }, [slug]);
 
-  if (loading) return <p className="p-6">Loading hospital details...</p>;
-  if (!hospital) return <p className="p-6 text-red-600">Hospital not found.</p>;
+  if (loading) return <p>Loading hospital details...</p>;
+  if (!hospital) return <p>Hospital not found.</p>;
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
@@ -47,22 +46,16 @@ export default function HospitalDetailPage() {
         )}
         <p>{hospital.description}</p>
         <p>
-          <strong>Address:</strong> {hospital.address}, {hospital.city},{" "}
-          {hospital.state}, {hospital.country}
+          <strong>Address:</strong> {hospital.address}, {hospital.city}, {hospital.state},{" "}
+          {hospital.country}
         </p>
         <p>
-          <strong>Phone:</strong> {hospital.phone} | <strong>Email:</strong>{" "}
-          {hospital.email}
+          <strong>Phone:</strong> {hospital.phone} | <strong>Email:</strong> {hospital.email}
         </p>
         {hospital.website && (
           <p>
             <strong>Website:</strong>{" "}
-            <a
-              href={hospital.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
+            <a href={hospital.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
               {hospital.website}
             </a>
           </p>
@@ -74,7 +67,7 @@ export default function HospitalDetailPage() {
         <section className="space-y-2 border-b pb-4">
           <h3 className="text-xl font-semibold">Facilities</h3>
           <ul className="list-disc list-inside">
-            {hospital.facilities.map((f) => (
+            {hospital.facilities.map(f => (
               <li key={f.id}>{f.name}</li>
             ))}
           </ul>
@@ -85,21 +78,11 @@ export default function HospitalDetailPage() {
       {hospital.services.length > 0 && (
         <section className="space-y-2 border-b pb-4">
           <h3 className="text-xl font-semibold">Services</h3>
-          {hospital.services.map((s) => (
+          {hospital.services.map(s => (
             <div key={s.id} className="p-2 border rounded mb-2">
-              <p>
-                <strong>Name:</strong> {s.name}
-              </p>
-              {s.cost !== null && (
-                <p>
-                  <strong>Cost:</strong> ₹{s.cost}
-                </p>
-              )}
-              {s.description && (
-                <p>
-                  <strong>Description:</strong> {s.description}
-                </p>
-              )}
+              <p><strong>Name:</strong> {s.name}</p>
+              {s.description && <p><strong>Description:</strong> {s.description}</p>}
+              {s.cost !== null && <p><strong>Cost:</strong> ₹{s.cost}</p>}
             </div>
           ))}
         </section>
@@ -110,10 +93,9 @@ export default function HospitalDetailPage() {
         <section className="space-y-2 border-b pb-4">
           <h3 className="text-xl font-semibold">Insurance</h3>
           <ul className="list-disc list-inside">
-            {hospital.insurances.map((i) => (
+            {hospital.insurances.map(i => (
               <li key={i.id}>
-                {i.name} {i.provider && `(${i.provider})`}{" "}
-                {i.cashless ? "- Cashless available" : ""}
+                {i.name} {i.provider && `(${i.provider})`} {i.cashless ? "- Cashless available" : ""}
               </li>
             ))}
           </ul>
@@ -125,10 +107,9 @@ export default function HospitalDetailPage() {
         <section className="space-y-2 border-b pb-4">
           <h3 className="text-xl font-semibold">Doctors</h3>
           <ul className="list-disc list-inside">
-            {hospital.doctors.map((d) => (
+            {hospital.doctors.map(d => (
               <li key={d.id}>
-                {d.name} - {d.specialization}{" "}
-                {d.experience !== null && `(${d.experience} yrs)`}
+                {d.name} - {d.specialization} {d.experience !== null && `(${d.experience} yrs)`}
               </li>
             ))}
           </ul>
@@ -139,26 +120,12 @@ export default function HospitalDetailPage() {
       {hospital.procedures.length > 0 && (
         <section className="space-y-2 border-b pb-4">
           <h3 className="text-xl font-semibold">Procedures</h3>
-          {hospital.procedures.map((p) => (
+          {hospital.procedures.map(p => (
             <div key={p.id} className="p-2 border rounded mb-2">
-              <p>
-                <strong>Name:</strong> {p.name}
-              </p>
-              {p.description && (
-                <p>
-                  <strong>Description:</strong> {p.description}
-                </p>
-              )}
-              {p.cost !== null && (
-                <p>
-                  <strong>Cost:</strong> ₹{p.cost}
-                </p>
-              )}
-              {p.duration && (
-                <p>
-                  <strong>Duration:</strong> {p.duration}
-                </p>
-              )}
+              <p><strong>Name:</strong> {p.name}</p>
+              {p.description && <p><strong>Description:</strong> {p.description}</p>}
+              {p.cost !== null && <p><strong>Cost:</strong> ₹{p.cost}</p>}
+              {p.duration && <p><strong>Duration:</strong> {p.duration}</p>}
             </div>
           ))}
         </section>

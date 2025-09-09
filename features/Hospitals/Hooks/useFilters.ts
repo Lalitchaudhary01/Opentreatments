@@ -1,22 +1,20 @@
 import { useState } from "react";
 
-export interface Filters {
+export type Filters = {
   city?: string;
-  services?: string[];
+  service?: string;
   minCost?: number;
   maxCost?: number;
-}
+};
 
 export function useFilters() {
   const [filters, setFilters] = useState<Filters>({});
 
-  function updateFilter(key: keyof Filters, value: any) {
+  const updateFilter = (key: keyof Filters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-  }
+  };
 
-  function resetFilters() {
-    setFilters({});
-  }
+  const resetFilters = () => setFilters({});
 
   return { filters, updateFilter, resetFilters };
 }

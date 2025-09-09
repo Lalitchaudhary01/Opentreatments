@@ -3,7 +3,10 @@
 import { useState } from "react";
 import type { AddHospitalInput } from "../types/hospital";
 
-const initialData: AddHospitalInput = {
+// ✅ Export type for form data usage in steps
+export type HospitalFormData = AddHospitalInput;
+
+const initialData: HospitalFormData = {
   name: "",
   description: "",
   address: "",
@@ -21,23 +24,28 @@ const initialData: AddHospitalInput = {
   procedures: [],
 };
 
-export function useHospitalForm() {
+export function useHospitalForm(
+  initialDataOverride?: Partial<HospitalFormData>
+) {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState<AddHospitalInput>(initialData);
+  const [formData, setFormData] = useState<HospitalFormData>({
+    ...initialData,
+    ...initialDataOverride,
+  });
 
-  function updateField<K extends keyof AddHospitalInput>(
+  function updateField<K extends keyof HospitalFormData>(
     field: K,
-    value: AddHospitalInput[K]
+    value: HospitalFormData[K]
   ) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
 
   function nextStep() {
-    setStep((s) => s + 1);
+    setStep((s) => Math.min(s + 1, 5)); // max 5 steps
   }
 
   function prevStep() {
-    setStep((s) => Math.max(0, s - 1));
+    setStep((s) => Math.max(s - 1, 0));
   }
 
   function resetForm() {

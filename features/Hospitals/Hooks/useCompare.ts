@@ -1,21 +1,21 @@
 import { useState } from "react";
+import type { Hospital } from "../types/hospital";
 
 export function useCompare() {
-  const [compareList, setCompareList] = useState<string[]>([]);
+  const [compareList, setCompareList] = useState<Hospital[]>([]);
 
-  function addToCompare(id: string) {
-    if (!compareList.includes(id)) {
-      setCompareList((prev) => [...prev, id]);
-    }
-  }
+  const addToCompare = (hospital: Hospital) => {
+    setCompareList(prev => {
+      if (prev.find(h => h.id === hospital.id)) return prev;
+      return [...prev, hospital];
+    });
+  };
 
-  function removeFromCompare(id: string) {
-    setCompareList((prev) => prev.filter((h) => h !== id));
-  }
+  const removeFromCompare = (id: string) => {
+    setCompareList(prev => prev.filter(h => h.id !== id));
+  };
 
-  function resetCompare() {
-    setCompareList([]);
-  }
+  const clearCompare = () => setCompareList([]);
 
-  return { compareList, addToCompare, removeFromCompare, resetCompare };
+  return { compareList, addToCompare, removeFromCompare, clearCompare };
 }

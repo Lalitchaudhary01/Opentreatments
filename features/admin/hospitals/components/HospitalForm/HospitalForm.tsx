@@ -7,6 +7,7 @@ import StepFacilities from "./StepFacilities";
 import StepServices from "./StepServices";
 import StepInsurance from "./StepInsurance";
 import StepDoctors from "./StepDoctors";
+import StepProcedures from "./StepProcedures";
 import { addHospital } from "../../actions/addHospital";
 
 export default function HospitalForm() {
@@ -15,7 +16,17 @@ export default function HospitalForm() {
 
   async function handleSubmit() {
     try {
-      await addHospital(formData);
+      const payload = {
+        ...formData,
+        procedures: formData.procedures?.map((p) => ({
+          name: p.name,
+          description: p.description || null, // empty string → null
+          cost: p.cost === "" || p.cost === undefined ? null : Number(p.cost), // string → number/null
+          duration: p.duration || null,
+        })),
+      };
+
+      await addHospital(payload);
       alert("✅ Hospital added successfully!");
       resetForm();
     } catch (err) {
@@ -41,6 +52,9 @@ export default function HospitalForm() {
       {step === 4 && (
         <StepDoctors formData={formData} updateField={updateField} />
       )}
+      {step === 5 && (
+        <StepProcedures formData={formData} updateField={updateField} />
+      )}
 
       <div className="flex justify-between mt-6">
         {step > 0 && (
@@ -48,8 +62,8 @@ export default function HospitalForm() {
             Back
           </Button>
         )}
-        {step < 4 && <Button onClick={nextStep}>Next</Button>}
-        {step === 4 && (
+        {step < 5 && <Button onClick={nextStep}>Next</Button>}
+        {step === 5 && (
           <Button onClick={handleSubmit} className="bg-blue-600 text-white">
             Submit
           </Button>
