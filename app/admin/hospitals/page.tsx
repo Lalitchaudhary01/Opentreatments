@@ -1,6 +1,5 @@
 import HospitalTable from "@/features/admin/hospitals/components/HospitalForm/HopitalTable";
 
-
 export default function AdminHospitalsPage() {
   return (
     <div className="p-6">

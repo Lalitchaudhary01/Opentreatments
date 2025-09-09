@@ -41,7 +41,7 @@ export default function HospitalTable() {
             <tr key={h.id} className="border-t hover:bg-gray-50 cursor-pointer">
               <td className="p-2">
                 <Link
-                  href={`/admin/hospitals/${h.id}`}
+                  href={`/admin/hospitals/${h.id}/edit`}
                   className="text-blue-600"
                 >
                   {h.name}

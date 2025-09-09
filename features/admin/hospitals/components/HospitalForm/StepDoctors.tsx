@@ -27,13 +27,23 @@ export default function StepDoctors({ formData, updateField }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Doctor name" />
-        <Input value={specialization} onChange={(e) => setSpecialization(e.target.value)} placeholder="Specialization" />
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Doctor name"
+        />
+        <Input
+          value={specialization}
+          onChange={(e) => setSpecialization(e.target.value)}
+          placeholder="Specialization"
+        />
         <Button onClick={addDoctor}>Add</Button>
       </div>
       <ul className="list-disc pl-6">
         {formData.doctors?.map((d, idx) => (
-          <li key={idx}>{d.name} – {d.specialization}</li>
+          <li key={idx}>
+            {d.name} – {d.specialization}
+          </li>
         ))}
       </ul>
     </div>
