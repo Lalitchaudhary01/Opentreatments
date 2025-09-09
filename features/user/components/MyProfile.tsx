@@ -71,11 +71,6 @@ export default function MyProfile() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-white text-black dark:bg-black dark:text-white">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-400/20 dark:bg-green-600/20 rounded-full blur-3xl animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-purple-400/10 dark:bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
 
       {/* Header Section */}
       <Header />
@@ -128,123 +123,90 @@ function ProfileCard({ user }: { user: any }) {
   const initials = name.charAt(0).toUpperCase() || "U";
 
   return (
-    <Card className="overflow-hidden border-0 shadow-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl relative group hover:shadow-3xl transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1">
-      {/* Premium Border Animation */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg blur-sm"></div>
-      <div className="absolute inset-[2px] bg-white dark:bg-slate-800 rounded-lg"></div>
-
-      {/* Profile Header */}
-      <div className="relative bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 p-8 text-white overflow-hidden">
-        {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-white/10 rounded-full translate-x-12 translate-y-12 animate-pulse delay-500"></div>
-          <div className="absolute top-1/2 right-0 w-16 h-16 bg-white/10 rounded-full translate-x-8 animate-pulse delay-1000"></div>
-        </div>
-
-        <div className="absolute top-4 right-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsEditing(!isEditing)}
-            className="text-white hover:bg-white/20 h-8 w-8 p-0 transition-all duration-300 hover:scale-110 hover:rotate-90"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="flex flex-col items-center text-center relative z-10">
-          <div className="relative group/avatar">
-            {/* Premium Ring Animation */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 p-1 animate-spin-slow">
-              <div className="w-full h-full bg-emerald-500 rounded-full"></div>
-            </div>
-
-            <Avatar className="h-24 w-24 border-4 border-white/50 shadow-2xl relative z-10 group-hover/avatar:scale-110 transition-transform duration-500">
-              <AvatarImage
-                src={user.image}
-                alt={name}
-                className="object-cover"
-              />
-              <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-
-            {/* Premium Crown */}
-            <div className="absolute -top-2 -right-2 h-8 w-8 bg-gradient-to-r from-yellow-400 to-orange-500 border-2 border-white rounded-full flex items-center justify-center shadow-lg animate-bounce">
-              <Crown className="h-4 w-4 text-white" />
-            </div>
-
-            {/* Online Status */}
-            <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
+    <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-slate-800 relative">
+      <CardContent className="p-6">
+        {/* Header Section */}
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+              Profile
+            </h2>
+            <p className="text-sm text-blue-500 font-medium">Premium User</p>
           </div>
-
-          <h2 className="text-2xl font-bold mt-4 mb-1 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
-            {name}
-          </h2>
-          <div className="flex items-center gap-2">
-            <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30 transition-colors">
-              <Star className="h-3 w-3 mr-1" />
-              Premium User
-            </Badge>
-          </div>
+          {!isEditing && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="text-blue-500 border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950"
+            >
+              Edit Profile
+            </Button>
+          )}
         </div>
-      </div>
 
-      <CardContent className="p-6 space-y-6 relative z-10">
-        {/* Contact Info Display */}
         {!isEditing ? (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200/50 dark:border-blue-800/50 hover:shadow-lg transition-all duration-300 group/info">
-              <div className="p-2 bg-blue-500 dark:bg-blue-600 rounded-lg shadow-lg group-hover/info:scale-110 transition-transform duration-300">
-                <Mail className="h-4 w-4 text-white" />
+          <>
+            {/* Profile Info Display */}
+            <div className="flex items-start gap-6 mb-8">
+              {/* Avatar Section */}
+              <div className="flex-shrink-0">
+                <Avatar className="h-24 w-24 border-4 border-gray-200 dark:border-gray-700">
+                  <AvatarImage
+                    src={user.image}
+                    alt={name}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-2xl font-bold  text-white">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
               </div>
+
+              {/* User Details */}
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-blue-600 dark:text-blue-400 uppercase tracking-wide font-semibold">
-                  Email Address
-                </p>
-                <p className="text-sm font-medium truncate text-gray-800 dark:text-gray-200">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                  {name}
+                </h3>
+                <p className="text-sm text-blue-500 mb-4">Premium User</p>
+              </div>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="space-y-6">
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                Contact Information
+              </h4>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Email
+                </Label>
+                <p className="text-sm text-gray-800 dark:text-white font-medium">
                   {user.email}
                 </p>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/50 border border-green-200/50 dark:border-green-800/50 hover:shadow-lg transition-all duration-300 group/info">
-              <div className="p-2 bg-green-500 dark:bg-green-600 rounded-lg shadow-lg group-hover/info:scale-110 transition-transform duration-300">
-                <Phone className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs text-green-600 dark:text-green-400 uppercase tracking-wide font-semibold">
-                  Phone Number
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+              {/* Phone */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Phone
+                </Label>
+                <p className="text-sm text-gray-800 dark:text-white font-medium">
                   {phone || "Not provided"}
                 </p>
               </div>
             </div>
-
-            <Separator className="my-6" />
-
-            <div className="flex justify-center">
-              <Button
-                onClick={() => setIsEditing(true)}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1"
-              >
-                <Edit3 className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            </div>
-          </div>
+          </>
         ) : (
           /* Edit Form */
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-3">
               <Label
                 htmlFor="name"
-                className="text-sm font-semibold flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <User className="h-4 w-4 text-blue-500" />
                 Full Name
               </Label>
               <Input
@@ -253,16 +215,15 @@ function ProfileCard({ user }: { user: any }) {
                 placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 rounded-xl px-4 py-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+                className="border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
               />
             </div>
 
             <div className="space-y-3">
               <Label
                 htmlFor="email"
-                className="text-sm font-semibold flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <Mail className="h-4 w-4 text-green-500" />
                 Email Address
               </Label>
               <Input
@@ -270,16 +231,15 @@ function ProfileCard({ user }: { user: any }) {
                 type="email"
                 value={user.email}
                 readOnly
-                className="bg-gray-50 dark:bg-slate-700 cursor-not-allowed opacity-70 rounded-xl px-4 py-3"
+                className="bg-gray-100 dark:bg-slate-700 cursor-not-allowed opacity-70"
               />
             </div>
 
             <div className="space-y-3">
               <Label
                 htmlFor="phone"
-                className="text-sm font-semibold flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                <Phone className="h-4 w-4 text-purple-500" />
                 Phone Number
               </Label>
               <Input
@@ -288,7 +248,7 @@ function ProfileCard({ user }: { user: any }) {
                 placeholder="Enter phone number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="border-2 border-gray-200 dark:border-gray-700 focus:border-purple-500 dark:focus:border-purple-400 transition-all duration-300 rounded-xl px-4 py-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+                className="border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
               />
             </div>
 
@@ -296,7 +256,7 @@ function ProfileCard({ user }: { user: any }) {
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-xl py-3"
+                className="flex-1 bg-blue-500 hover:bg-blue-600"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -311,7 +271,7 @@ function ProfileCard({ user }: { user: any }) {
                 type="button"
                 variant="outline"
                 onClick={() => setIsEditing(false)}
-                className="px-8 rounded-xl border-2 hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-300"
+                className="px-6"
               >
                 Cancel
               </Button>
@@ -320,11 +280,8 @@ function ProfileCard({ user }: { user: any }) {
         )}
 
         {success && (
-          <div className="p-4 bg-green-50 dark:bg-green-950/20 border-2 border-green-200 dark:border-green-800 rounded-xl shadow-lg animate-in slide-in-from-top duration-500">
-            <p className="text-green-800 dark:text-green-200 text-sm font-semibold text-center flex items-center justify-center gap-2">
-              <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">✓</span>
-              </div>
+          <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+            <p className="text-green-800 dark:text-green-200 text-sm font-medium text-center">
               Profile updated successfully!
             </p>
           </div>
@@ -364,14 +321,11 @@ function UserBlogs({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <Card className="border-0 shadow-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl overflow-hidden">
+      <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-slate-800">
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
-            <div className="relative">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <div className="absolute inset-0 w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin animate-reverse-spin"></div>
-            </div>
-            <p className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-semibold ml-3">
+            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-3"></div>
+            <p className="text-gray-600 dark:text-gray-400">
               Loading your blogs...
             </p>
           </div>
@@ -381,138 +335,103 @@ function UserBlogs({ userId }: { userId: string }) {
   }
 
   return (
-    <Card className="border-0 shadow-2xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl overflow-hidden relative group hover:shadow-3xl transition-all duration-500">
-      {/* Premium Border Animation */}
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg blur-sm"></div>
-      <div className="absolute inset-[2px] bg-white dark:bg-slate-800 rounded-lg"></div>
-
-      {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white p-8 relative z-10 overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full translate-x-20 -translate-y-20 animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-16 translate-y-16 animate-pulse delay-700"></div>
-        </div>
-
-        <div className="flex justify-between items-center relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30">
-              <BookOpen className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
-                My Blogs
-              </h3>
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-white/90 text-sm">
-                  {blogs.length} {blogs.length === 1 ? "article" : "articles"}{" "}
-                  published
-                </p>
-                <Badge className="bg-white/20 text-white border-white/30 text-xs">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  Active
-                </Badge>
-              </div>
-            </div>
+    <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-slate-800">
+      <CardContent className="p-6">
+        {/* Header Section */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+              My Blogs
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {blogs.length} {blogs.length === 1 ? "article" : "articles"}{" "}
+              published
+            </p>
           </div>
           <Link href="/blog/create">
-            <Button className="bg-blue-500 hover:bg-blue-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border-0">
+            <Button className="bg-[#10B981] hover:bg-[#1a8c66] text-white">
               <Plus className="h-4 w-4 mr-2" />
               New Blog
             </Button>
           </Link>
         </div>
-      </div>
 
-      <CardContent className="p-8 relative z-10">
+        <Separator className="mb-6" />
+
         {blogs.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="relative mb-6">
-              <div className="w-20 h-20 bg-blue-100 dark:bg-blue-950 rounded-2xl mx-auto flex items-center justify-center">
-                <BookOpen className="h-10 w-10 text-blue-500 dark:text-blue-400" />
-              </div>
-              <div className="absolute -inset-4 bg-blue-400/20 dark:bg-blue-600/20 rounded-3xl blur-xl animate-pulse"></div>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <BookOpen className="h-8 w-8 text-gray-400 dark:text-gray-500" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-3">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
               No blogs yet
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Start sharing your thoughts with the world!
             </p>
             <Link href="/blog/create">
-              <Button className="bg-blue-500 hover:bg-blue-600 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 px-8 py-4 text-lg rounded-xl">
-                <Plus className="h-5 w-5 mr-2" />
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
                 Create Your First Blog
               </Button>
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {blogs.map((blog, index) => (
               <Card
                 key={blog.id}
-                className="group hover:shadow-xl transition-all duration-300 border-0 bg-white dark:bg-slate-800 hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden"
+                className="border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
               >
-                {/* Premium Hover Border */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-                <div className="absolute inset-[1px] bg-white dark:bg-slate-800 rounded-lg"></div>
-
-                <CardContent className="p-6 relative z-10">
-                  <div className="flex justify-between items-start gap-6">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Badge
-                          variant="secondary"
-                          className="text-xs bg-blue-500 text-white border-0 px-3 py-1"
-                        >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs">
                           #{index + 1}
                         </Badge>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                          <Calendar className="h-3 w-3" />
-                          <span>Today</span>
-                        </div>
-                        <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           Published
-                        </Badge>
+                        </span>
                       </div>
 
-                      <h4 className="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-300 line-clamp-2">
+                      <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 line-clamp-1">
                         {blog.title}
                       </h4>
 
-                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 leading-relaxed mb-4">
+                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3">
                         {blog.content}
                       </p>
 
-                      <div className="flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded-full">
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1">
                           <Eye className="h-3 w-3" />
                           <span>0 views</span>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-950 rounded-full text-blue-600 dark:text-blue-400">
-                          <Star className="h-3 w-3" />
-                          <span>Premium</span>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>Today</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                    <div className="flex gap-2">
                       <Link href={`/blog/edit/${blog.id}`}>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-10 w-10 p-0 rounded-xl border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-all duration-300 hover:scale-110"
+                          className="h-8 w-8 p-0"
                         >
-                          <Edit3 className="h-4 w-4 text-blue-600" />
+                          <Edit3 className="h-3 w-3" />
                         </Button>
                       </Link>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(blog.id)}
-                        className="h-10 w-10 p-0 rounded-xl border-2 border-red-200 hover:border-red-400 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 transition-all duration-300 hover:scale-110"
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>

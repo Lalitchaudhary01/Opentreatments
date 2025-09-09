@@ -112,6 +112,7 @@ export default function Home() {
       <HowWork />
 
       {/* Trust & Safety */}
+      
 
       {/* Latest Insights */}
       <section id="insights" className="py-20 px-4">
@@ -187,7 +188,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <Footer />
+      <Footer/>
     </div>
   );
 }

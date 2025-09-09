@@ -1,41 +1,16 @@
 "use server";
-
 import prisma from "@/lib/prisma";
+import type { Hospital } from "../types/hospital";
 
-interface GetHospitalsParams {
-  search?: string;
-  city?: string;
-  specialization?: string;
-}
-
-export async function getHospitals(params: GetHospitalsParams = {}) {
-  const { search, city, specialization } = params;
-
-  return prisma.hospital.findMany({
-    where: {
-      AND: [
-        search
-          ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" } },
-                { city: { contains: search, mode: "insensitive" } },
-              ],
-            }
-          : {},
-        city ? { city: { equals: city, mode: "insensitive" } } : {},
-        specialization
-          ? {
-              specializations: {
-                some: { name: { equals: specialization, mode: "insensitive" } },
-              },
-            }
-          : {},
-      ],
-    },
-    include: {
-      //@ts-ignore
-      specializations: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+export async function getHospitals(): Promise<Hospital[]> {
+  try {
+    const hospitals = await prisma.hospital.findMany({
+      include: { facilities: true, services: true },
+    });
+    //@ts-ignore
+    return hospitals as Hospital[];
+  } catch (error) {
+    console.error("❌ getHospitals error:", error);
+    return [];
+  }
 }

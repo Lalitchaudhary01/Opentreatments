@@ -1,40 +1,27 @@
 "use client";
+import Link from "next/link";
+import type { Hospital } from "../types/hospital";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
-interface HospitalCardProps {
-  hospital: {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    specializations: { id: string; name: string }[];
-  };
+interface Props {
+  hospital: Hospital;
 }
 
-export default function HospitalCard({ hospital }: HospitalCardProps) {
+export default function HospitalCard({ hospital }: Props) {
   return (
-    <Card className="hover:shadow-lg transition cursor-pointer">
-      <CardHeader>
-        <CardTitle>{hospital.name}</CardTitle>
-        <p className="text-sm text-gray-600">
-          {hospital.city}, {hospital.state}
-        </p>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-700">{hospital.address}</p>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {hospital.specializations.map((spec) => (
-            <span
-              key={spec.id}
-              className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
-            >
-              {spec.name}
-            </span>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="border p-4 rounded shadow hover:shadow-lg transition">
+      <Link
+        href={`/Hospitals/${hospital.slug}`}
+        className="text-xl font-bold text-blue-600"
+      >
+        {hospital.name}
+      </Link>
+      <p>
+        {hospital.city}, {hospital.state}
+      </p>
+      <p>{hospital.phone}</p>
+      <p className="text-sm text-gray-600">
+        {hospital.description?.slice(0, 100)}...
+      </p>
+    </div>
   );
 }
