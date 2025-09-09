@@ -55,7 +55,7 @@ const Header = () => {
 
   // Navigation items
   const navItems = [
-    { name: "Hospitals", href: "/hospitals" },
+    { name: "Hospitals", href: "/Hospitals" },
     { name: "Medicines", href: "/medicines" },
     { name: "Insurance", href: "/insurance" },
     { name: "Consultations", href: "/consultations" },
