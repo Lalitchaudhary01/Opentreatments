@@ -17,7 +17,7 @@ model User {
   email      String    @unique
   name       String?
   phone      String?   @unique
-  password   String? // null if Google OAuth
+  password   String?
   isVerified Boolean   @default(false)
   otp        String?
   otpExpiry  DateTime?
@@ -30,8 +30,13 @@ model User {
   blogs    Blog[]
   comments Comment[]
   likes    Like[]
+  policies Policy[] // ✅ relation: user policies
 }
 
+//
+// ---------------------------
+// Authentication
+// ---------------------------
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -58,6 +63,10 @@ model Session {
   user         User     @relation(fields: [userId], references: [id])
 }
 
+//
+// ---------------------------
+// Blogs
+// ---------------------------
 model Blog {
   id        String    @id @default(cuid())
   title     String
@@ -110,8 +119,9 @@ model BlogTag {
 }
 
 //
-// ✅ Hospital + Relations
-//
+// ---------------------------
+// Hospital + Related Models
+// ---------------------------
 model Hospital {
   id                 String   @id @default(cuid())
   name               String
@@ -141,6 +151,7 @@ model Hospital {
   insurances Insurance[]
   doctors    Doctor[]
   procedures Procedure[]
+  estimates  Estimate[] // ✅ link to estimates
 }
 
 model Service {
@@ -187,14 +198,59 @@ model Procedure {
   duration    String?
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  estimates Estimate[]
 }
 
+//
+// ---------------------------
+// ✅ Insurance Policies
+// ---------------------------
+model Policy {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  provider     String?
+  policyNumber String?
+  sumInsured   Float
+  deductible   Float    @default(0)
+  coPay        Float    @default(0) // % value
+  startDate    DateTime
+  endDate      DateTime
+  cashless     Boolean  @default(false)
+  pdfUrl       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-// Prisma schema for Medicines + Pharmacies + Price trends + Substitutes
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  estimates Estimate[]
+}
 
+//
+// ---------------------------
+// ✅ Insurance Estimates
+// ---------------------------
+model Estimate {
+  id            String   @id @default(cuid())
+  policyId      String
+  hospitalId    String
+  procedureId   String
+  procedureCost Float
+  coveredAmount Float
+  outOfPocket   Float
+  createdAt     DateTime @default(now())
 
+  policy    Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  hospital  Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  procedure Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+}
+
+//
+// ---------------------------
+// Pharmacy + Medicines
+// ---------------------------
 model Pharmacy {
-  id        String     @id @default(cuid())
+  id        String  @id @default(cuid())
   name      String
   address   String?
   city      String?
@@ -203,32 +259,32 @@ model Pharmacy {
   latitude  Float?
   longitude Float?
 
-  medicines Medicine[]  // One-to-many relation
+  medicines Medicine[]
 }
 
 model Medicine {
-  id          String       @id @default(cuid())
-  name        String
-  genericName String?
-  form        String?
-  strength    String?
-  packSize    String?
-  price       Float
-  availability Boolean     @default(true)
-  slug        String?      @unique
-  description String?
-  rxRequired  Boolean?     @default(false)
+  id               String   @id @default(cuid())
+  name             String
+  genericName      String?
+  form             String?
+  strength         String?
+  packSize         String?
+  price            Float
+  availability     Boolean  @default(true)
+  slug             String?  @unique
+  description      String?
+  rxRequired       Boolean? @default(false)
   therapeuticClass String?
 
-  pharmacyId  String
-  pharmacy    Pharmacy     @relation(fields: [pharmacyId], references: [id])
+  pharmacyId String
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id])
 
-  priceTrends PriceTrend[]
-  substitutes Substitute[] @relation("OriginalMedicine")
+  priceTrends   PriceTrend[]
+  substitutes   Substitute[] @relation("OriginalMedicine")
   substitutedBy Substitute[] @relation("SubstituteMedicine")
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PriceTrend {
@@ -240,10 +296,10 @@ model PriceTrend {
 }
 
 model Substitute {
-  id                  String   @id @default(cuid())
-  medicineId          String
+  id                   String @id @default(cuid())
+  medicineId           String
   substituteMedicineId String
 
-  medicine            Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
-  substitute          Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
+  medicine   Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
+  substitute Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
 }
