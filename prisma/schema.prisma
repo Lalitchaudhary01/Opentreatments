@@ -188,3 +188,62 @@ model Procedure {
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 }
+
+
+// Prisma schema for Medicines + Pharmacies + Price trends + Substitutes
+
+
+model Pharmacy {
+  id        String     @id @default(cuid())
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  phone     String?
+  latitude  Float?
+  longitude Float?
+
+  medicines Medicine[]  // One-to-many relation
+}
+
+model Medicine {
+  id          String       @id @default(cuid())
+  name        String
+  genericName String?
+  form        String?
+  strength    String?
+  packSize    String?
+  price       Float
+  availability Boolean     @default(true)
+  slug        String?      @unique
+  description String?
+  rxRequired  Boolean?     @default(false)
+  therapeuticClass String?
+
+  pharmacyId  String
+  pharmacy    Pharmacy     @relation(fields: [pharmacyId], references: [id])
+
+  priceTrends PriceTrend[]
+  substitutes Substitute[] @relation("OriginalMedicine")
+  substitutedBy Substitute[] @relation("SubstituteMedicine")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PriceTrend {
+  id         String   @id @default(cuid())
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  price      Float
+  date       DateTime @default(now())
+}
+
+model Substitute {
+  id                  String   @id @default(cuid())
+  medicineId          String
+  substituteMedicineId String
+
+  medicine            Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
+  substitute          Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
+}
