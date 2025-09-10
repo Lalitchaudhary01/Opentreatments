@@ -8,7 +8,6 @@ export async function addHospital(data: AddHospitalInput): Promise<Hospital> {
   if (!data?.name) throw new Error("Hospital name is required");
 
   try {
-    // create safe/unique slug
     const baseSlug = slugify(data.name);
     let slug = baseSlug;
     const existing = await prisma.hospital.findUnique({ where: { slug } });
@@ -29,8 +28,15 @@ export async function addHospital(data: AddHospitalInput): Promise<Hospital> {
         email: data.email ?? null,
         website: data.website ?? null,
         logo: data.logo ?? null,
+        image: data.image ?? null,
+        verified: data.verified ?? false,
+        emergencyAvailable: data.emergencyAvailable ?? false,
+        bedCount: data.bedCount ?? null,
+        availableBeds: data.availableBeds ?? null,
+        rating: data.rating ?? null,
+        totalReviews: data.totalReviews ?? null,
+        type: data.type ?? null,
 
-        // nested relations
         facilities: {
           create:
             data.facilities?.map((f) => ({
@@ -51,6 +57,7 @@ export async function addHospital(data: AddHospitalInput): Promise<Hospital> {
             data.insurances?.map((i) => ({
               name: i.name,
               provider: i.provider ?? null,
+              cashless: i.cashless ?? false,
             })) ?? [],
         },
         doctors: {

@@ -381,11 +381,7 @@ export default function HospitalTable() {
                             <DropdownMenuContent align="end" className="w-48">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem asChild>
-                                <Link
-                                  href={`/admin/hospitals/${
-                                    hospital.slug || hospital.id
-                                  }`}
-                                >
+                                <Link href={`/Hospitals/${hospital.slug}`}>
                                   <Eye className="h-4 w-4 mr-2" />
                                   View Details
                                 </Link>
