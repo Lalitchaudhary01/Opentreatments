@@ -1,63 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMedicineSearch } from "../hooks/useMedicineSearch";
 import { Input } from "@/components/ui/input";
-import { MedicineSummary } from "../types/medicine";
-import { cn } from "@/lib/utils";
-import { getMedicines } from "../actions/getMedicnes";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 
-interface MedicineSearchProps {
-  onSelect: (medicine: MedicineSummary) => void;
-}
-
-export function MedicineSearch({ onSelect }: MedicineSearchProps) {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<MedicineSummary[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  // debounce search
-  useEffect(() => {
-    if (!query) {
-      setResults([]);
-      return;
-    }
-
-    const handler = setTimeout(async () => {
-      setLoading(true);
-      const meds = await getMedicines({ query, perPage: 5 });
-      setResults(meds);
-      setLoading(false);
-    }, 400);
-
-    return () => clearTimeout(handler);
-  }, [query]);
+export default function MedicineSearch() {
+  const { query, results, loading, setQuery } = useMedicineSearch();
 
   return (
-    <div className="relative w-full max-w-lg">
-      <Input
-        placeholder="Search medicines..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full"
-      />
-      {loading && <div className="absolute right-3 top-2 text-sm">⏳</div>}
+    <div className="w-full max-w-md mx-auto space-y-4">
+      <div className="relative">
+        <Input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for medicines..."
+          className="pr-10"
+        />
+        {loading && (
+          <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+        )}
+      </div>
+
       {results.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
-          {results.map((med) => (
-            <div
-              key={med.id}
-              onClick={() => onSelect(med)}
-              className={cn(
-                "cursor-pointer px-3 py-2 hover:bg-gray-100 text-sm"
-              )}
-            >
-              {med.name}{" "}
-              <span className="text-gray-500">
-                ({med.genericName ?? "Generic"})
-              </span>
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {results.map((med) => (
+                <div
+                  key={med.id}
+                  className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{med.name}</span>
+                    <Badge variant="secondary" className="text-green-600">
+                      ₹{med.price}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

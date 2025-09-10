@@ -1,17 +1,16 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 
 interface PriceTagProps {
   price: number;
-  highlight?: boolean;
 }
 
-export function PriceTag({ price, highlight }: PriceTagProps) {
+export default function PriceTag({ price }: PriceTagProps) {
   return (
-    <span className="flex items-center gap-2">
-      ₹{price.toFixed(2)}
-      {highlight && <Badge className="bg-green-500">Best price</Badge>}
-    </span>
+    <div className="flex items-center justify-end gap-2">
+      <span className="text-green-600 font-semibold">₹{price}</span>
+      <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+        Best Price
+      </Badge>
+    </div>
   );
 }

@@ -1,25 +1,25 @@
-"use client";
-
-import { useState, useCallback } from "react";
-import { CompareItem } from "../types/medicine";
+import { useState } from "react";
+import { MedicineDetail } from "../types";
 
 export function useCompare() {
-  const [compareList, setCompareList] = useState<CompareItem[]>([]);
+  const [items, setItems] = useState<MedicineDetail[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const addToCompare = useCallback((item: CompareItem) => {
-    setCompareList((prev) => {
-      if (prev.find((x) => x.id === item.id)) return prev; // avoid duplicates
-      return [...prev, item];
-    });
-  }, []);
+  function addItem(medicine: MedicineDetail) {
+    if (!items.find((m) => m.id === medicine.id)) {
+      setItems([...items, medicine]);
+    }
+    setIsOpen(true);
+  }
 
-  const removeFromCompare = useCallback((id: string) => {
-    setCompareList((prev) => prev.filter((x) => x.id !== id));
-  }, []);
+  function removeItem(id: string) {
+    setItems(items.filter((m) => m.id !== id));
+  }
 
-  const clearCompare = useCallback(() => {
-    setCompareList([]);
-  }, []);
+  function clear() {
+    setItems([]);
+    setIsOpen(false);
+  }
 
-  return { compareList, addToCompare, removeFromCompare, clearCompare };
+  return { items, isOpen, addItem, removeItem, clear };
 }

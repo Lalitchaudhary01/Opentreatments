@@ -1,72 +1,47 @@
-"use server";
+// Dummy search + filter
 
-import prisma from "@/lib/prisma";
-import { GetMedicinesParams, MedicineSummary } from "../types/medicine";
+import { MedicineSearchResult } from "../types/medicine";
 
-export async function getMedicines(
-  params: GetMedicinesParams = {}
-): Promise<MedicineSummary[]> {
-  const {
-    query,
-    city,
-    pharmacyId,
-    inStockOnly,
-    minPrice,
-    maxPrice,
-    form,
-    sort = "relevance",
-    page = 1,
-    perPage = 20,
-  } = params;
+const dummyMedicines: MedicineSearchResult[] = [
+  {
+    id: "1",
+    name: "Paracetamol",
+    genericName: "Acetaminophen",
+    form: "Tablet",
+    strength: "500mg",
+    packSize: "10 tablets",
+    price: 25,
+    availability: true,
+    slug: "paracetamol-500",
+    description: "Used for pain relief and fever.",
+    rxRequired: false,
+    therapeuticClass: "Analgesic",
+    pharmacyId: "ph1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "2",
+    name: "Amoxicillin",
+    genericName: "Amoxicillin",
+    form: "Capsule",
+    strength: "250mg",
+    packSize: "6 capsules",
+    price: 50,
+    availability: true,
+    slug: "amoxicillin-250",
+    description: "Antibiotic medicine.",
+    rxRequired: true,
+    therapeuticClass: "Antibiotic",
+    pharmacyId: "ph2",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
 
-  const where: any = {
-    AND: [
-      query
-        ? {
-            OR: [
-              { name: { contains: query, mode: "insensitive" } },
-              { genericName: { contains: query, mode: "insensitive" } },
-            ],
-          }
-        : {},
-      city ? { pharmacy: { city: { equals: city } } } : {},
-      pharmacyId ? { pharmacyId } : {},
-      inStockOnly ? { availability: true } : {},
-      minPrice ? { price: { gte: minPrice } } : {},
-      maxPrice ? { price: { lte: maxPrice } } : {},
-      form ? { form: { equals: form } } : {},
-    ],
-  };
-
-  const orderBy =
-    sort === "price_asc"
-      ? { price: "asc" }
-      : sort === "price_desc"
-      ? { price: "desc" }
-      : { createdAt: "desc" };
-
-  const medicines = await prisma.medicine.findMany({
-    where,
-    include: {
-      pharmacy: true,
-      priceTrends: { orderBy: { date: "desc" }, take: 1 },
-    },
-    orderBy,
-    skip: (page - 1) * perPage,
-    take: perPage,
-  });
-
-  return medicines.map((m) => ({
-    id: m.id,
-    name: m.name,
-    genericName: m.genericName,
-    form: m.form,
-    strength: m.strength,
-    packSize: m.packSize,
-    price: m.price,
-    pharmacy: m.pharmacy,
-    availability: m.availability,
-    slug: m.slug,
-    latestPricePoint: m.priceTrends[0] ?? null,
-  }));
+export async function getMedicines(query?: string): Promise<MedicineSearchResult[]> {
+  if (!query) return dummyMedicines;
+  return dummyMedicines.filter((m) =>
+    m.name.toLowerCase().includes(query.toLowerCase())
+  );
 }

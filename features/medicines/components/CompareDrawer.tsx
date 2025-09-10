@@ -1,55 +1,33 @@
-"use client";
+import { useCompare } from "../hooks/useCompare";
 
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { CompareItem } from "../types/medicine";
+export default function CompareDrawer() {
+  const { items, removeItem, clear } = useCompare();
 
-interface CompareDrawerProps {
-  items: CompareItem[];
-  open: boolean;
-  onClose: () => void;
-}
-
-export function CompareDrawer({ items, open, onClose }: CompareDrawerProps) {
-  if (!open) return null;
+  if (items.length === 0) return null;
 
   return (
-    <Drawer open={open} onOpenChange={onClose}>
-      <DrawerContent className="p-4">
-        <DrawerHeader>
-          <DrawerTitle>Compare Medicines</DrawerTitle>
-        </DrawerHeader>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-2 py-1">Name</th>
-                <th className="px-2 py-1">Form</th>
-                <th className="px-2 py-1">Strength</th>
-                <th className="px-2 py-1">Pack Size</th>
-                <th className="px-2 py-1">Price</th>
-                <th className="px-2 py-1">Pharmacy</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id} className="border-t">
-                  <td className="px-2 py-1">{item.name}</td>
-                  <td className="px-2 py-1">{item.form}</td>
-                  <td className="px-2 py-1">{item.strength}</td>
-                  <td className="px-2 py-1">{item.packSize}</td>
-                  <td className="px-2 py-1">₹{item.price}</td>
-                  <td className="px-2 py-1">{item.pharmacyName}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </DrawerContent>
-    </Drawer>
+    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Compare List</h2>
+        <button onClick={clear} className="text-sm text-red-500">
+          Clear All
+        </button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {items.map((med) => (
+          <div key={med.id} className="border rounded p-2">
+            <p className="font-semibold">{med.name}</p>
+            <p className="text-sm">{med.strength}</p>
+            <p className="text-sm">₹{med.price}</p>
+            <button
+              onClick={() => removeItem(med.id)}
+              className="mt-1 text-xs text-red-500"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

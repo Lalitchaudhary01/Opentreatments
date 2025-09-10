@@ -1,92 +1,91 @@
 "use client";
 
+import { useDrawer } from "../hooks/useDrawer";
+import { getSubstitutes } from "../actions/getSubstitutes";
 import { useEffect, useState } from "react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { MedicineDetail } from "../types/medicine";
-import { Button } from "@/components/ui/button";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { getMedicineBySlug } from "../actions/getMedicinesBySlug";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface DetailDrawerProps {
-  slug: string | null;
-  open: boolean;
-  onClose: () => void;
-}
-
-export function DetailDrawer({ slug, open, onClose }: DetailDrawerProps) {
-  const [medicine, setMedicine] = useState<MedicineDetail | null>(null);
+export default function DetailDrawer({ medicineId }: { medicineId: string }) {
+  const { isOpen, closeDrawer } = useDrawer();
+  const [subs, setSubs] = useState<MedicineDetail[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (slug) {
-      getMedicineBySlug(slug).then(setMedicine);
+    if (isOpen) {
+      setLoading(true);
+      getSubstitutes(medicineId)
+        .then(setSubs)
+        .finally(() => setLoading(false));
     }
-  }, [slug]);
-
-  if (!medicine) return null;
+  }, [isOpen, medicineId]);
 
   return (
-    <Drawer open={open} onOpenChange={onClose}>
-      <DrawerContent className="p-4 space-y-4">
-        <DrawerHeader>
-          <DrawerTitle>{medicine.name}</DrawerTitle>
-          <p className="text-sm text-gray-500">{medicine.genericName}</p>
-        </DrawerHeader>
+    <Sheet open={isOpen} onOpenChange={(open) => !open && closeDrawer()}>
+      <SheetContent className="w-[400px] sm:w-[540px]">
+        <SheetHeader>
+          <SheetTitle>Medicine Substitutes</SheetTitle>
+          <SheetDescription>
+            Available alternatives for this medicine
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="space-y-3">
-          <h3 className="font-medium">Substitutes</h3>
-          <ul className="list-disc list-inside text-sm text-gray-700">
-            {medicine.substitutes?.map((s) => (
-              <li key={s.id}>
-                {s.name} ({s.form}) – ₹{s.price}
-              </li>
-            ))}
-          </ul>
+        <div className="mt-6 space-y-3">
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-3">
+                  <Skeleton className="h-4 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/4" />
+                </CardContent>
+              </Card>
+            ))
+          ) : subs.length > 0 ? (
+            subs.map((substitute) => (
+              <Card
+                key={substitute.id}
+                className="hover:shadow-md transition-shadow"
+              >
+                <CardContent className="p-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-medium mb-1">{substitute.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {substitute.form} • {substitute.strength}
+                      </p>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className="text-green-600 border-green-200 bg-green-50"
+                    >
+                      ₹{substitute.price}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <p className="text-muted-foreground">
+                  No substitutes available
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
-
-        <div className="space-y-3">
-          <h3 className="font-medium">Price Trend</h3>
-          <div className="h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={medicine.priceTrends ?? []}>
-                <XAxis dataKey="date" hide />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="price"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <h3 className="font-medium">Nearby Pharmacies</h3>
-          <ul className="text-sm text-gray-700">
-            {medicine.nearbyPharmacies?.map((p) => (
-              <li key={p.id}>
-                {p.name} – {p.city}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <Button className="w-full">➕ Add to list</Button>
-      </DrawerContent>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 }

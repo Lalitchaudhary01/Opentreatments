@@ -1,20 +1,16 @@
 "use client";
+import { useState } from "react";
 
-import { useState, useCallback } from "react";
-
-export function useDrawer<T = unknown>() {
+export function useDrawer() {
   const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState<T | null>(null);
 
-  const openDrawer = useCallback((payload?: T) => {
-    setData(payload ?? null);
+  function openDrawer() {
     setIsOpen(true);
-  }, []);
+  }
 
-  const closeDrawer = useCallback(() => {
+  function closeDrawer() {
     setIsOpen(false);
-    setData(null);
-  }, []);
+  }
 
-  return { isOpen, data, openDrawer, closeDrawer };
+  return { isOpen, openDrawer, closeDrawer };
 }
