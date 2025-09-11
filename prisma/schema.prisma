@@ -31,6 +31,9 @@ model User {
   comments Comment[]
   likes    Like[]
   policies Policy[] // ✅ relation: user policies
+
+  // Add this line for independent consultations
+  independentConsultations IndependentConsultation[]
 }
 
 //
@@ -303,3 +306,39 @@ model Substitute {
   medicine   Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
   substitute Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
 }
+
+//independt docots  
+model IndependentDoctor {
+  id             String   @id @default(cuid())
+  name           String
+  specialties    String[]
+  specialization String
+  experience     Int?
+  gender         String?
+  profilePic     String?
+  fees           Float?
+  rating         Float    @default(0)
+  totalReviews   Int      @default(0)
+  languages      String[]
+  availability   Json?
+  badges         String[]
+  city           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  consultations IndependentConsultation[]
+}
+
+model IndependentConsultation {
+  id        String            @id @default(cuid())
+  doctorId  String
+  doctor    IndependentDoctor @relation(fields: [doctorId], references: [id])
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  slot      DateTime
+  status    String            @default("pending")
+  fee       Float?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now())
+}
+
