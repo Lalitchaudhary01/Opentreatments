@@ -20,6 +20,7 @@ import {
   MessageCircle,
   Share2,
 } from "lucide-react";
+import Link from "next/link";
 
 interface DoctorProfilePageProps {
   params: {
@@ -93,8 +94,10 @@ const DoctorProfilePage = async ({ params }: DoctorProfilePageProps) => {
 
                 <div className="flex flex-col gap-2 mt-4 md:mt-0">
                   <Button size="lg" className="w-full md:w-auto">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Book Appointment
+                    <Link href={`/consultations/${doctor.slug}`}>
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Book Appointment
+                    </Link>
                   </Button>
 
                   {doctor.fees !== undefined && (

@@ -329,16 +329,30 @@ model IndependentDoctor {
   consultations IndependentConsultation[]
 }
 
-model IndependentConsultation {
-  id        String            @id @default(cuid())
-  doctorId  String
-  doctor    IndependentDoctor @relation(fields: [doctorId], references: [id])
-  userId    String
-  user      User              @relation(fields: [userId], references: [id])
-  slot      DateTime
-  status    String            @default("pending")
-  fee       Float?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @default(now())
+enum ConsultationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
 }
 
+model IndependentConsultation {
+  id            String             @id @default(cuid())
+  doctorId      String
+  doctor        IndependentDoctor  @relation(fields: [doctorId], references: [id])
+  userId        String
+  user          User               @relation(fields: [userId], references: [id])
+  slot          DateTime
+  duration      Int?
+  status        ConsultationStatus @default(PENDING) // enum used here ✅
+  mode          String             @default("online")
+  fee           Float?
+  paymentId     String?
+  paymentStatus String             @default("unpaid")
+  notes         String?
+  prescription  String?
+  cancelReason  String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
