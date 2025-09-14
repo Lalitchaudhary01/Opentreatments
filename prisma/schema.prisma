@@ -12,6 +12,8 @@ enum Role {
   ADMIN
 }
 
+//user side
+
 model User {
   id         String    @id @default(cuid())
   email      String    @unique
@@ -34,11 +36,15 @@ model User {
 
   // Add this line for independent consultations
   independentConsultations IndependentConsultation[]
+  IndependentDoctor        IndependentDoctor?
+  IndependentReview        IndependentReview[]
+  Notification             Notification[]
+  AdminAction              AdminAction[]
 }
 
 //
 // ---------------------------
-// Authentication
+// Authentication of users
 // ---------------------------
 model Account {
   id                String  @id @default(cuid())
@@ -183,6 +189,7 @@ model Insurance {
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 }
 
+//hospital side doctors
 model Doctor {
   id             String   @id @default(cuid())
   name           String
@@ -308,8 +315,17 @@ model Substitute {
 }
 
 //independt docots  
+enum DoctorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model IndependentDoctor {
-  id             String   @id @default(cuid())
+  id     String @id @default(cuid())
+  userId String @unique // link to User model
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   name           String
   specialties    String[]
   specialization String
@@ -323,10 +339,14 @@ model IndependentDoctor {
   availability   Json?
   badges         String[]
   city           String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+
+  status DoctorStatus @default(PENDING) // ✅ pending until admin approves
 
   consultations IndependentConsultation[]
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  IndependentReview IndependentReview[]
 }
 
 enum ConsultationStatus {
@@ -338,21 +358,90 @@ enum ConsultationStatus {
 }
 
 model IndependentConsultation {
-  id            String             @id @default(cuid())
-  doctorId      String
-  doctor        IndependentDoctor  @relation(fields: [doctorId], references: [id])
-  userId        String
-  user          User               @relation(fields: [userId], references: [id])
-  slot          DateTime
-  duration      Int?
-  status        ConsultationStatus @default(PENDING) // enum used here ✅
-  mode          String             @default("online")
-  fee           Float?
-  paymentId     String?
-  paymentStatus String             @default("unpaid")
-  notes         String?
-  prescription  String?
-  cancelReason  String?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id                String             @id @default(cuid())
+  doctorId          String
+  doctor            IndependentDoctor  @relation(fields: [doctorId], references: [id])
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  slot              DateTime
+  duration          Int?
+  status            ConsultationStatus @default(PENDING) // enum used here ✅
+  mode              String             @default("online")
+  fee               Float?
+  paymentId         String?
+  paymentStatus     String             @default("unpaid")
+  notes             String?
+  prescription      String?
+  cancelReason      String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  IndependentReview IndependentReview?
+  Payment           Payment?
+}
+
+model IndependentReview {
+  id             String                  @id @default(cuid())
+  consultationId String                  @unique
+  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   IndependentDoctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating   Int // 1 to 5 stars
+  feedback String?
+
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  CONSULTATION_REQUEST
+  CONSULTATION_STATUS
+  ADMIN_APPROVAL
+}
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  message String
+  isRead  Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id             String                  @id @default(cuid())
+  consultationId String                  @unique
+  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  amount        Float
+  status        PaymentStatus @default(PENDING)
+  provider      String? // Razorpay/Stripe
+  transactionId String? // gateway ka id
+  createdAt     DateTime      @default(now())
+}
+
+model AdminAction {
+  id      String @id @default(cuid())
+  adminId String
+  admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  actionType String
+  targetId   String // doctorId / consultationId / userId etc.
+  targetType String // "DOCTOR" | "CONSULTATION" | "USER"
+  details    String?
+
+  createdAt DateTime @default(now())
 }
