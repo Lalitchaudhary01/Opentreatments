@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { Particles } from "@/components/magicui/particles";
 import { useTheme } from "next-themes";
+import { Select } from "@/components/ui/select";
 
 export default function AuthForm() {
   const { resolvedTheme } = useTheme();
@@ -35,6 +36,7 @@ export default function AuthForm() {
     password: "",
     confirm: "",
     otp: "",
+    role: "", // ✅ Add this
   });
 
   async function handleRegister(e: React.FormEvent) {
@@ -49,6 +51,7 @@ export default function AuthForm() {
           phone: form.phone,
           password: form.password,
           confirmPassword: form.confirm,
+          role: form.role, // ✅ send role
         }),
         headers: { "Content-Type": "application/json" },
       });
@@ -105,8 +108,24 @@ export default function AuthForm() {
         email: form.email,
         password: form.password,
       });
-      if (!res?.error) router.push("/");
-      else alert("Login failed: " + res.error);
+
+      if (res?.error) {
+        alert("Login failed: " + res.error);
+        return;
+      }
+
+      // Get session
+      const sessionRes = await fetch("/api/auth/session");
+      const sessionData = await sessionRes.json();
+
+      if (sessionData?.user?.role !== form.role) {
+        alert(`You cannot login as ${form.role} with this account.`);
+        return;
+      }
+
+      // Redirect based on role
+      if (form.role === "DOCTOR") router.push("/doctor");
+      else router.push("/");
     } catch (error) {
       alert("An error occurred during login");
     } finally {
@@ -128,9 +147,11 @@ export default function AuthForm() {
         <div className="flex flex-col items-center gap-2">
           <Image src="/logos.png" alt="Logo" width={130} height={130} />
           <h1 className="text-2xl font-bold">
-            {mode === "login"}
-            {mode === "register"}
-            {mode === "verify"}
+            {mode === "login"
+              ? "Login"
+              : mode === "register"
+              ? "Register"
+              : "Verify Email"}
           </h1>
         </div>
         {mode === "register" && (
@@ -293,6 +314,40 @@ export default function AuthForm() {
                     disabled={isLoading}
                   />
                 </div>
+                {/* Replace the Select component with radio buttons */}
+                <div className="flex flex-col gap-2 mt-2">
+                  <span className="font-semibold text-sm">Select Role:</span>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="USER"
+                        checked={form.role === "USER"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        disabled={isLoading}
+                        required
+                      />
+                      User
+                    </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="DOCTOR"
+                        checked={form.role === "DOCTOR"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        disabled={isLoading}
+                        required
+                      />
+                      Doctor
+                    </label>
+                  </div>
+                </div>
               </>
             )}
 
@@ -318,6 +373,39 @@ export default function AuthForm() {
                   required
                   disabled={isLoading}
                 />
+                <div className="flex flex-col gap-2 mt-2">
+                  <span className="font-semibold text-sm">Select Role:</span>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="USER"
+                        checked={form.role === "USER"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                      User
+                    </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="DOCTOR"
+                        checked={form.role === "DOCTOR"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                      Doctor
+                    </label>
+                  </div>
+                </div>
               </>
             )}
 

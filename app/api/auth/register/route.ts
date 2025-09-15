@@ -5,7 +5,16 @@ import { generateOTP, sendOTPEmail } from "@/lib/email"; // You'll need to creat
 
 export async function POST(req: Request) {
   try {
-    const { email, password, confirmPassword, name, phone } = await req.json();
+    const { email, password, confirmPassword, name, phone, role } =
+      await req.json();
+
+    // Validate role
+    if (!role || !["USER", "DOCTOR"].includes(role)) {
+      return NextResponse.json(
+        { error: "Please select a valid role" },
+        { status: 400 }
+      );
+    }
 
     if (password !== confirmPassword) {
       return NextResponse.json(
@@ -45,6 +54,7 @@ export async function POST(req: Request) {
         phone,
         otp,
         otpExpiry,
+        role, // ✅ Save the selected role
       },
     });
 
@@ -57,6 +67,7 @@ export async function POST(req: Request) {
       userId: user.id,
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

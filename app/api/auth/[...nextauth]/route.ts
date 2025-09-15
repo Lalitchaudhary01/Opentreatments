@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { compare } from "bcryptjs";
+import { Role } from "@prisma/client"; // ✅ import Role enum
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -26,43 +27,41 @@ export const authOptions = {
         });
 
         if (!user || !user.password) return null;
-
-        if (!user.isVerified) {
+        if (!user.isVerified)
           throw new Error("Please verify your email before logging in");
-        }
 
         const valid = await compare(credentials.password, user.password);
         if (!valid) return null;
 
-        // ✅ Include phone here
         return {
           id: user.id,
           name: user.name,
           email: user.email,
-          phone: user.phone, // ✅ added phone
-          role: user.role!,
-        } as any;
+          phone: user.phone,
+          role: user.role as Role, // ✅ cast to enum
+        };
       },
     }),
   ],
   session: { strategy: "jwt" as const },
   pages: { signIn: "/auth" },
 
-  // ✅ Session callback updated to include phone
   callbacks: {
     async jwt({ token, user }: { token: any; user?: any }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
-        token.phone = user.phone; // ✅ add phone
+        token.phone = user.phone;
+        token.role = user.role as Role; // ✅ cast to enum
       }
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.phone = token.phone as string; // ✅ add phone
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.phone = token.phone;
+        session.user.role = token.role as Role; // ✅ cast to enum
       }
       return session;
     },
