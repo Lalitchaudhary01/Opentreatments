@@ -2,9 +2,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Doctor } from "@/types/doctor";
+import { AdminDoctor } from "../types/adminDoctor";
 
-export async function getDoctorById(id: string): Promise<Doctor | null> {
+export async function getDoctorById(id: string): Promise<AdminDoctor | null> {
+  //@ts-ignore
   return prisma.doctor.findUnique({
     where: { id },
   });

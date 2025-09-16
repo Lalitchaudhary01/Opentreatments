@@ -1,94 +1,53 @@
 // app/admin/doctor/[id]/page.tsx
+import { notFound } from "next/navigation";
+import prisma from "@/lib/prisma";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AdminDoctorActions from "@/features/admin/doctors/components/AdminDoctorActions";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  CardTitle,
-} from "@/components/ui/card";
-import { getDoctorById } from "@/features/admin/doctors/actions/getDoctorById";
-import { updateDoctorStatus } from "@/features/admin/doctors/actions/updateDoctorStatus";
-
-interface AdminDoctorDetailPageProps {
-  params: {
-    id: string;
-  };
+interface AdminDoctorPageProps {
+  params: { id: string };
 }
 
-export default async function AdminDoctorDetailPage({
+export default async function AdminDoctorPage({
   params,
-}: AdminDoctorDetailPageProps) {
-  const doctor = await getDoctorById(params.id);
+}: AdminDoctorPageProps) {
+  const doctor = await prisma.independentDoctor.findUnique({
+    where: { id: params.id },
+  });
 
-  if (!doctor) {
-    return (
-      <div className="p-6">
-        <p className="text-red-500">Doctor not found.</p>
-      </div>
-    );
-  }
+  if (!doctor) return notFound();
 
   return (
-    <div className="p-6">
-      <Card className="max-w-xl">
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Doctor Details</h1>
+      <Card>
         <CardHeader>
           <CardTitle>{doctor.name}</CardTitle>
           <p className="text-sm text-muted-foreground">{doctor.email}</p>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <p>
-            <span className="font-medium">Phone:</span> {doctor.phone}
-          </p>
-          <p>
-            <span className="font-medium">Status:</span> {doctor.status}
-          </p>
-          <p>
-            <span className="font-medium">Created:</span>{" "}
-            {doctor.createdAt.toDateString()}
-          </p>
+        <CardContent className="space-y-3">
+          <div>
+            <strong>Phone:</strong> {doctor.phone}
+          </div>
+          <div>
+            <strong>Specialization:</strong> {doctor.specialization}
+          </div>
+          <div>
+            <strong>Experience:</strong> {doctor.experience} years
+          </div>
+          <div>
+            <strong>Bio:</strong> {doctor.bio}
+          </div>
+          <div>
+            <strong>Status:</strong> {doctor.status}
+          </div>
+
+          {/* ✅ Client Component for actions */}
+          <AdminDoctorActions
+            doctorId={doctor.id}
+            currentStatus={doctor.status as "PENDING" | "APPROVED" | "REJECTED"}
+          />
         </CardContent>
-        <CardFooter className="flex gap-2">
-          <form
-            action={async () => {
-              "use server";
-              await updateDoctorStatus(doctor.id, "APPROVED");
-            }}
-          >
-            <Button
-              type="submit"
-              variant="success"
-              disabled={doctor.status === "APPROVED"}
-            >
-              Approve
-            </Button>
-          </form>
-          <form
-            action={async () => {
-              "use server";
-              await updateDoctorStatus(doctor.id, "REJECTED");
-            }}
-          >
-            <Button
-              type="submit"
-              variant="destructive"
-              disabled={doctor.status === "REJECTED"}
-            >
-              Reject
-            </Button>
-          </form>
-          <form
-            action={async () => {
-              "use server";
-              await updateDoctorStatus(doctor.id, "DELETED");
-            }}
-          >
-            <Button type="submit" variant="outline">
-              Delete
-            </Button>
-          </form>
-        </CardFooter>
       </Card>
     </div>
   );

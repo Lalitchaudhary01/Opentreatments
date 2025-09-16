@@ -2,7 +2,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminDoctorList from "@/features/admin/doctors/components/AdminDoctorList";
 
-
 export default function AdminDoctorsPage() {
   return (
     <div className="p-6 space-y-6">

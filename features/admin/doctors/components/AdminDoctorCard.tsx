@@ -1,73 +1,64 @@
-"use client";
-
-import { useTransition } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DoctorProfile } from "@/features/panel/doctors/types/doctorProfile";
-import { updateDoctorStatus } from "../actions/updateDoctorStatus";
-
+import {
+  deleteDoctor,
+  updateDoctorStatus,
+} from "../actions/updateDoctorStatus";
 
 interface AdminDoctorCardProps {
-  doctor: DoctorProfile;
-  onAction?: () => void; // refresh list after action
+  doctor: {
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+  };
 }
 
-export default function AdminDoctorCard({
-  doctor,
-  onAction,
-}: AdminDoctorCardProps) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleAction = (status: "APPROVED" | "REJECTED" | "DELETED") => {
-    startTransition(async () => {
-      await updateDoctorStatus(doctor.id, status);
-      onAction?.();
-    });
-  };
-
+export default function AdminDoctorCard({ doctor }: AdminDoctorCardProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{doctor.name}</CardTitle>
+        {/* Doctor name clickable */}
+        <CardTitle>
+          <Link
+            href={`/admin/doctor/${doctor.id}`}
+            className="text-blue-600 hover:underline"
+          >
+            {doctor.name}
+          </Link>
+        </CardTitle>
         <p className="text-sm text-muted-foreground">{doctor.email}</p>
       </CardHeader>
-      <CardContent>
-        <p>
-          <span className="font-medium">Phone:</span> {doctor.phone}
-        </p>
-        <p>
-          <span className="font-medium">Status:</span> {doctor.status}
-        </p>
-      </CardContent>
-      <CardFooter className="flex gap-2">
-        <Button
-          variant="success"
-          disabled={isPending || doctor.status === "APPROVED"}
-          onClick={() => handleAction("APPROVED")}
-        >
-          Approve
-        </Button>
-        <Button
-          variant="destructive"
-          disabled={isPending || doctor.status === "REJECTED"}
-          onClick={() => handleAction("REJECTED")}
-        >
-          Reject
-        </Button>
+
+      <CardContent className="flex gap-2">
+        {doctor.status === "PENDING" && (
+          <>
+            <Button
+              variant="success"
+              onClick={() =>
+                updateDoctorStatus({ doctorId: doctor.id, status: "APPROVED" })
+              }
+            >
+              Approve
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() =>
+                updateDoctorStatus({ doctorId: doctor.id, status: "REJECTED" })
+              }
+            >
+              Reject
+            </Button>
+          </>
+        )}
         <Button
           variant="outline"
-          disabled={isPending}
-          onClick={() => handleAction("DELETED")}
+          onClick={() => deleteDoctor({ doctorId: doctor.id })}
         >
           Delete
         </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }

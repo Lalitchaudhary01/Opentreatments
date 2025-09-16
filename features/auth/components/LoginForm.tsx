@@ -125,6 +125,7 @@ export default function AuthForm() {
 
       // Redirect based on role
       if (form.role === "DOCTOR") router.push("/doctor");
+      else if (form.role === "ADMIN") router.push("/admin/doctor");
       else router.push("/");
     } catch (error) {
       alert("An error occurred during login");
@@ -346,6 +347,20 @@ export default function AuthForm() {
                       />
                       Doctor
                     </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="ADMIN"
+                        checked={form.role === "ADMIN"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                      Admin
+                    </label>
                   </div>
                 </div>
               </>
@@ -403,6 +418,20 @@ export default function AuthForm() {
                         disabled={isLoading}
                       />
                       Doctor
+                    </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="ADMIN"
+                        checked={form.role === "ADMIN"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                      Admin
                     </label>
                   </div>
                 </div>

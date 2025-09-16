@@ -9,7 +9,8 @@ export async function POST(req: Request) {
       await req.json();
 
     // Validate role
-    if (!role || !["USER", "DOCTOR"].includes(role)) {
+    // Validate role
+    if (!role || !["USER", "DOCTOR", "ADMIN"].includes(role)) {
       return NextResponse.json(
         { error: "Please select a valid role" },
         { status: 400 }
