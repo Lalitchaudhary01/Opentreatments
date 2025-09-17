@@ -11,6 +11,7 @@ enum Role {
   USER
   DOCTOR
   ADMIN
+  HOSPITAL
 }
 
 //user side
@@ -132,10 +133,16 @@ model BlogTag {
 // ---------------------------
 // Hospital + Related Models
 // ---------------------------
+enum HospitalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Hospital {
-  id                 String   @id @default(cuid())
+  id                 String         @id @default(cuid())
   name               String
-  slug               String   @unique
+  slug               String         @unique
   description        String?
   address            String?
   city               String?
@@ -146,15 +153,16 @@ model Hospital {
   website            String?
   logo               String?
   image              String?
-  verified           Boolean  @default(false)
-  emergencyAvailable Boolean  @default(false)
+  verified           Boolean        @default(false)
+  emergencyAvailable Boolean        @default(false)
   bedCount           Int?
   availableBeds      Int?
   rating             Float?
   totalReviews       Int?
   type               String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  status             HospitalStatus @default(PENDING)
 
   services   Service[]
   facilities Facility[]
