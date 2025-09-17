@@ -2,7 +2,7 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import BookConsultationForm from "@/features/user-doctors/components/BookConsultationForm";
 
 interface DoctorPageProps {
   params: { id: string };
@@ -10,7 +10,7 @@ interface DoctorPageProps {
 
 export default async function UserDoctorPage({ params }: DoctorPageProps) {
   const doctor = await prisma.independentDoctor.findUnique({
-    where: { id: params.id, status: "APPROVED" }, // only approved doctors
+    where: { id: params.id, status: "APPROVED" }, // ✅ only approved doctors
   });
 
   if (!doctor) return notFound();
@@ -24,7 +24,7 @@ export default async function UserDoctorPage({ params }: DoctorPageProps) {
             {doctor.specialization}
           </p>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-4">
           <p>
             <strong>Specialties:</strong>{" "}
             {doctor.specialties?.join(", ") || "N/A"}
@@ -46,8 +46,9 @@ export default async function UserDoctorPage({ params }: DoctorPageProps) {
             reviews)
           </p>
 
+          {/* ✅ Booking Form Added Here */}
           <div className="pt-4">
-            <Button className="w-full">Book Consultation</Button>
+            <BookConsultationForm doctorId={doctor.id} fee={doctor.fees ?? 0} />
           </div>
         </CardContent>
       </Card>
