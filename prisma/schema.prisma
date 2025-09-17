@@ -37,6 +37,7 @@ model User {
   policies Policy[] // ✅ relation: user policies
 
   // Add this line for independent consultations
+  Hospital                 Hospital?
   independentConsultations IndependentConsultation[]
   IndependentDoctor        IndependentDoctor?
   IndependentReview        IndependentReview[]
@@ -140,36 +141,34 @@ enum HospitalStatus {
 }
 
 model Hospital {
-  id                 String         @id @default(cuid())
-  name               String
-  slug               String         @unique
-  description        String?
-  address            String?
-  city               String?
-  state              String?
-  country            String?
-  phone              String?
-  email              String?
-  website            String?
-  logo               String?
-  image              String?
-  verified           Boolean        @default(false)
-  emergencyAvailable Boolean        @default(false)
-  bedCount           Int?
-  availableBeds      Int?
-  rating             Float?
-  totalReviews       Int?
-  type               String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  status             HospitalStatus @default(PENDING)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name    String
+  slug    String  @unique
+  address String?
+  city    String?
+  state   String?
+  country String?
+  phone   String?
+  email   String?
+  website String?
+  logo    String?
+  image   String?
+
+  verified Boolean        @default(false)
+  status   HospitalStatus @default(PENDING)
 
   services   Service[]
   facilities Facility[]
-  insurances Insurance[]
   doctors    Doctor[]
   procedures Procedure[]
-  estimates  Estimate[] // ✅ link to estimates
+  estimates  Estimate[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Insurance Insurance[]
 }
 
 model Service {
