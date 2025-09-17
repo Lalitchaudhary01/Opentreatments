@@ -1,70 +1,73 @@
+// features/panel/doctors/doctor-consultations/components/DoctorConsultationCard.tsx
 "use client";
 
-import { DoctorConsultation } from "../types/doctorConsultation";
-import { updateConsultationStatus } from "../actions/updateConsultationStatus";
 import { useTransition } from "react";
-import ConsultationStatusBadge from "./ConsultationsStatusBadge";
+import { useRouter } from "next/navigation";
+import { updateConsultationStatus } from "../actions/updateConsultationStatus";
 
 export default function DoctorConsultationCard({
   consultation,
 }: {
-  consultation: DoctorConsultation;
+  consultation: any;
 }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  function handleUpdate(status: "APPROVED" | "REJECTED" | "COMPLETED") {
+  const handleAction = (status: "APPROVED" | "REJECTED") => {
     startTransition(async () => {
       await updateConsultationStatus(consultation.id, status);
+      router.refresh();
     });
-  }
+  };
 
   return (
-    <div className="p-4 border rounded-lg shadow-sm space-y-2">
-      <div className="flex justify-between items-center">
-        <h3 className="font-semibold">{consultation.userName}</h3>
-        <ConsultationStatusBadge status={consultation.status} />
-      </div>
-
-      <p className="text-sm text-muted-foreground">{consultation.userEmail}</p>
-      <p className="text-sm">
-        📅 {new Date(consultation.slot).toLocaleString()}
+    <div
+      className={`border p-4 rounded-lg space-y-2 ${
+        consultation.status === "APPROVED"
+          ? "border-green-500"
+          : consultation.status === "REJECTED"
+          ? "border-red-500"
+          : "border-gray-300"
+      }`}
+    >
+      <p>
+        <strong>User:</strong> {consultation.user.name}
       </p>
-      {consultation.notes && (
-        <p className="text-sm italic">📝 {consultation.notes}</p>
-      )}
-
-      <p className="text-sm">
-        💰 {consultation.fee ? `₹${consultation.fee}` : "Not set"}
+      <p>
+        <strong>Slot:</strong> {new Date(consultation.slot).toLocaleString()}
       </p>
-      <p className="text-sm">Payment: {consultation.paymentStatus}</p>
+      <p>
+        <strong>Status:</strong>{" "}
+        <span
+          className={
+            consultation.status === "APPROVED"
+              ? "text-green-600"
+              : consultation.status === "REJECTED"
+              ? "text-red-600"
+              : "text-gray-800"
+          }
+        >
+          {consultation.status}
+        </span>
+      </p>
 
       {consultation.status === "PENDING" && (
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2">
           <button
-            onClick={() => handleUpdate("APPROVED")}
+            onClick={() => handleAction("APPROVED")}
             disabled={isPending}
-            className="px-3 py-1 bg-green-600 text-white rounded"
+            className="bg-green-600 text-white px-3 py-1 rounded"
           >
             Accept
           </button>
           <button
-            onClick={() => handleUpdate("REJECTED")}
+            onClick={() => handleAction("REJECTED")}
             disabled={isPending}
-            className="px-3 py-1 bg-red-600 text-white rounded"
+            className="bg-red-600 text-white px-3 py-1 rounded"
           >
             Reject
           </button>
         </div>
-      )}
-
-      {consultation.status === "APPROVED" && (
-        <button
-          onClick={() => handleUpdate("COMPLETED")}
-          disabled={isPending}
-          className="px-3 py-1 bg-blue-600 text-white rounded mt-2"
-        >
-          Mark as Completed
-        </button>
       )}
     </div>
   );

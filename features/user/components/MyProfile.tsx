@@ -82,6 +82,11 @@ export default function MyProfile() {
           <div className="lg:col-span-1">
             <ProfileCard user={user} />
           </div>
+          <Link href="/user/consultations">
+            <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+              My Consultations
+            </Button>
+          </Link>
 
           {/* Blogs Section */}
           <div className="lg:col-span-2">
