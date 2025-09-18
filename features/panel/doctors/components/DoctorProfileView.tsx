@@ -13,8 +13,6 @@ import {
   User,
   Award,
   Calendar,
-  CheckCircle,
-  XCircle,
 } from "lucide-react";
 import { DoctorProfile, DoctorStatus } from "../types/doctorProfile";
 
@@ -25,16 +23,6 @@ export default function DoctorProfileView({
   profile: DoctorProfile;
   isAdmin?: boolean;
 }) {
-  const weekDays = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header Card */}
@@ -187,122 +175,27 @@ export default function DoctorProfileView({
         </Card>
       </div>
 
-      {/* Calendar-style Availability Card */}
+      {/* Availability Card */}
       {profile.availability && Object.keys(profile.availability).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              Weekly Availability
+              Availability
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Available consultation hours throughout the week
-            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Calendar Grid */}
-            <div className="grid gap-3">
-              {weekDays.map((day) => {
-                const dayKey = day.toLowerCase();
-                const timeSlot = profile.availability[dayKey];
-                const isAvailable = !!timeSlot;
-
-                return (
-                  <div
-                    key={day}
-                    className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
-                      isAvailable
-                        ? "bg-green-50 border-green-200 hover:bg-green-100"
-                        : "bg-gray-50 border-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {isAvailable ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <XCircle className="w-5 h-5 text-gray-400" />
-                      )}
-                      <div>
-                        <span
-                          className={`font-medium ${
-                            isAvailable ? "text-green-900" : "text-gray-500"
-                          }`}
-                        >
-                          {day}
-                        </span>
-                        {isAvailable && (
-                          <div className="text-xs text-green-700 mt-0.5">
-                            Available
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      {isAvailable ? (
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-green-600" />
-                          <span className="font-medium text-green-800">
-                            {timeSlot}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-400">
-                          Not Available
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+          <CardContent>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {Object.entries(profile.availability).map(([day, time]) => (
+                <div
+                  key={day}
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                >
+                  <span className="font-medium capitalize">{day}</span>
+                  <span className="text-sm text-muted-foreground">{time}</span>
+                </div>
+              ))}
             </div>
-
-            <Separator />
-
-            {/* Quick Stats */}
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-muted-foreground">
-                    {Object.keys(profile.availability).length} days available
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <XCircle className="w-4 h-4 text-gray-400" />
-                  <span className="text-muted-foreground">
-                    {7 - Object.keys(profile.availability).length} days off
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <span className="text-muted-foreground text-xs">
-                  Times shown in local timezone
-                </span>
-              </div>
-            </div>
-
-            {/* Available Days Summary */}
-            {Object.keys(profile.availability).length > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Available Days This Week
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {Object.keys(profile.availability).map((day) => (
-                    <Badge
-                      key={day}
-                      variant="secondary"
-                      className="bg-blue-100 text-blue-800"
-                    >
-                      {day.charAt(0).toUpperCase() + day.slice(1)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       )}
