@@ -12,6 +12,7 @@ enum Role {
   DOCTOR
   ADMIN
   HOSPITAL
+  PHARMACY // ✅ new role
 }
 
 //user side
@@ -43,6 +44,9 @@ model User {
   IndependentReview        IndependentReview[]
   Notification             Notification[]
   AdminAction              AdminAction[]
+
+  Pharmacy Pharmacy?
+  Orders   Order[]
 }
 
 //
@@ -268,7 +272,10 @@ model Estimate {
 // Pharmacy + Medicines
 // ---------------------------
 model Pharmacy {
-  id        String  @id @default(cuid())
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   name      String
   address   String?
   city      String?
@@ -278,6 +285,8 @@ model Pharmacy {
   longitude Float?
 
   medicines Medicine[]
+  inventory Inventory[]
+  orders    Order[]
 }
 
 model Medicine {
@@ -288,6 +297,7 @@ model Medicine {
   strength         String?
   packSize         String?
   price            Float
+  stock            Int      @default(0) // ✅ add stock field
   availability     Boolean  @default(true)
   slug             String?  @unique
   description      String?
@@ -301,8 +311,61 @@ model Medicine {
   substitutes   Substitute[] @relation("OriginalMedicine")
   substitutedBy Substitute[] @relation("SubstituteMedicine")
 
+  orderItems OrderItem[] // ✅ added
+  inventory  Inventory[] // ✅ added
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Inventory {
+  id         String    @id @default(cuid())
+  pharmacyId String
+  pharmacy   Pharmacy  @relation(fields: [pharmacyId], references: [id])
+  medicineId String
+  medicine   Medicine  @relation(fields: [medicineId], references: [id])
+  changeType StockType
+  quantity   Int
+  note       String?
+
+  createdAt DateTime @default(now())
+}
+
+enum StockType {
+  INCOMING
+  OUTGOING
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  pharmacyId String
+  pharmacy   Pharmacy    @relation(fields: [pharmacyId], references: [id])
+  status     OrderStatus @default(PENDING)
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  quantity   Int
+  price      Float // snapshot of medicine price at order time
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  DELIVERED
+  CANCELLED
 }
 
 model PriceTrend {

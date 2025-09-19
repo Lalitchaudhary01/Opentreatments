@@ -1,9 +1,11 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserHospital } from "@/features/user-hospitals/types/userHospital";
 import { getApprovedHospitals } from "@/features/user-hospitals/actions/getApprovedHospitals";
+import UserHospitalList from "@/features/user-hospitals/components/UserHospitalList";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 
 export default function UserHospitalsPage() {
   const [hospitals, setHospitals] = useState<UserHospital[]>([]);
@@ -12,47 +14,72 @@ export default function UserHospitalsPage() {
 
   useEffect(() => {
     const fetchHospitals = async () => {
-      const data = await getApprovedHospitals();
-      setHospitals(data);
-      setLoading(false);
+      try {
+        const data = await getApprovedHospitals();
+        setHospitals(data);
+      } catch (error) {
+        console.error("Error fetching hospitals:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchHospitals();
   }, []);
 
-  if (loading) return <p className="p-6">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          {/* Header skeleton */}
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+
+          {/* Cards skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <Card key={index} className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <Skeleton className="w-16 h-16 rounded-full" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <div className="flex flex-wrap gap-1">
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-6 w-20" />
+                      <Skeleton className="h-6 w-14" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <div className="flex flex-wrap gap-1">
+                      <Skeleton className="h-6 w-18" />
+                      <Skeleton className="h-6 w-22" />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Approved Hospitals</h1>
-      {hospitals.length === 0 ? (
-        <p className="text-gray-500">No hospitals available.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {hospitals.map((h) => (
-            <div
-              key={h.id}
-              className="border rounded p-4 cursor-pointer hover:shadow"
-              onClick={() => router.push(`/user/hospital/${h.id}`)}
-            >
-              <div className="flex items-center gap-4">
-                {h.logo && (
-                  <img
-                    src={h.logo}
-                    alt={h.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                )}
-                <div>
-                  <h2 className="font-semibold text-lg">{h.name}</h2>
-                  <p className="text-gray-500">
-                    {h.city}, {h.state}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="container mx-auto px-4 py-8">
+      <UserHospitalList
+        hospitals={hospitals}
+        onHospitalClick={(hospital) =>
+          router.push(`/user/hospitals/${hospital.id}`)
+        }
+      />
     </div>
   );
 }
