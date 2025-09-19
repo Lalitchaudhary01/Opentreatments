@@ -271,64 +271,11 @@ model Estimate {
 // ---------------------------
 // Pharmacy + Medicines
 // ---------------------------
-model Pharmacy {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  name      String
-  address   String?
-  city      String?
-  state     String?
-  phone     String?
-  latitude  Float?
-  longitude Float?
-
-  medicines Medicine[]
-  inventory Inventory[]
-  orders    Order[]
-}
-
-model Medicine {
-  id               String   @id @default(cuid())
-  name             String
-  genericName      String?
-  form             String?
-  strength         String?
-  packSize         String?
-  price            Float
-  stock            Int      @default(0) // ✅ add stock field
-  availability     Boolean  @default(true)
-  slug             String?  @unique
-  description      String?
-  rxRequired       Boolean? @default(false)
-  therapeuticClass String?
-
-  pharmacyId String
-  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id])
-
-  priceTrends   PriceTrend[]
-  substitutes   Substitute[] @relation("OriginalMedicine")
-  substitutedBy Substitute[] @relation("SubstituteMedicine")
-
-  orderItems OrderItem[] // ✅ added
-  inventory  Inventory[] // ✅ added
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Inventory {
-  id         String    @id @default(cuid())
-  pharmacyId String
-  pharmacy   Pharmacy  @relation(fields: [pharmacyId], references: [id])
-  medicineId String
-  medicine   Medicine  @relation(fields: [medicineId], references: [id])
-  changeType StockType
-  quantity   Int
-  note       String?
-
-  createdAt DateTime @default(now())
+// ------------------------ Enums ------------------------
+enum PharmacyStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum StockType {
@@ -336,6 +283,95 @@ enum StockType {
   OUTGOING
 }
 
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  DELIVERED
+  CANCELLED
+}
+
+// ------------------------ Pharmacy ------------------------
+model Pharmacy {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String
+  ownerName     String
+  email         String
+  phone         String
+  address       String?
+  city          String?
+  state         String?
+  country       String?
+  licenseNumber String
+  gstNumber     String?
+  status        PharmacyStatus @default(PENDING)
+
+  latitude  Float?
+  longitude Float?
+
+  medicines Medicine[]
+  stock     StockEntry[] @relation("PharmacyStock")
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------ Medicine ------------------------
+model Medicine {
+  id         String   @id @default(cuid())
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id])
+  pharmacyId String
+
+  name         String
+  genericName  String?
+  brand        String?
+  category     String?
+  dosageForm   String? // Tablet, Syrup, Injection
+  strength     String? // 500mg, 250ml
+  manufacturer String?
+
+  description String?
+  price       Float
+  mrp         Float?
+  gst         Float?
+
+  stock StockEntry[] // batch-wise stock
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems    OrderItem[]
+  priceTrends   PriceTrend[]
+  // --- Corrected substitute relations ---
+  substitutes   Substitute[] @relation("OriginalMedicine")
+  substituteFor Substitute[] @relation("SubstituteMedicine")
+}
+
+// ------------------------ StockEntry ------------------------
+model StockEntry {
+  id         String   @id @default(cuid())
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicineId String
+
+  batchNumber String
+  quantity    Int
+  expiryDate  DateTime
+
+  purchasePrice Float?
+  sellingPrice  Float?
+  type          StockType @default(INCOMING) // track INCOMING / OUTGOING stock
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  pharmacy   Pharmacy @relation("PharmacyStock", fields: [pharmacyId], references: [id])
+  pharmacyId String
+}
+
+// ------------------------ Order ------------------------
 model Order {
   id         String      @id @default(cuid())
   userId     String
@@ -350,6 +386,7 @@ model Order {
   updatedAt DateTime @updatedAt
 }
 
+// ------------------------ OrderItem ------------------------
 model OrderItem {
   id         String   @id @default(cuid())
   orderId    String
@@ -360,14 +397,7 @@ model OrderItem {
   price      Float // snapshot of medicine price at order time
 }
 
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PACKED
-  DELIVERED
-  CANCELLED
-}
-
+// ------------------------ PriceTrend ------------------------
 model PriceTrend {
   id         String   @id @default(cuid())
   medicineId String
@@ -376,6 +406,7 @@ model PriceTrend {
   date       DateTime @default(now())
 }
 
+// ------------------------ Substitute ------------------------
 model Substitute {
   id                   String @id @default(cuid())
   medicineId           String
