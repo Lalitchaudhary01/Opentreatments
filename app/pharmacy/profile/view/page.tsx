@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { PharmacyProfileForm } from "@/features/pharmacy-profile/components/PharmacyProfileForm";
-import { getPharmacyProfile } from "@/features/pharmacy-profile/actions/getPharmacyProfile";
-import { updatePharmacyProfile } from "@/features/pharmacy-profile/actions/updatePharmacyProfile";
+import { getPharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/getPharmacyProfile";
+import { updatePharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/updatePharmacyProfile";
+import { PharmacyProfileForm } from "@/features/panel/pharmacy/pharmacy-profile/components/PharmacyProfileForm";
+
 
 export default function EditPharmacyProfilePage() {
   const [profile, setProfile] = useState<any>(null);

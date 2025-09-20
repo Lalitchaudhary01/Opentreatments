@@ -1,9 +1,10 @@
 "use client";
 
+import { submitPharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/submitPharmacyProfile";
+import { PharmacyProfileForm } from "@/features/panel/pharmacy/pharmacy-profile/components/PharmacyProfileForm";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { PharmacyProfileForm } from "@/features/pharmacy-profile/components/PharmacyProfileForm";
-import { submitPharmacyProfile } from "@/features/pharmacy-profile/actions/submitPharmacyProfile";
+
 
 export default function SubmitPharmacyProfilePage() {
   const router = useRouter();
