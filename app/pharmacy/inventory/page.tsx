@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockEntry } from "@/features/panel/pharmacy/pharmacy-inventory/types/pharmacyInventory";
-import { getInventory } from "@/features/panel/pharmacy/pharmacy-inventory/types/getInventory";
+
 import PharmacyInventoryForm from "@/features/panel/pharmacy/pharmacy-inventory/components/PharmacyInventoryForm";
 import PharmacyInventoryTable from "@/features/panel/pharmacy/pharmacy-inventory/components/PharmacyInventoryTable";
+import { getInventory } from "@/features/panel/pharmacy/pharmacy-inventory/actions/getInventory";
 
 export default function PharmacyInventoryPage() {
   const [inventory, setInventory] = useState<StockEntry[]>([]);
@@ -30,20 +31,28 @@ export default function PharmacyInventoryPage() {
 
   return (
     <div className="space-y-8 p-4">
+      {/* Stock Entry Form */}
       <Card>
         <CardHeader>
           <CardTitle>Add Stock Entry</CardTitle>
         </CardHeader>
         <CardContent>
-          <PharmacyInventoryForm
-            medicineId={selectedMedicine || ""}
-            onSubmit={async () => {
-              await fetchInventory();
-            }}
-          />
+          {selectedMedicine ? (
+            <PharmacyInventoryForm
+              medicineId={selectedMedicine}
+              onSubmit={async () => {
+                await fetchInventory();
+              }}
+            />
+          ) : (
+            <p className="text-sm text-gray-500">
+              Select a medicine first to add stock
+            </p>
+          )}
         </CardContent>
       </Card>
 
+      {/* Inventory Table */}
       <Card>
         <CardHeader>
           <CardTitle>Inventory</CardTitle>
@@ -52,6 +61,7 @@ export default function PharmacyInventoryPage() {
           <PharmacyInventoryTable
             inventory={inventory}
             refresh={fetchInventory}
+            onSelectMedicine={(id: string) => setSelectedMedicine(id)}
           />
         </CardContent>
       </Card>

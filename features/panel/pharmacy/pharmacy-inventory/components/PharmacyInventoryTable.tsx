@@ -9,8 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { deleteStockEntry } from "../types/deleteStockEntry";
-
+import { deleteStockEntry } from "../actions/deleteStockEntry";
+import { reduceStockOnSale } from "../actions/reduceStockOnSale";
 
 type Props = {
   inventory: StockEntry[];
@@ -25,6 +25,28 @@ export default function PharmacyInventoryTable({ inventory, refresh }: Props) {
       refresh();
     } catch (err: any) {
       alert(err.message || "Failed to delete stock entry");
+    }
+  };
+
+  const handleReduceStock = async (id: string, availableQty: number) => {
+    const qty = prompt(`Enter quantity to reduce (Available: ${availableQty})`);
+    if (!qty) return;
+
+    const numberQty = Number(qty);
+    if (isNaN(numberQty) || numberQty <= 0) {
+      alert("Invalid quantity");
+      return;
+    }
+    if (numberQty > availableQty) {
+      alert("Quantity exceeds available stock");
+      return;
+    }
+
+    try {
+      await reduceStockOnSale({ stockEntryId: id, quantity: numberQty });
+      refresh();
+    } catch (err: any) {
+      alert(err.message || "Failed to reduce stock");
     }
   };
 
@@ -52,13 +74,20 @@ export default function PharmacyInventoryTable({ inventory, refresh }: Props) {
             </TableCell>
             <TableCell>{item.purchasePrice || "-"}</TableCell>
             <TableCell>{item.sellingPrice || "-"}</TableCell>
-            <TableCell>
+            <TableCell className="flex gap-2">
               <Button
                 size="sm"
                 variant="destructive"
                 onClick={() => handleDelete(item.id)}
               >
                 Delete
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => handleReduceStock(item.id, item.quantity)}
+              >
+                Reduce
               </Button>
             </TableCell>
           </TableRow>

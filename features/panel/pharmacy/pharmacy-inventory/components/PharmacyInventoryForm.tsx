@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addStockEntry } from "../types/addStockEntry";
+import { addStockEntry } from "../actions/addStockEntry";
 
 type Props = {
   medicineId: string; // Passed in from parent (medicine being updated)
