@@ -316,8 +316,9 @@ model Pharmacy {
   stock     StockEntry[] @relation("PharmacyStock")
   orders    Order[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  InventoryLog InventoryLog[]
 }
 
 // ------------------------ Medicine ------------------------
@@ -349,8 +350,11 @@ model Medicine {
   // --- Corrected substitute relations ---
   substitutes   Substitute[] @relation("OriginalMedicine")
   substituteFor Substitute[] @relation("SubstituteMedicine")
+
+  inventoryLogs InventoryLog[]
 }
 
+// ------------------------ StockEntry ------------------------
 // ------------------------ StockEntry ------------------------
 model StockEntry {
   id         String   @id @default(cuid())
@@ -363,12 +367,44 @@ model StockEntry {
 
   purchasePrice Float?
   sellingPrice  Float?
-  type          StockType @default(INCOMING) // track INCOMING / OUTGOING stock
+  type          StockType @default(INCOMING) // INCOMING / OUTGOING
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   pharmacy   Pharmacy @relation("PharmacyStock", fields: [pharmacyId], references: [id])
   pharmacyId String
+
+  // 🔥 relation to inventory logs
+  logs InventoryLog[]
+}
+
+// ------------------------ InventoryLog ------------------------
+model InventoryLog {
+  id           String     @id @default(cuid())
+  stockEntry   StockEntry @relation(fields: [stockEntryId], references: [id])
+  stockEntryId String
+
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicineId String
+
+  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id])
+  pharmacyId String
+
+  changeType      InventoryChangeType
+  quantityChanged Int
+  note            String?
+
+  createdAt DateTime @default(now())
+}
+
+// ------------------------ Enums ------------------------
+
+enum InventoryChangeType {
+  SALE
+  DAMAGE
+  EXPIRE
+  MANUAL_ADJUSTMENT
 }
 
 // ------------------------ Order ------------------------
