@@ -127,6 +127,7 @@ export default function AuthForm() {
       if (form.role === "DOCTOR") router.push("/doctor");
       else if (form.role === "ADMIN") router.push("/admin/doctor");
       else if (form.role === "HOSPITAL") router.push("/Hospitals");
+      else if (form.role === "PHARMACY") router.push("/pharmacy/dashboard");
       else router.push("/");
     } catch (error) {
       alert("An error occurred during login");
@@ -376,6 +377,20 @@ export default function AuthForm() {
                       />
                       Hospital
                     </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="PHARMACY"
+                        checked={form.role === "PHARMACY"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                      Pharmacy
+                    </label>
                   </div>
                 </div>
               </>
@@ -461,6 +476,20 @@ export default function AuthForm() {
                         disabled={isLoading}
                       />
                       Hospital
+                    </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="PHARMACY"
+                        checked={form.role === "PHARMACY"}
+                        onChange={(e) =>
+                          setForm({ ...form, role: e.target.value })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                      Pharmacy
                     </label>
                   </div>
                 </div>
