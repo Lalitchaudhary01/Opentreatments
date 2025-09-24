@@ -13,6 +13,7 @@ enum Role {
   ADMIN
   HOSPITAL
   PHARMACY // ✅ new role
+  INSURANCE_COMPANY
 }
 
 //user side
@@ -35,7 +36,7 @@ model User {
   blogs    Blog[]
   comments Comment[]
   likes    Like[]
-  policies Policy[] // ✅ relation: user policies
+  // policies Policy[] // ✅ relation: user policies
 
   // Add this line for independent consultations
   Hospital                 Hospital?
@@ -47,6 +48,10 @@ model User {
 
   Pharmacy Pharmacy?
   Orders   Order[]
+
+  policies         Policy[]
+  claims           Claim[]
+  InsuranceCompany InsuranceCompany?
 }
 
 //
@@ -582,4 +587,75 @@ model AdminAction {
   details    String?
 
   createdAt DateTime @default(now())
+}
+
+//insuranc companies
+// ---------------------------
+// Insurance Companies
+// ---------------------------
+enum InsuranceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Insurance company model (role-based, admin approval)
+model InsuranceCompany {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name     String
+  email    String          @unique
+  provider String? // e.g., LIC, ICICI, HDFC
+  profile  Json? // additional company info
+  status   InsuranceStatus @default(PENDING)
+
+  plans  Plan[]
+  claims Claim[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Insurance plans
+model Plan {
+  id        String           @id @default(cuid())
+  companyId String
+  company   InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  name            String
+  description     String?
+  coverageDetails Json // e.g., limits, tiers, exclusions
+  premium         Float
+
+  claims Claim[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// User claims
+model Claim {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  billDetails Json // uploaded bill, hospital, amount, procedure
+  status      ClaimStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
