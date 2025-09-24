@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
-import InsuranceProfileView from "@/features/insurance-company-profile/components/InsuranceProfileView";
-import InsuranceStatusBadge from "@/features/insurance-company-profile/components/InsuranceStatusBadge";
-import { InsuranceProfile } from "@/features/insurance-company-profile/types/insuranceProfile";
+import { InsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
+import { getInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/getInsuranceProfile";
+import InsuranceStatusBadge from "@/features/panel/insurance/insurance-company-profile/components/InsuranceStatusBadge";
+import InsuranceProfileView from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileView";
+// import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
+// import InsuranceProfileView from "@/features/insurance-company-profile/components/InsuranceProfileView";
+// import InsuranceStatusBadge from "@/features/insurance-company-profile/components/InsuranceStatusBadge";
+// import { InsuranceProfile } from "@/features/insurance-company-profile/types/insuranceProfile";
 
 export default function ViewProfilePage() {
   const { data: session } = useSession();

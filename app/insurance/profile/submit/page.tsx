@@ -1,8 +1,10 @@
 "use client";
 
+import { submitInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/submitInsuranceProfile";
+import InsuranceProfileForm from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileForm";
 import { useSession } from "next-auth/react";
-import InsuranceProfileForm from "@/features/insurance-company-profile/components/InsuranceProfileForm";
-import { submitInsuranceProfile } from "@/features/insurance-company-profile/actions/submitInsuranceProfile";
+// import InsuranceProfileForm from "@/features/insurance-company-profile/components/InsuranceProfileForm";
+// import { submitInsuranceProfile } from "@/features/insurance-company-profile/actions/submitInsuranceProfile";
 
 export default function SubmitProfilePage() {
   const { data: session } = useSession();

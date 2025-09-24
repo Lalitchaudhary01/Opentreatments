@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
-import { updateInsuranceProfile } from "@/features/insurance-company-profile/actions/updateInsuranceProfile";
-import InsuranceProfileForm from "@/features/insurance-company-profile/components/InsuranceProfileForm";
-import {
-  InsuranceProfile,
-  InsuranceStatus,
-} from "@/features/insurance-company-profile/types/insuranceProfile";
+import { InsuranceProfile, InsuranceStatus } from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
+import { getInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/getInsuranceProfile";
+import { updateInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/updateInsuranceProfile";
+import InsuranceProfileForm from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileForm";
+// import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
+// import { updateInsuranceProfile } from "@/features/insurance-company-profile/actions/updateInsuranceProfile";
+// import InsuranceProfileForm from "@/features/insurance-company-profile/components/InsuranceProfileForm";
+// import {
+//   InsuranceProfile,
+//   InsuranceStatus,
+// } from "@/features/insurance-company-profile/types/insuranceProfile";
 
 export default function EditProfilePage() {
   const { data: session } = useSession();
