@@ -651,13 +651,20 @@ export default function AuthForm() {
               {" "}
               {/* Reduced margin */}
               <div className="flex items-center gap-3">
-                <Image
+                {/* <Image
                   src="/logos.png"
                   alt="Open Treatment Logo"
-                  width={128}
+                  width={48}
                   height={48}
                   className="object-contain"
-                />
+                /> */}
+                <div className="flex items-center gap-2 text-3xl font-bold">
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#10B981] font-bold">
+                    O
+                  </div>
+                  <span className="text-white">Open</span>
+                  <span className="text-white opacity-90">Treatment</span>
+                </div>
               </div>
             </div>
             <h1 className="text-3xl font-bold">Hello, Welcome!</h1>

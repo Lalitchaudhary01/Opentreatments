@@ -12,15 +12,10 @@ export default withAuth({
       return token.role === Role.DOCTOR;
     }
 
-    // User route (root /)
-    if (path === "/") {
-      return token.role === Role.USER;
-    }
-
-    return false; // Default block
+    return true; // Baaki sab routes (jaise /) public hai
   },
 });
 
 export const config = {
-  matcher: ["/", "/doctor/:path*"], // Only protect / and /doctor/*
+  matcher: ["/doctor/:path*"], // Sirf doctor routes protect hain
 };
