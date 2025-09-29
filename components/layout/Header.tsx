@@ -58,7 +58,7 @@ const Header = () => {
     { name: "Hospitals", href: "/Hospitals" },
     { name: "Medicines", href: "/medicines" },
     { name: "Insurance", href: "/insurance" },
-    { name: "Consultations", href: "/consultations" },
+    { name: "Doctors", href: "/consultations" },
   ];
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
