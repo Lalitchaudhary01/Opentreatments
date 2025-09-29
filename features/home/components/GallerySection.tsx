@@ -7,6 +7,8 @@ import {
   Shield,
   Award,
   Zap,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const GallerySection = () => {
@@ -14,7 +16,9 @@ const GallerySection = () => {
   const cardsRef = useRef([]);
   const canvasRef = useRef(null);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Canvas animation code (same as before)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -120,6 +124,7 @@ const GallerySection = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -141,6 +146,7 @@ const GallerySection = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Gallery items data
   const galleryItems = [
     {
       title: "Medicine Pricing",
@@ -222,10 +228,32 @@ const GallerySection = () => {
     },
   ];
 
+  // Carousel navigation functions
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === galleryItems.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? galleryItems.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Auto-play carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section
       ref={sectionRef}
-      className="relative py-32 px-4 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
+      className="relative py-16 px-3 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
     >
       <canvas
         ref={canvasRef}
@@ -238,9 +266,9 @@ const GallerySection = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-cyan-500/5 to-teal-500/5 rounded-full blur-3xl animate-pulse-luxury" />
       </div>
 
-      <div className="container mx-auto max-w-7xl relative z-10">
+      <div className="container mt-0 max-w-7xl relative z-10">
         <div className="text-center mb-24 opacity-0 translate-y-12 animate-fade-in-up">
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-50 via-white to-teal-50 border-2 border-cyan-200 text-teal-800 rounded-full mb-8 font-bold text-sm shadow-xl backdrop-blur-sm">
+          <div className="inline-flex  items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-50 via-white to-teal-50 border-2 border-cyan-200 text-teal-800 rounded-full mb-8 font-bold text-sm shadow-xl backdrop-blur-sm">
             <CheckCircle className="w-5 h-5 text-cyan-600" />
             <span className="bg-gradient-to-r from-cyan-700 to-teal-700 bg-clip-text text-transparent">
               100% Transparency Guaranteed
@@ -259,89 +287,137 @@ const GallerySection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {galleryItems.map((item, index) => {
-            const IconComponent = item.icon;
-            return (
-              <div
-                key={index}
-                ref={(el) => (cardsRef.current[index] = el)}
-                className="gallery-card opacity-0 translate-y-16"
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                <div className="relative group h-full rounded-3xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xl hover:shadow-4xl transition-all duration-700 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm">
-                  <div className="absolute inset-0 h-2/3 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${item.bgGradient} mix-blend-overlay`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-900 via-white/60 dark:via-slate-900/60 to-transparent" />
-                  </div>
+        {/* Carousel Container */}
+        <div className="relative">
+          {/* Navigation Buttons */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full shadow-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:scale-110 hover:shadow-cyan-500/20 group"
+          >
+            <ChevronLeft className="w-6 h-6 text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 transition-colors" />
+          </button>
 
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full shadow-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:scale-110 hover:shadow-cyan-500/20 group"
+          >
+            <ChevronRight className="w-6 h-6 text-slate-700 dark:text-slate-300 group-hover:text-cyan-600 transition-colors" />
+          </button>
+
+          {/* Carousel Track */}
+          <div className="">
+            <div
+              className="flex transition-transform duration-500 ease-out gap-8"
+              style={{ transform: `translateX(-${currentIndex * (100 / 3)}%)` }}
+            >
+              {galleryItems.map((item, index) => {
+                const IconComponent = item.icon;
+                return (
                   <div
-                    className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${item.borderGradient} opacity-0 group-hover:opacity-50 blur-xl transition-opacity duration-500 -z-10`}
-                  />
-
-                  <div className="absolute inset-0 h-2/3 opacity-0 group-hover:opacity-20 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.4)_1px,transparent_1px)] [background-size:20px_20px]" />
-                  </div>
-
-                  <div className="relative p-8 h-full flex flex-col justify-between min-h-[520px]">
-                    <div className="space-y-6 mt-48">
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`px-4 py-2 bg-gradient-to-r ${item.borderGradient} text-white text-xs font-bold rounded-full shadow-lg transform group-hover:scale-105 transition-transform duration-300`}
-                        >
-                          {item.badge}
-                        </span>
-                        <span className="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-full shadow-lg transform group-hover:scale-105 transition-transform duration-300">
-                          {item.savings}
-                        </span>
-                      </div>
-
-                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm font-medium">
-                        {item.description}
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-950/30 dark:to-teal-950/30 rounded-xl border border-cyan-200/50 dark:border-cyan-800/50">
+                    key={index}
+                    ref={(el) => (cardsRef.current[index] = el)}
+                    className="gallery-card flex-shrink-0 opacity-0 translate-y-16"
+                    style={{ width: "calc(33.333% - 22px)" }}
+                    onMouseEnter={() => setHoveredCard(index)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    {/* Card Structure - FIXED HEIGHT ISSUE */}
+                    <div className="relative group h-full rounded-3xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xl hover:shadow-4xl transition-all duration-700 border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm">
+                      {/* Image Section - Fixed height with proper content flow */}
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
                         <div
-                          className={`w-8 h-8 rounded-full bg-gradient-to-r ${item.borderGradient} flex items-center justify-center`}
-                        >
-                          <TrendingDown className="w-4 h-4 text-white" />
+                          className={`absolute inset-0 bg-gradient-to-br ${item.bgGradient} mix-blend-overlay`}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-white/20 dark:from-slate-900/20 to-transparent" />
+
+                        {/* Badges positioned over image */}
+                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                          <span
+                            className={`px-3 py-1.5 bg-gradient-to-r ${item.borderGradient} text-white text-xs font-bold rounded-full shadow-lg transform group-hover:scale-105 transition-transform duration-300`}
+                          >
+                            {item.badge}
+                          </span>
+                          <span className="px-3 py-1.5 bg-slate-800/90 text-white text-xs font-bold rounded-full shadow-lg transform group-hover:scale-105 transition-transform duration-300 backdrop-blur-sm">
+                            {item.savings}
+                          </span>
                         </div>
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                          {item.stats}
-                        </span>
                       </div>
 
-                      <button
-                        className={`w-full py-4 px-6 bg-gradient-to-r ${item.borderGradient} text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 flex items-center justify-center gap-3 group/btn relative overflow-hidden`}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-                        <span className="relative">Explore Now</span>
-                        <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform relative" />
-                      </button>
-                    </div>
+                      {/* Content Section - Flexible height */}
+                      <div className="p-6 flex flex-col flex-1 min-h-0">
+                        {/* Title and Description */}
+                        <div className="space-y-4 mb-6 flex-1">
+                          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                            {item.title}
+                          </h3>
+                          <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm font-medium line-clamp-3">
+                            {item.description}
+                          </p>
+                        </div>
 
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1200" />
-                    </div>
+                        {/* Stats and Button */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-950/30 dark:to-teal-950/30 rounded-xl border border-cyan-200/50 dark:border-cyan-800/50">
+                            <div
+                              className={`w-7 h-7 rounded-full bg-gradient-to-r ${item.borderGradient} flex items-center justify-center flex-shrink-0`}
+                            >
+                              <TrendingDown className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">
+                              {item.stats}
+                            </span>
+                          </div>
 
-                    <div
-                      className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${item.borderGradient} opacity-10 group-hover:opacity-20 transition-opacity duration-500 rounded-bl-3xl`}
-                    />
+                          <button
+                            className={`w-full py-3 px-4 bg-gradient-to-r ${item.borderGradient} text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 flex items-center justify-center gap-2 group/btn relative overflow-hidden`}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+                            <span className="relative text-sm">
+                              Explore Now
+                            </span>
+                            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform relative" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Hover Effects */}
+                      <div
+                        className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${item.borderGradient} opacity-0 group-hover:opacity-50 blur-xl transition-opacity duration-500 -z-10`}
+                      />
+
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1200" />
+                      </div>
+
+                      <div
+                        className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${item.borderGradient} opacity-10 group-hover:opacity-20 transition-opacity duration-500 rounded-bl-3xl`}
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Carousel Indicators */}
+          {/* <div className="flex justify-center mt-8 gap-3">
+            {galleryItems.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "bg-cyan-500 scale-125"
+                    : "bg-slate-300 dark:bg-slate-600 hover:bg-slate-400"
+                }`}
+              />
+            ))}
+          </div> */}
         </div>
 
         <div className="mt-24 text-center opacity-0 translate-y-12 animate-fade-in-delayed">
@@ -435,6 +511,13 @@ const GallerySection = () => {
         .shadow-4xl {
           box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.15),
             0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </section>

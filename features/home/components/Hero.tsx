@@ -43,10 +43,10 @@ import { StatsSection } from "./StatsSection";
 import { BlogSection } from "./BlogSection";
 import Footer from "@/components/layout/Footer";
 import { HowItWorksSection } from "./HowItWorksSection";
-import { TestimonialsSection } from "./TestimonialsSection";
 import { CTASection } from "./CTASection";
 import GallerySection from "./GallerySection";
 import FeaturesSection from "./FeaturesSection";
+import TestimonialsSection from "./TestimonialsSection";
 
 // Animation variants
 const fadeInUp = {
@@ -233,7 +233,7 @@ export default function Home() {
       <GallerySection />
 
       {/* Features with Images */}
-      <FeaturesSection/>
+      <FeaturesSection />
 
       {/* Stats Section with Background Image */}
       <StatsSection />
