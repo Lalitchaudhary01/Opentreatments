@@ -12,8 +12,12 @@ export async function getMedicinesByPharmacy(
       select: {
         id: true,
         name: true,
+        description: true,
         price: true,
         stock: true,
+        pharmacyId: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 

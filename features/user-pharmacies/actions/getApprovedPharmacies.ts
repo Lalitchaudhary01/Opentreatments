@@ -1,3 +1,4 @@
+// /user-pharmacies/actions/getApprovedPharmacies.ts
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -11,7 +12,10 @@ export async function getApprovedPharmacies(): Promise<UserPharmacy[]> {
         id: true,
         name: true,
         address: true,
-        contact: true,
+        phone: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
