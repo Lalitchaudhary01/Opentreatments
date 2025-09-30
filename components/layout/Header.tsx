@@ -55,10 +55,10 @@ const Header = () => {
 
   // Navigation items
   const navItems = [
-    { name: "Hospitals", href: "/Hospitals" },
-    { name: "Medicines", href: "/medicines" },
-    { name: "Insurance", href: "/insurance" },
-    { name: "Doctors", href: "/consultations" },
+    { name: "Doctors", href: "/user/doctors" },
+    { name: "Hospitals", href: "/user/hospitals" },
+    { name: "Medicines", href: "/user/pharmacy" },
+    { name: "Insurance", href: "/user/insurance-companies" },
   ];
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
