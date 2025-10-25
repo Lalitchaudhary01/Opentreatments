@@ -14,7 +14,7 @@ export async function getHospitals(
   return hospitals.map((h) => ({
     id: h.id,
     name: h.name,
-    email: h.email,
+    email: h.email || "",
     phone: h.phone || "",
     address: h.address || "",
     status: h.status as HospitalStatus,

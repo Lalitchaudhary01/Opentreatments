@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import AdminDoctorCard from "./AdminDoctorCard";
-import { DoctorProfile } from "@/features/panel/doctors/types/doctorProfile";
 import { getDoctors } from "../actions/getDoctors";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { DoctorStatus, AdminDoctor } from "../types/adminDoctor";
 
 interface AdminDoctorListProps {
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: DoctorStatus;
 }
 
 export default function AdminDoctorList({ status }: AdminDoctorListProps) {
-  const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
+  const [doctors, setDoctors] = useState<AdminDoctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

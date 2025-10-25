@@ -6,6 +6,7 @@ import {
   updateDoctorStatus,
   deleteDoctor,
 } from "@/features/admin/doctors/actions/updateDoctorStatus";
+import { DoctorStatus } from "../types/adminDoctor";
 
 interface AdminDoctorActionsProps {
   doctorId: string;
@@ -18,7 +19,7 @@ export default function AdminDoctorActions({
 }: AdminDoctorActionsProps) {
   const [isPending, startTransition] = useTransition();
 
-  const handleAction = (status: "APPROVED" | "REJECTED") => {
+  const handleAction = (status: DoctorStatus) => {
     startTransition(async () => {
       await updateDoctorStatus({ doctorId, status });
     });
@@ -35,16 +36,16 @@ export default function AdminDoctorActions({
       {currentStatus === "PENDING" && (
         <>
           <Button
-            variant="success"
+            variant="default"
             disabled={isPending}
-            onClick={() => handleAction("APPROVED")}
+            onClick={() => handleAction(DoctorStatus.APPROVED)}
           >
             Approve
           </Button>
           <Button
             variant="destructive"
             disabled={isPending}
-            onClick={() => handleAction("REJECTED")}
+            onClick={() => handleAction(DoctorStatus.REJECTED)}
           >
             Reject
           </Button>

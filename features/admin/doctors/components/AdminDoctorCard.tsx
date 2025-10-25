@@ -11,20 +11,16 @@ import {
   updateDoctorStatus,
 } from "../actions/updateDoctorStatus";
 import { toast } from "sonner";
+import { DoctorStatus, AdminDoctor } from "../types/adminDoctor";
 
 interface AdminDoctorCardProps {
-  doctor: {
-    id: string;
-    name: string;
-    email: string;
-    status: string;
-  };
+  doctor: AdminDoctor;
 }
 
 export default function AdminDoctorCard({ doctor }: AdminDoctorCardProps) {
   const [loading, setLoading] = useState(false);
 
-  const handleUpdate = async (status: "APPROVED" | "REJECTED") => {
+  const handleUpdate = async (status: DoctorStatus) => {
     try {
       setLoading(true);
       await updateDoctorStatus({ doctorId: doctor.id, status });
@@ -61,13 +57,13 @@ export default function AdminDoctorCard({ doctor }: AdminDoctorCardProps) {
             {doctor.name}
           </Link>
         </CardTitle>
-        <p className="text-sm text-muted-foreground">{doctor.email}</p>
+        <p className="text-sm text-muted-foreground">{doctor.specialization}</p>
 
         {/* Status badge */}
         <Badge
           variant={
             doctor.status === "APPROVED"
-              ? "success"
+              ? "default"
               : doctor.status === "REJECTED"
               ? "destructive"
               : "secondary"
@@ -82,9 +78,9 @@ export default function AdminDoctorCard({ doctor }: AdminDoctorCardProps) {
         {doctor.status === "PENDING" && (
           <>
             <Button
-              variant="success"
+              variant="default"
               disabled={loading}
-              onClick={() => handleUpdate("APPROVED")}
+              onClick={() => handleUpdate(DoctorStatus.APPROVED)}
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -96,7 +92,7 @@ export default function AdminDoctorCard({ doctor }: AdminDoctorCardProps) {
             <Button
               variant="destructive"
               disabled={loading}
-              onClick={() => handleUpdate("REJECTED")}
+              onClick={() => handleUpdate(DoctorStatus.REJECTED)}
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

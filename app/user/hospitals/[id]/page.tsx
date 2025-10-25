@@ -179,7 +179,7 @@ export default function UserHospitalPage() {
                             {hospital.name}
                           </h1>
                           <Badge className="bg-white/20 backdrop-blur-sm border-white/30 text-white font-bold">
-                            {hospital.status}
+                            APPROVED
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 text-cyan-100">
@@ -202,19 +202,6 @@ export default function UserHospitalPage() {
                           <Stethoscope className="w-4 h-4 mr-2" />
                           {hospital.procedures?.length || 0} Procedures
                         </Badge>
-                        {hospital.services && hospital.services.length > 0 && (
-                          <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/30 px-4 py-2 font-bold">
-                            <HeartHandshake className="w-4 h-4 mr-2" />
-                            {hospital.services.length} Services
-                          </Badge>
-                        )}
-                        {hospital.facilities &&
-                          hospital.facilities.length > 0 && (
-                            <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/30 px-4 py-2 font-bold">
-                              <Building2 className="w-4 h-4 mr-2" />
-                              {hospital.facilities.length} Facilities
-                            </Badge>
-                          )}
                       </div>
 
                       {/* Contact Info */}
@@ -304,10 +291,6 @@ export default function UserHospitalPage() {
                           >
                             <div className="flex items-start gap-4">
                               <Avatar className="w-14 h-14 ring-2 ring-slate-200 dark:ring-slate-800 group-hover:ring-cyan-400 dark:group-hover:ring-cyan-600 transition-all">
-                                <AvatarImage
-                                  src={doctor.profilePic}
-                                  alt={doctor.name}
-                                />
                                 <AvatarFallback className="bg-gradient-to-br from-cyan-100 to-teal-100 dark:from-cyan-900 dark:to-teal-900 text-cyan-700 dark:text-cyan-300 font-bold">
                                   {doctor.name.charAt(0)}
                                 </AvatarFallback>
@@ -321,11 +304,6 @@ export default function UserHospitalPage() {
                                     <p className="text-sm text-cyan-600 dark:text-cyan-400 font-semibold">
                                       {doctor.specialization}
                                     </p>
-                                    {doctor.experience && (
-                                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                                        {doctor.experience} years experience
-                                      </p>
-                                    )}
                                   </div>
                                   <Badge
                                     variant="outline"
@@ -343,53 +321,6 @@ export default function UserHospitalPage() {
                     )}
                   </CardContent>
                 </Card>
-
-                {/* Services Section */}
-                {hospital.services && hospital.services.length > 0 && (
-                  <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-lg hover:shadow-xl transition-shadow">
-                    <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-                      <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                        <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
-                          <HeartHandshake className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        Medical Services
-                        <Badge
-                          variant="secondary"
-                          className="ml-auto font-bold"
-                        >
-                          {hospital.services.length}
-                        </Badge>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 pt-6">
-                      {hospital.services.map((service) => (
-                        <div
-                          key={service.id}
-                          className="p-4 border-2 border-slate-200 dark:border-slate-800 rounded-xl hover:border-purple-400 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all"
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <h4 className="font-bold text-slate-900 dark:text-slate-100">
-                                {service.name}
-                              </h4>
-                              {service.cost && (
-                                <Badge className="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700 font-bold">
-                                  <IndianRupee className="w-3 h-3 mr-1" />
-                                  {service.cost}
-                                </Badge>
-                              )}
-                            </div>
-                            {service.description && (
-                              <p className="text-sm text-slate-600 dark:text-slate-400">
-                                {service.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
               </div>
 
               {/* Right Column */}
@@ -435,11 +366,6 @@ export default function UserHospitalPage() {
                                   </Badge>
                                 )}
                               </div>
-                              {procedure.description && (
-                                <p className="text-sm text-slate-600 dark:text-slate-400">
-                                  {procedure.description}
-                                </p>
-                              )}
                               {procedure.duration && (
                                 <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-medium">
                                   <Clock className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -453,110 +379,8 @@ export default function UserHospitalPage() {
                     )}
                   </CardContent>
                 </Card>
-
-                {/* Facilities Section */}
-                {hospital.facilities && hospital.facilities.length > 0 && (
-                  <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-lg hover:shadow-xl transition-shadow">
-                    <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20">
-                      <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                        <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-lg">
-                          <Building2 className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                        </div>
-                        Hospital Facilities
-                        <Badge
-                          variant="secondary"
-                          className="ml-auto font-bold"
-                        >
-                          {hospital.facilities.length}
-                        </Badge>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 pt-6">
-                      {hospital.facilities.map((facility) => (
-                        <div
-                          key={facility.id}
-                          className="p-4 border-2 border-slate-200 dark:border-slate-800 rounded-xl hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-all"
-                        >
-                          <div className="space-y-2">
-                            <h4 className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                              <Award className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                              {facility.name}
-                            </h4>
-                            {facility.description && (
-                              <p className="text-sm text-slate-600 dark:text-slate-400 ml-6">
-                                {facility.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
               </div>
             </div>
-
-            {/* Insurance Section */}
-            {hospital.Insurance && hospital.Insurance.length > 0 && (
-              <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                  <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                      <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    Insurance Coverage
-                    <Badge variant="secondary" className="ml-auto font-bold">
-                      {hospital.Insurance.length}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {hospital.Insurance.map((insurance) => (
-                      <div
-                        key={insurance.id}
-                        className="p-4 border-2 border-slate-200 dark:border-slate-800 rounded-xl hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all"
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <h4 className="font-bold text-slate-900 dark:text-slate-100">
-                              {insurance.name}
-                            </h4>
-                            {insurance.cashless !== null && (
-                              <div className="flex items-center gap-1">
-                                {insurance.cashless ? (
-                                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                                ) : (
-                                  <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {insurance.cashless !== null && (
-                            <Badge
-                              className={`${
-                                insurance.cashless
-                                  ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700"
-                                  : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700"
-                              } font-bold`}
-                            >
-                              {insurance.cashless
-                                ? "Cashless"
-                                : "Reimbursement"}
-                            </Badge>
-                          )}
-                          {insurance.provider && (
-                            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                              Provider: {insurance.provider}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Action Buttons */}
             <Card className="border-2 border-cyan-200 dark:border-cyan-800 shadow-xl bg-gradient-to-br from-cyan-50/50 to-teal-50/50 dark:from-cyan-900/10 dark:to-teal-900/10">

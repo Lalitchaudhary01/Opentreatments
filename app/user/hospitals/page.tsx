@@ -54,7 +54,7 @@ export default function UserHospitalsPage() {
     });
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
     }
@@ -261,12 +261,7 @@ export default function UserHospitalsPage() {
 
         {/* Hospital List Section */}
         <div className="container mx-auto max-w-6xl px-6 pb-12 relative z-10">
-          <UserHospitalList
-            hospitals={hospitals}
-            onHospitalClick={(hospital) =>
-              router.push(`/user/hospitals/${hospital.id}`)
-            }
-          />
+          <UserHospitalList hospitals={hospitals} />
         </div>
 
         <style jsx>{`

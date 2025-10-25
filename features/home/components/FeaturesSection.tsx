@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 
 export default function FeaturesSection() {
-  const cardsRef = useRef([]);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -121,7 +121,9 @@ export default function FeaturesSection() {
               return (
                 <div
                   key={index}
-                  ref={(el) => (cardsRef.current[index] = el)}
+                  ref={(el) => {
+                    cardsRef.current[index] = el;
+                  }}
                   className={`feature-card opacity-0 translate-y-16 flex ${
                     isEven ? "md:justify-start" : "md:justify-end"
                   }`}

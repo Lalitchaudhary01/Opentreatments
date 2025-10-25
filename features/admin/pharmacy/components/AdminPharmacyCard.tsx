@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function AdminPharmacyCard({ pharmacy, refresh }: Props) {
-  const handleAction = async (status: PharmacyStatus) => {
+  const handleAction = async (status: PharmacyStatus | "DELETE") => {
     try {
       await updatePharmacyStatus(pharmacy.id, status);
       await refresh();
@@ -44,7 +44,7 @@ export default function AdminPharmacyCard({ pharmacy, refresh }: Props) {
         )}
         <Button
           variant="outline"
-          onClick={() => handleAction("DELETED")}
+          onClick={() => handleAction("DELETE")}
         >
           Delete
         </Button>

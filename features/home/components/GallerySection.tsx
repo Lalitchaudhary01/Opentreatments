@@ -12,10 +12,10 @@ import {
 } from "lucide-react";
 
 const GallerySection = () => {
-  const sectionRef = useRef(null);
-  const cardsRef = useRef([]);
-  const canvasRef = useRef(null);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Canvas animation code (same as before)
@@ -27,13 +27,22 @@ const GallerySection = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const particles = [];
+    const particles: any[] = [];
     const particleCount = 60;
 
     class Particle {
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      opacity: number;
+      color: string;
+      pulse: number;
+      
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * canvas!.width;
+        this.y = Math.random() * canvas!.height;
         this.size = Math.random() * 3 + 1;
         this.speedX = Math.random() * 0.8 - 0.4;
         this.speedY = Math.random() * 0.8 - 0.4;
@@ -52,16 +61,16 @@ const GallerySection = () => {
         this.y += this.speedY;
         this.pulse += 0.02;
 
-        if (this.x > canvas.width) this.x = 0;
-        if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        if (this.y < 0) this.y = canvas.height;
+        if (this.x > canvas!.width) this.x = 0;
+        if (this.x < 0) this.x = canvas!.width;
+        if (this.y > canvas!.height) this.y = 0;
+        if (this.y < 0) this.y = canvas!.height;
 
         this.opacity = 0.3 + Math.sin(this.pulse) * 0.2;
       }
 
       draw() {
-        const gradient = ctx.createRadialGradient(
+        const gradient = ctx!.createRadialGradient(
           this.x,
           this.y,
           0,
@@ -72,10 +81,10 @@ const GallerySection = () => {
         gradient.addColorStop(0, `rgba(${this.color}, ${this.opacity})`);
         gradient.addColorStop(1, `rgba(${this.color}, 0)`);
 
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
-        ctx.fill();
+        ctx!.fillStyle = gradient;
+        ctx!.beginPath();
+        ctx!.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+        ctx!.fill();
       }
     }
 
@@ -84,7 +93,7 @@ const GallerySection = () => {
     }
 
     function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
 
       particles.forEach((particle) => {
         particle.update();
@@ -98,14 +107,14 @@ const GallerySection = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < 120) {
-            ctx.strokeStyle = `rgba(${particles[i].color}, ${
+            ctx!.strokeStyle = `rgba(${particles[i].color}, ${
               0.15 * (1 - distance / 120)
             })`;
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
+            ctx!.lineWidth = 1.5;
+            ctx!.beginPath();
+            ctx!.moveTo(particles[i].x, particles[i].y);
+            ctx!.lineTo(particles[j].x, particles[j].y);
+            ctx!.stroke();
           }
         }
       }
@@ -315,7 +324,9 @@ const GallerySection = () => {
                 return (
                   <div
                     key={index}
-                    ref={(el) => (cardsRef.current[index] = el)}
+                    ref={(el) => {
+                      cardsRef.current[index] = el;
+                    }}
                     className="gallery-card flex-shrink-0 opacity-0 translate-y-16"
                     style={{ width: "calc(33.333% - 22px)" }}
                     onMouseEnter={() => setHoveredCard(index)}

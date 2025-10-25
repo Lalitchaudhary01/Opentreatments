@@ -32,14 +32,14 @@ export default function AdminHospitalCard({ hospital }: Props) {
       <div className="flex gap-2">
         <Button
           variant="outline"
-          onClick={() => handleAction("APPROVED")}
+          onClick={() => handleAction(HospitalStatus.APPROVED)}
           disabled={isPending}
         >
           Approve
         </Button>
         <Button
           variant="outline"
-          onClick={() => handleAction("REJECTED")}
+          onClick={() => handleAction(HospitalStatus.REJECTED)}
           disabled={isPending}
         >
           Reject

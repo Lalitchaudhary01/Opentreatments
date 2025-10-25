@@ -21,7 +21,7 @@ const UserInsuranceCompaniesPage = () => {
   if (companies.length === 0)
     return <div className="py-10 text-center">No companies found.</div>;
 
-  return <UserInsuranceCompanyList companies={companies} />;
+  return <UserInsuranceCompanyList />;
 };
 
 export default UserInsuranceCompaniesPage;

@@ -14,7 +14,7 @@ const UserInsuranceCompanyPage = () => {
 
   useEffect(() => {
     if (!id) return;
-    getPlansByCompany(id)
+    getPlansByCompany(id as string)
       .then((data) => setPlans(data))
       .finally(() => setLoading(false));
   }, [id]);

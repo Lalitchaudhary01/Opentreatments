@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import AdminDoctorList from "@/features/admin/doctors/components/AdminDoctorList";
+import { DoctorStatus } from "@/features/admin/doctors/types/adminDoctor";
 
 export default function AdminDoctorsPage() {
   const [counts, setCounts] = useState({
@@ -52,17 +53,17 @@ export default function AdminDoctorsPage() {
 
             {/* Pending */}
             <TabsContent value="PENDING">
-              <AdminDoctorList status="PENDING" />
+              <AdminDoctorList status={DoctorStatus.PENDING} />
             </TabsContent>
 
             {/* Approved */}
             <TabsContent value="APPROVED">
-              <AdminDoctorList status="APPROVED" />
+              <AdminDoctorList status={DoctorStatus.APPROVED} />
             </TabsContent>
 
             {/* Rejected */}
             <TabsContent value="REJECTED">
-              <AdminDoctorList status="REJECTED" />
+              <AdminDoctorList status={DoctorStatus.REJECTED} />
             </TabsContent>
           </Tabs>
         </CardContent>

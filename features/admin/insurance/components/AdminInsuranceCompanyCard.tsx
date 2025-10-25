@@ -18,7 +18,7 @@ export default function AdminInsuranceCompanyCard({
 }: Props) {
   const [isPending, startTransition] = useTransition();
 
-  const handleStatusUpdate = (status: InsuranceStatus) => {
+  const handleStatusUpdate = (status: AdminInsuranceCompanyStatus) => {
     startTransition(async () => {
       await updateInsuranceCompanyStatus(company.id, status);
       onStatusChange?.(company.id, status);
