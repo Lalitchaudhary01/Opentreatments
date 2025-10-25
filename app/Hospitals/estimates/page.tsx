@@ -1,7 +1,7 @@
 "use client";
 
+import HospitalEstimateList from "@/features/panel/hospitals/hospital-Estimate/components/HospitalEstimateList";
 import { useSession } from "next-auth/react";
-import HospitalEstimateList from "@/features/hospital-estimates/components/HospitalEstimateList";
 
 export default function HospitalEstimatesPage() {
   const { data: session, status } = useSession();

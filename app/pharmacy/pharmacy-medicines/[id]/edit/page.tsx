@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { getMedicineById } from "../../../actions/getMedicineById";
-import { updateMedicine } from "../../../actions/updateMedicine";
-import PharmacyMedicineForm from "../../../components/PharmacyMedicineForm";
 import { useEffect, useState } from "react";
-import { Medicine } from "../../../types/pharmacyMedicine";
+import { Medicine } from "@/features/panel/pharmacy/pharmacy-medicines/types/pharmacyMedicine";
+import { getMedicineById } from "@/features/panel/pharmacy/pharmacy-medicines/actions/getMedicineById";
+import { updateMedicine } from "@/features/panel/pharmacy/pharmacy-medicines/actions/updateMedicine";
+import PharmacyMedicineForm from "@/features/panel/pharmacy/pharmacy-medicines/components/PharmacyMedicineForm";
 
 type Props = {
   params: { id: string };
