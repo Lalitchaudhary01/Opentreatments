@@ -6,17 +6,17 @@ export interface Medicine {
   pharmacyId: string;
 
   name: string;
-  genericName?: string;
-  brand?: string;
-  category?: string;
-  dosageForm?: string; // e.g., Tablet, Syrup, Injection
-  strength?: string; // e.g., 500mg, 250ml
-  manufacturer?: string;
+  genericName?: string | null;
+  brand?: string | null;
+  category?: string | null;
+  dosageForm?: string | null; // e.g., Tablet, Syrup, Injection
+  strength?: string | null; // e.g., 500mg, 250ml
+  manufacturer?: string | null;
 
-  description?: string;
+  description?: string | null;
   price: number;
-  mrp?: number;
-  gst?: number;
+  mrp?: number | null;
+  gst?: number | null;
 
   stock: StockEntry[]; // batch-wise stock entries
 
@@ -36,8 +36,8 @@ export interface StockEntry {
   quantity: number;
   expiryDate: Date;
 
-  purchasePrice?: number;
-  sellingPrice?: number;
+  purchasePrice?: number | null;
+  sellingPrice?: number | null;
   type: StockType; // track INCOMING / OUTGOING stock
 
   createdAt: Date;

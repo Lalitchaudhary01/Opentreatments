@@ -1,4 +1,3 @@
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -13,7 +12,7 @@ export default async function ViewDoctorProfilePage() {
     return <p className="text-red-600">Unauthorized: Doctors only</p>;
   }
 
-  const profile = await getDoctorProfile(session.user.id);
+  const profile = await getDoctorProfile();
 
   if (!profile) {
     return (

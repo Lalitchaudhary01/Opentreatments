@@ -1,8 +1,58 @@
 "use client";
 
 import Image from "next/image";
-import { HospitalProfile } from "../types/hospitalProfile";
+import { HospitalStatus } from "@prisma/client";
 import { HospitalStatusBadge } from "./HospitalStatusBadge";
+
+interface HospitalProfile {
+  id: string;
+  userId: string;
+  name: string;
+  slug: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  logo?: string;
+  image?: string;
+  status: HospitalStatus;
+  createdAt: string;
+  updatedAt: string;
+  services?: Array<{
+    id: string;
+    name: string;
+    cost?: number;
+    description?: string;
+  }>;
+  facilities?: Array<{
+    id: string;
+    name: string;
+    description?: string;
+  }>;
+  doctors?: Array<{
+    id: string;
+    name: string;
+    specialization: string;
+    experience?: number;
+    profilePic?: string;
+  }>;
+  procedures?: Array<{
+    id: string;
+    name: string;
+    description?: string;
+    cost?: number;
+    duration?: string;
+  }>;
+  insurances?: Array<{
+    id: string;
+    name: string;
+    provider?: string;
+    cashless: boolean;
+  }>;
+}
 
 export function HospitalProfileView({ profile }: { profile: HospitalProfile }) {
   return (

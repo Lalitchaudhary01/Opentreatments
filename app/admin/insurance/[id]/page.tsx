@@ -11,9 +11,7 @@ type Props = {
 };
 
 export default async function AdminInsuranceCompanyPage({ params }: Props) {
-  const company: InsuranceProfileInput | null = await getInsuranceCompanyById(
-    params.id
-  );
+  const company = await getInsuranceCompanyById(params.id);
 
   if (!company) {
     return <p className="p-6 text-red-500">Company not found.</p>;
@@ -23,7 +21,7 @@ export default async function AdminInsuranceCompanyPage({ params }: Props) {
     status: "APPROVED" | "REJECTED" | "PENDING"
   ) {
     "use server";
-    await updateInsuranceCompanyStatus(company.id, status);
+    await updateInsuranceCompanyStatus(company!.id, status);
   }
 
   return (

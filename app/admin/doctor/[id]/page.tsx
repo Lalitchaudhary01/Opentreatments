@@ -13,6 +13,14 @@ export default async function AdminDoctorPage({
 }: AdminDoctorPageProps) {
   const doctor = await prisma.independentDoctor.findUnique({
     where: { id: params.id },
+    include: {
+      user: {
+        select: {
+          email: true,
+          phone: true,
+        },
+      },
+    },
   });
 
   if (!doctor) return notFound();
@@ -23,20 +31,17 @@ export default async function AdminDoctorPage({
       <Card>
         <CardHeader>
           <CardTitle>{doctor.name}</CardTitle>
-          <p className="text-sm text-muted-foreground">{doctor.email}</p>
+          <p className="text-sm text-muted-foreground">{doctor.user.email}</p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <strong>Phone:</strong> {doctor.phone}
+            <strong>Phone:</strong> {doctor.user.phone}
           </div>
           <div>
             <strong>Specialization:</strong> {doctor.specialization}
           </div>
           <div>
             <strong>Experience:</strong> {doctor.experience} years
-          </div>
-          <div>
-            <strong>Bio:</strong> {doctor.bio}
           </div>
           <div>
             <strong>Status:</strong> {doctor.status}

@@ -1,21 +1,27 @@
-"use client";
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import prisma from "@/lib/prisma";
 import HospitalEstimateList from "@/features/panel/hospitals/hospital-Estimate/components/HospitalEstimateList";
-import { useSession } from "next-auth/react";
 
-export default function HospitalEstimatesPage() {
-  const { data: session, status } = useSession();
+export default async function HospitalEstimatesPage() {
+  const session = await getServerSession(authOptions);
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (!session || session.user.role !== "HOSPITAL") return <p>Unauthorized</p>;
+  if (!session || session.user.role !== "HOSPITAL") {
+    return <p>Unauthorized</p>;
+  }
 
-  const hospitalId = session.user.hospitalId;
-  if (!hospitalId) return <p>No hospital linked to this account.</p>;
+  const hospital = await prisma.hospital.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  if (!hospital) {
+    return <p>No hospital linked to this account.</p>;
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Manage Insurance Estimates</h1>
-      <HospitalEstimateList hospitalId={hospitalId} />
+      <HospitalEstimateList hospitalId={hospital.id} />
     </div>
   );
 }

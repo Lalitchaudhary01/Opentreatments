@@ -44,7 +44,7 @@ export default function UserHospitalPage() {
       if (!params.id) return;
 
       try {
-        const data = await getHospitalById(params.id);
+        const data = await getHospitalById(params.id as string);
         if (!data) {
           router.push("/user/hospitals");
           return;
@@ -167,11 +167,9 @@ export default function UserHospitalPage() {
                           {hospital.name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
-                      {hospital.verified && (
-                        <div className="absolute -bottom-2 -right-2 bg-white dark:bg-slate-900 rounded-full p-2 shadow-lg">
-                          <CheckCircle2 className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
-                        </div>
-                      )}
+                      <div className="absolute -bottom-2 -right-2 bg-white dark:bg-slate-900 rounded-full p-2 shadow-lg">
+                        <CheckCircle2 className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+                      </div>
                     </div>
 
                     <div className="flex-1 space-y-4">

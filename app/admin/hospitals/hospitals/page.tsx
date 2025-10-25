@@ -3,9 +3,11 @@
 import { getHospitals } from "@/features/admin/hospitals/actions/getHospitals";
 import { updateHospitalStatus } from "@/features/admin/hospitals/actions/updateHospitalStatus";
 import AdminHospitalCard from "@/features/admin/hospitals/components/AdminHospitalCard";
-import { AdminHospital, HospitalStatus } from "@/features/admin/hospitals/types/adminHospital";
+import {
+  AdminHospital,
+  HospitalStatus,
+} from "@/features/admin/hospitals/types/adminHospital";
 import { useEffect, useState } from "react";
-
 
 export default function AdminHospitalsPage() {
   const [hospitals, setHospitals] = useState<AdminHospital[]>([]);
@@ -32,7 +34,14 @@ export default function AdminHospitalsPage() {
 
       {/* Filter */}
       <div className="mb-4 flex gap-2">
-        {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((s) => (
+        {(
+          [
+            "ALL",
+            HospitalStatus.PENDING,
+            HospitalStatus.APPROVED,
+            HospitalStatus.REJECTED,
+          ] as const
+        ).map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}
@@ -54,7 +63,7 @@ export default function AdminHospitalsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {hospitals.map((h) => (
             <div key={h.id} className="relative">
-              <AdminHospitalCard hospital={h} onStatusChange={fetchData} />
+              <AdminHospitalCard hospital={h} />
               <button
                 onClick={() => handleDelete(h.id)}
                 className="absolute top-2 right-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"

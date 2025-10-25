@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { InsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
+import { InsurancePlan } from "@/features/panel/insurance/insurance-plans/types/insurancePlan";
+import { Claim } from "@/features/panel/insurance/insurance-claims/types/insuranceClaim";
 import { getInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/getInsuranceProfile";
+import { getPlans } from "@/features/panel/insurance/insurance-plans/actions/getPlans";
+import { getClaims } from "@/features/panel/insurance/insurance-claims/actions/getClaims";
 import InsuranceStatusBadge from "@/features/panel/insurance/insurance-company-profile/components/InsuranceStatusBadge";
 import InsuranceProfileView from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileView";
 // import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
@@ -21,16 +25,16 @@ export default function InsuranceDashboardPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<InsuranceProfile | null>(null);
   const [plans, setPlans] = useState<InsurancePlan[]>([]);
-  const [claims, setClaims] = useState<InsuranceClaim[]>([]);
+  const [claims, setClaims] = useState<Claim[]>([]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
     async function fetchData() {
       const [profileData, plansData, claimsData] = await Promise.all([
-        getInsuranceProfile(session.user.id),
-        getInsurancePlans(session.user.id),
-        getInsuranceClaims(session.user.id),
+        getInsuranceProfile(session!.user.id),
+        getPlans(session!.user.id),
+        getClaims(session!.user.id),
       ]);
       setProfile(profileData);
       setPlans(plansData || []);
@@ -91,9 +95,7 @@ export default function InsuranceDashboardPage() {
             {plans.map((plan) => (
               <li key={plan.id} className="p-3 border rounded-lg">
                 <p className="font-medium">{plan.name}</p>
-                <p className="text-sm text-gray-600">
-                  Coverage: {plan.coverageAmount} | Premium: {plan.premium}
-                </p>
+                <p className="text-sm text-gray-600">Premium: {plan.premium}</p>
               </li>
             ))}
           </ul>
@@ -119,7 +121,7 @@ export default function InsuranceDashboardPage() {
               <li key={claim.id} className="p-3 border rounded-lg">
                 <p className="font-medium">Claim ID: {claim.id}</p>
                 <p className="text-sm text-gray-600">
-                  Amount: {claim.amount} | Status:{" "}
+                  Amount: {claim.billDetails.amount} | Status:{" "}
                   <span
                     className={`px-2 py-1 rounded text-xs ${
                       claim.status === "APPROVED"

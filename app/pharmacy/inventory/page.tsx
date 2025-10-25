@@ -38,12 +38,7 @@ export default function PharmacyInventoryPage() {
         </CardHeader>
         <CardContent>
           {selectedMedicine ? (
-            <PharmacyInventoryForm
-              medicineId={selectedMedicine}
-              onSubmit={async () => {
-                await fetchInventory();
-              }}
-            />
+            <PharmacyInventoryForm medicineId={selectedMedicine} />
           ) : (
             <p className="text-sm text-gray-500">
               Select a medicine first to add stock
@@ -61,7 +56,6 @@ export default function PharmacyInventoryPage() {
           <PharmacyInventoryTable
             inventory={inventory}
             refresh={fetchInventory}
-            onSelectMedicine={(id: string) => setSelectedMedicine(id)}
           />
         </CardContent>
       </Card>

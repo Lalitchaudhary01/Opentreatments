@@ -14,8 +14,8 @@ export interface HospitalDoctor {
 
   name: string;
   specialization: string; // using string from DB
-  experience?: number;
-  profilePic?: string;
+  experience?: number | null;
+  profilePic?: string | null;
 
   createdAt?: Date; // Prisma default
   updatedAt?: Date; // Prisma default

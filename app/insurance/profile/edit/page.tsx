@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { InsuranceProfile, InsuranceStatus } from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
+import {
+  InsuranceProfile,
+  InsuranceStatus,
+} from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
 import { getInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/getInsuranceProfile";
 import { updateInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/updateInsuranceProfile";
 import InsuranceProfileForm from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileForm";
@@ -48,7 +51,7 @@ export default function EditProfilePage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-4">Edit Insurance Profile</h1>
-      <InsuranceProfileForm onSubmit={handleUpdate} initialData={profile} />
+      <InsuranceProfileForm profile={profile} />
     </div>
   );
 }

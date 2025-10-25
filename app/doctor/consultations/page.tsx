@@ -29,7 +29,13 @@ export default async function DoctorConsultationsPage() {
           <p>No pending consultations.</p>
         ) : (
           pendingConsultations.map((c) => (
-            <DoctorConsultationCard key={c.id} consultation={c} />
+            <DoctorConsultationCard
+              key={c.id}
+              consultation={{
+                ...c,
+                status: c.status as "PENDING" | "APPROVED" | "REJECTED",
+              }}
+            />
           ))
         )}
       </section>
@@ -40,7 +46,13 @@ export default async function DoctorConsultationsPage() {
           <p>No approved consultations.</p>
         ) : (
           approvedConsultations.map((c) => (
-            <DoctorConsultationCard key={c.id} consultation={c} />
+            <DoctorConsultationCard
+              key={c.id}
+              consultation={{
+                ...c,
+                status: c.status as "PENDING" | "APPROVED" | "REJECTED",
+              }}
+            />
           ))
         )}
       </section>
@@ -51,7 +63,13 @@ export default async function DoctorConsultationsPage() {
           <p>No rejected consultations.</p>
         ) : (
           rejectedConsultations.map((c) => (
-            <DoctorConsultationCard key={c.id} consultation={c} />
+            <DoctorConsultationCard
+              key={c.id}
+              consultation={{
+                ...c,
+                status: c.status as "PENDING" | "APPROVED" | "REJECTED",
+              }}
+            />
           ))
         )}
       </section>

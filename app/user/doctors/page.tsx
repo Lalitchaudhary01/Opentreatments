@@ -28,7 +28,6 @@ const fadeInUp = {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
@@ -44,12 +43,6 @@ const beamAnimation = {
   visible: {
     x: "200%",
     opacity: [0, 1, 1, 0],
-    transition: {
-      duration: 2,
-      ease: "easeInOut",
-      repeat: Infinity,
-      repeatDelay: 3,
-    },
   },
 };
 
@@ -72,7 +65,7 @@ export default function UserDoctorsPage() {
   };
 
   // Also trigger search on Enter key
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
     }

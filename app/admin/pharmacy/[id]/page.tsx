@@ -12,7 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getPharmacyById } from "@/features/admin/pharmacy/actions/getPharmacyById";
 import { updatePharmacyStatus } from "@/features/admin/pharmacy/actions/updatePharmacyStatus";
-import { AdminPharmacy, PharmacyStatus } from "@/features/admin/pharmacy/types/adminPharmacy";
+import {
+  AdminPharmacy,
+  PharmacyStatus,
+} from "@/features/admin/pharmacy/types/adminPharmacy";
 
 export default function AdminPharmacyDetailPage() {
   const { id } = useParams();
@@ -31,7 +34,7 @@ export default function AdminPharmacyDetailPage() {
     }
   };
 
-  const handleAction = async (status: PharmacyStatus) => {
+  const handleAction = async (status: PharmacyStatus | "DELETE") => {
     try {
       await updatePharmacyStatus(id as string, status);
       await fetchPharmacy();
@@ -86,7 +89,7 @@ export default function AdminPharmacyDetailPage() {
               Reject
             </Button>
           )}
-          <Button variant="outline" onClick={() => handleAction("DELETED")}>
+          <Button variant="outline" onClick={() => handleAction("DELETE")}>
             Delete
           </Button>
         </div>

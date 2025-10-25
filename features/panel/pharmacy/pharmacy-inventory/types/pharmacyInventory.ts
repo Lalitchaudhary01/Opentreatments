@@ -1,15 +1,4 @@
-// ------------------------ Enums ------------------------
-export enum StockType {
-  INCOMING = "INCOMING",
-  OUTGOING = "OUTGOING",
-}
-
-export enum InventoryChangeType {
-  SALE = "SALE",
-  DAMAGE = "DAMAGE",
-  EXPIRE = "EXPIRE",
-  MANUAL_ADJUSTMENT = "MANUAL_ADJUSTMENT",
-}
+import { StockType, InventoryChangeType } from "@prisma/client";
 
 // ------------------------ Stock Entry ------------------------
 export interface StockEntry {
@@ -21,8 +10,8 @@ export interface StockEntry {
   quantity: number;
   expiryDate: Date;
 
-  purchasePrice?: number;
-  sellingPrice?: number;
+  purchasePrice?: number | null;
+  sellingPrice?: number | null;
   type: StockType;
 
   createdAt: Date;
@@ -41,7 +30,7 @@ export interface InventoryLog {
 
   changeType: InventoryChangeType;
   quantityChanged: number;
-  note?: string;
+  note?: string | null;
 
   createdAt: Date;
 }

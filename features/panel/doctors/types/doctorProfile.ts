@@ -1,9 +1,4 @@
-// Enum for doctor status
-export enum DoctorStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
-}
+import { JsonValue, DoctorStatus } from "@prisma/client";
 
 // Doctor profile type (matches IndependentDoctor model)
 export interface DoctorProfile {
@@ -11,18 +6,18 @@ export interface DoctorProfile {
   userId: string;
 
   name: string;
-  specialties: string[];      // multiple specialties
-  specialization: string;     // primary specialization
-  experience?: number;
-  gender?: string;
-  profilePic?: string;
-  fees?: number;
+  specialties: string[]; // multiple specialties
+  specialization: string; // primary specialization
+  experience?: number | null;
+  gender?: string | null;
+  profilePic?: string | null;
+  fees?: number | null;
   rating: number;
   totalReviews: number;
   languages: string[];
-  availability?: Record<string, any>; // JSON in Prisma → flexible object
+  availability?: JsonValue | null; // JSON in Prisma → JsonValue
   badges: string[];
-  city?: string;
+  city?: string | null;
 
   status: DoctorStatus;
 

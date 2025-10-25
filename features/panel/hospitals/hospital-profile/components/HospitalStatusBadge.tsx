@@ -1,6 +1,6 @@
 "use client";
 
-import { HospitalStatus } from "../types/hospitalProfile";
+import { HospitalStatus } from "@prisma/client";
 
 export function HospitalStatusBadge({ status }: { status: HospitalStatus }) {
   let color = "bg-gray-200 text-gray-800";

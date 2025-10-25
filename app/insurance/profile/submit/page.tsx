@@ -28,7 +28,7 @@ export default function SubmitProfilePage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-4">Submit Insurance Profile</h1>
-      <InsuranceProfileForm onSubmit={handleSubmit} />
+      <InsuranceProfileForm />
     </div>
   );
 }

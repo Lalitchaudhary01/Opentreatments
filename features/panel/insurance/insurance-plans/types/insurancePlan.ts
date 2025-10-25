@@ -1,3 +1,5 @@
+import { JsonValue } from "@prisma/client";
+
 export type PlanStatus = "ACTIVE" | "INACTIVE";
 
 export interface CoverageDetails {
@@ -10,12 +12,9 @@ export interface InsurancePlan {
   id: string;
   companyId: string; // relation to InsuranceCompany
   name: string;
-  description: string;
-  coverageAmount: number; // total coverage amount
+  description?: string | null;
+  coverageDetails: JsonValue; // JSON from Prisma
   premium: number; // monthly or yearly premium
-  tenure: number; // tenure in months/years
-  status: PlanStatus;
-  coverageDetails: CoverageDetails;
   createdAt: Date;
   updatedAt: Date;
 }

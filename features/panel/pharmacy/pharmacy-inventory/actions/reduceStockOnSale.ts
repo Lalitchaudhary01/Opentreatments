@@ -3,7 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { InventoryChangeType, StockType } from "../types/pharmacyInventory";
+import { InventoryChangeType, StockType } from "@prisma/client";
 
 export async function reduceStockOnSale(data: {
   stockEntryId: string;

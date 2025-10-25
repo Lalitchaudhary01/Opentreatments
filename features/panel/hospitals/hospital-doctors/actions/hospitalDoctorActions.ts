@@ -8,8 +8,8 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export async function addHospitalDoctor(data: {
   name: string;
   specialization: string;
-  experience?: number;
-  profilePic?: string;
+  experience?: number | null;
+  profilePic?: string | null;
 }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "HOSPITAL") {
@@ -55,8 +55,8 @@ export async function updateHospitalDoctor(
   data: {
     name?: string;
     specialization?: string;
-    experience?: number;
-    profilePic?: string;
+    experience?: number | null;
+    profilePic?: string | null;
   }
 ) {
   const session = await getServerSession(authOptions);
