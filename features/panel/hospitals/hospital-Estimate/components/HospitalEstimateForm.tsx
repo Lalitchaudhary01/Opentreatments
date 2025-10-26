@@ -17,30 +17,35 @@ export default function HospitalEstimateForm({
   estimate,
   onSuccess,
 }: Props) {
+  const [policyId, setPolicyId] = useState(estimate?.policyId || "");
   const [procedureId, setProcedureId] = useState(estimate?.procedureId || "");
-  const [insuranceId, setInsuranceId] = useState(estimate?.insuranceId || "");
-  const [estimatedCost, setEstimatedCost] = useState(
-    estimate?.estimatedCost || ""
+  const [procedureCost, setProcedureCost] = useState(
+    estimate?.procedureCost || ""
   );
-  const [notes, setNotes] = useState(estimate?.notes || "");
+  const [coveredAmount, setCoveredAmount] = useState(
+    estimate?.coveredAmount || ""
+  );
+  const [outOfPocket, setOutOfPocket] = useState(estimate?.outOfPocket || "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (estimate) {
       await updateEstimate(estimate.id, {
+        policyId,
         procedureId,
-        insuranceId,
-        estimatedCost: Number(estimatedCost),
-        notes,
+        procedureCost: Number(procedureCost),
+        coveredAmount: Number(coveredAmount),
+        outOfPocket: Number(outOfPocket),
       });
     } else {
       await addEstimate({
         hospitalId,
+        policyId,
         procedureId,
-        insuranceId,
-        estimatedCost: Number(estimatedCost),
-        notes,
+        procedureCost: Number(procedureCost),
+        coveredAmount: Number(coveredAmount),
+        outOfPocket: Number(outOfPocket),
       });
     }
 
@@ -54,28 +59,36 @@ export default function HospitalEstimateForm({
     >
       <input
         className="w-full p-2 border rounded"
+        placeholder="Policy ID"
+        value={policyId}
+        onChange={(e) => setPolicyId(e.target.value)}
+      />
+      <input
+        className="w-full p-2 border rounded"
         placeholder="Procedure ID"
         value={procedureId}
         onChange={(e) => setProcedureId(e.target.value)}
       />
       <input
+        type="number"
         className="w-full p-2 border rounded"
-        placeholder="Insurance ID"
-        value={insuranceId}
-        onChange={(e) => setInsuranceId(e.target.value)}
+        placeholder="Procedure Cost"
+        value={procedureCost}
+        onChange={(e) => setProcedureCost(e.target.value)}
       />
       <input
         type="number"
         className="w-full p-2 border rounded"
-        placeholder="Estimated Cost"
-        value={estimatedCost}
-        onChange={(e) => setEstimatedCost(e.target.value)}
+        placeholder="Covered Amount"
+        value={coveredAmount}
+        onChange={(e) => setCoveredAmount(e.target.value)}
       />
-      <textarea
+      <input
+        type="number"
         className="w-full p-2 border rounded"
-        placeholder="Notes"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Out of Pocket"
+        value={outOfPocket}
+        onChange={(e) => setOutOfPocket(e.target.value)}
       />
       <button className="px-4 py-2 bg-blue-600 text-white rounded">
         {estimate ? "Update Estimate" : "Add Estimate"}

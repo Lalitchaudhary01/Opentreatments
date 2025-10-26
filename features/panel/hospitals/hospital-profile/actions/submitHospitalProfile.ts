@@ -61,6 +61,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import slugify from "slugify";
 
 export async function submitHospitalProfile(data: {
   name: string;
@@ -95,10 +96,13 @@ export async function submitHospitalProfile(data: {
     throw new Error("Unauthorized");
   }
 
+  const slug = slugify(data.name, { lower: true, strict: true });
+
   const hospital = await prisma.hospital.create({
     data: {
       userId: session.user.id,
       name: data.name,
+      slug,
       address: data.address,
       city: data.city,
       state: data.state,

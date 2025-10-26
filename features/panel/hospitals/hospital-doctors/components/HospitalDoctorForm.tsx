@@ -23,7 +23,7 @@ const HospitalDoctorForm: React.FC<HospitalDoctorFormProps> = ({
     if (doctor) {
       setName(doctor.name);
       setSpecialization(doctor.specialization);
-      setExperience(doctor.experience);
+      setExperience(doctor.experience ?? undefined);
       setProfilePic(doctor.profilePic || "");
     }
   }, [doctor]);

@@ -73,7 +73,10 @@ export default function DoctorProfileView({
             {/* Avatar Section */}
             <div className="relative flex-shrink-0">
               <Avatar className="w-32 h-32 border-4 border-white shadow-2xl">
-                <AvatarImage src={profile.profilePic} alt={profile.name} />
+                <AvatarImage
+                  src={profile.profilePic || undefined}
+                  alt={profile.name}
+                />
                 <AvatarFallback className="text-4xl bg-white text-cyan-600 font-bold">
                   {profile.name
                     .split(" ")
@@ -349,7 +352,11 @@ export default function DoctorProfileView({
                       "saturday",
                       "sunday",
                     ].map((day) => {
-                      const time = profile.availability[day];
+                      const availability = profile.availability as
+                        | Record<string, any>
+                        | null
+                        | undefined;
+                      const time = availability?.[day];
                       const isAvailable = !!time;
 
                       return (
@@ -407,18 +414,6 @@ export default function DoctorProfileView({
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
-                {profile.email && (
-                  <div className="flex items-center gap-3 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                    <Mail className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-sm break-all">{profile.email}</span>
-                  </div>
-                )}
-                {profile.phone && (
-                  <div className="flex items-center gap-3 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                    <Phone className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-sm">{profile.phone}</span>
-                  </div>
-                )}
                 <Button className="w-full bg-white text-cyan-700 hover:bg-cyan-50 font-bold py-6 mt-2">
                   <MessageSquare className="w-5 h-5 mr-2" />
                   Send Message

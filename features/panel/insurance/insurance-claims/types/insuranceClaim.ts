@@ -1,4 +1,6 @@
-export type ClaimStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+import { ClaimStatus as ClaimStatusEnum } from "@prisma/client";
+
+export type ClaimStatus = ClaimStatusEnum;
 
 export interface BillDetails {
   hospitalName: string;
@@ -13,7 +15,7 @@ export interface Claim {
   companyId: string;
   planId: string;
 
-  billDetails: BillDetails;
+  billDetails: Prisma.JsonValue;
   status: ClaimStatus;
 
   createdAt: Date;

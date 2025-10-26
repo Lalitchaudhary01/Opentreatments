@@ -10,7 +10,7 @@ import { HospitalService } from "../types/hospitalServices";
 
 const formSchema = z.object({
   name: z.string().min(2, "Service name required"),
-  cost: z.coerce.number().nonnegative().optional(),
+  cost: z.union([z.number(), z.undefined()]).optional(),
   description: z.string().optional(),
 });
 
@@ -33,7 +33,13 @@ export default function HospitalServiceForm({
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || { name: "", cost: 0, description: "" },
+    defaultValues: initialData
+      ? {
+          name: initialData.name,
+          cost: initialData.cost ?? undefined,
+          description: initialData.description ?? undefined,
+        }
+      : { name: "", cost: undefined, description: "" },
   });
 
   return (

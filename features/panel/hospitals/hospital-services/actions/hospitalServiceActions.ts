@@ -1,7 +1,11 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { HospitalService, CreateHospitalServiceInput, UpdateHospitalServiceInput } from "../types/hospitalService";
+import {
+  HospitalService,
+  CreateHospitalServiceInput,
+  UpdateHospitalServiceInput,
+} from "../types/hospitalServices";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -29,7 +33,9 @@ async function getHospitalIdFromSession(): Promise<string> {
 /**
  * Add new hospital service
  */
-export async function addService(data: CreateHospitalServiceInput): Promise<HospitalService> {
+export async function addService(
+  data: CreateHospitalServiceInput
+): Promise<HospitalService> {
   const hospitalId = await getHospitalIdFromSession();
 
   const service = await prisma.service.create({
@@ -59,7 +65,10 @@ export async function getServices(): Promise<HospitalService[]> {
 /**
  * Update service info
  */
-export async function updateService(id: string, data: UpdateHospitalServiceInput): Promise<HospitalService> {
+export async function updateService(
+  id: string,
+  data: UpdateHospitalServiceInput
+): Promise<HospitalService> {
   const hospitalId = await getHospitalIdFromSession();
 
   const updated = await prisma.service.update({

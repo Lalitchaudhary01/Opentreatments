@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { Claim, BillDetails } from "../types/insuranceClaim";
 
 // User submits a claim for a plan under a company
@@ -15,7 +16,7 @@ export async function submitClaim(
       userId,
       companyId,
       planId,
-      billDetails,
+      billDetails: billDetails as unknown as Prisma.InputJsonValue,
       status: "PENDING",
     },
   });

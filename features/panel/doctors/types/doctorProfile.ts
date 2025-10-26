@@ -1,4 +1,7 @@
-import { JsonValue, DoctorStatus } from "@prisma/client";
+import { DoctorStatus, Prisma } from "@prisma/client";
+
+// Export DoctorStatus for use in other files
+export { DoctorStatus };
 
 // Doctor profile type (matches IndependentDoctor model)
 export interface DoctorProfile {
@@ -15,7 +18,7 @@ export interface DoctorProfile {
   rating: number;
   totalReviews: number;
   languages: string[];
-  availability?: JsonValue | null; // JSON in Prisma → JsonValue
+  availability?: Prisma.JsonValue | null; // JSON in Prisma
   badges: string[];
   city?: string | null;
 

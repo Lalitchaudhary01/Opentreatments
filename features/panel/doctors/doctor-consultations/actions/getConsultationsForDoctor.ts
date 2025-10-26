@@ -29,7 +29,7 @@ export async function getConsultationsForDoctor(): Promise<
     id: c.id,
     userId: c.userId,
     doctorId: c.doctorId,
-    userName: c.user.name,
+    userName: c.user.name || "Unknown User",
     userEmail: c.user.email,
     slot: c.slot.toISOString(),
     duration: c.duration ?? undefined,

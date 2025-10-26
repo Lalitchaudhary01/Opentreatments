@@ -3,7 +3,7 @@
 export interface HospitalInsurance {
   id: string;
   name: string;
-  provider?: string;
+  provider?: string | null;
   cashless: boolean;
   hospitalId: string;
 }

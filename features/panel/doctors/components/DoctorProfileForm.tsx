@@ -51,11 +51,13 @@ export default function DoctorProfileForm() {
     education: "",
   });
 
-  const [specialtyTags, setSpecialtyTags] = useState([]);
-  const [languageTags, setLanguageTags] = useState([]);
+  const [specialtyTags, setSpecialtyTags] = useState<string[]>([]);
+  const [languageTags, setLanguageTags] = useState<string[]>([]);
   const [newSpecialty, setNewSpecialty] = useState("");
   const [newLanguage, setNewLanguage] = useState("");
-  const [availabilityDays, setAvailabilityDays] = useState({});
+  const [availabilityDays, setAvailabilityDays] = useState<
+    Record<string, string>
+  >({});
 
   const weekDays = [
     "Monday",
@@ -74,7 +76,7 @@ export default function DoctorProfileForm() {
     }
   };
 
-  const removeSpecialty = (specialty) => {
+  const removeSpecialty = (specialty: string) => {
     setSpecialtyTags(specialtyTags.filter((s) => s !== specialty));
   };
 
@@ -85,11 +87,11 @@ export default function DoctorProfileForm() {
     }
   };
 
-  const removeLanguage = (language) => {
+  const removeLanguage = (language: string) => {
     setLanguageTags(languageTags.filter((l) => l !== language));
   };
 
-  const updateAvailability = (day, time) => {
+  const updateAvailability = (day: string, time: string) => {
     const updated = { ...availabilityDays };
     if (time.trim()) {
       updated[day.toLowerCase()] = time;
@@ -99,7 +101,7 @@ export default function DoctorProfileForm() {
     setAvailabilityDays(updated);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {

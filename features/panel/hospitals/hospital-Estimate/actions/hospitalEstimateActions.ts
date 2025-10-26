@@ -5,7 +5,7 @@ import { HospitalEstimate } from "../types/hospitalEstimate";
 
 // ✅ Add Estimate
 export async function addEstimate(
-  data: Omit<HospitalEstimate, "id" | "createdAt" | "updatedAt">
+  data: Omit<HospitalEstimate, "id" | "createdAt">
 ) {
   return prisma.estimate.create({
     data,
@@ -18,7 +18,7 @@ export async function getEstimates(hospitalId: string) {
     where: { hospitalId },
     include: {
       procedure: true,
-      insurance: true,
+      policy: true,
     },
   });
 }
@@ -26,9 +26,7 @@ export async function getEstimates(hospitalId: string) {
 // ✅ Update estimate
 export async function updateEstimate(
   id: string,
-  data: Partial<
-    Omit<HospitalEstimate, "id" | "hospitalId" | "createdAt" | "updatedAt">
-  >
+  data: Partial<Omit<HospitalEstimate, "id" | "hospitalId" | "createdAt">>
 ) {
   return prisma.estimate.update({
     where: { id },

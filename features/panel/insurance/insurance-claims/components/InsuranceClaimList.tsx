@@ -8,14 +8,12 @@ interface Props {
   claims: Claim[];
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
-  onCancel?: (id: string) => void;
 }
 
 export default function InsuranceClaimList({
   claims,
   onApprove,
   onReject,
-  onCancel,
 }: Props) {
   if (!claims.length) {
     return <p className="text-gray-500">No claims found.</p>;
@@ -29,7 +27,6 @@ export default function InsuranceClaimList({
           claim={claim}
           onApprove={onApprove}
           onReject={onReject}
-          onCancel={onCancel}
         />
       ))}
     </div>

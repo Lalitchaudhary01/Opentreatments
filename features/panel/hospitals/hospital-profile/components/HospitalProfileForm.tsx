@@ -15,21 +15,21 @@ import { updateHospitalProfile } from "../actions/updateHospitalProfile";
 const doctorSchema = z.object({
   name: z.string().min(2),
   specialization: z.string().min(2),
-  experience: z.coerce.number().optional(),
+  experience: z.union([z.number(), z.undefined()]).optional(),
   profilePic: z.string().url().optional(),
 });
 
 const procedureSchema = z.object({
   name: z.string().min(2),
   description: z.string().optional(),
-  cost: z.coerce.number().optional(),
+  cost: z.union([z.number(), z.undefined()]).optional(),
   duration: z.string().optional(),
 });
 
 const serviceSchema = z.object({
   name: z.string().min(2),
   description: z.string().optional(),
-  cost: z.coerce.number().optional(),
+  cost: z.union([z.number(), z.undefined()]).optional(),
 });
 
 const facilitySchema = z.object({
@@ -45,15 +45,15 @@ const insuranceSchema = z.object({
 
 const schema = z.object({
   name: z.string().min(2),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
-  logo: z.string().url().optional(),
-  image: z.string().url().optional(),
+  address: z.string().min(1),
+  city: z.string().min(1),
+  state: z.string().min(1),
+  country: z.string().min(1),
+  phone: z.string().min(1),
+  email: z.string().email().min(1),
+  website: z.string().url().optional().or(z.literal("")),
+  logo: z.string().url().optional().or(z.literal("")),
+  image: z.string().url().optional().or(z.literal("")),
 
   doctors: z.array(doctorSchema).optional(),
   procedures: z.array(procedureSchema).optional(),
@@ -102,7 +102,17 @@ export function HospitalProfileForm({
       if (isEdit) {
         await updateHospitalProfile(values);
       } else {
-        await submitHospitalProfile(values);
+        await submitHospitalProfile({
+          ...values,
+          doctors: values.doctors || [],
+          procedures: values.procedures || [],
+          services: values.services || [],
+          facilities: values.facilities || [],
+          insurances: values.insurances || [],
+          website: values.website || undefined,
+          logo: values.logo || undefined,
+          image: values.image || undefined,
+        });
       }
       router.refresh();
     } catch (err: any) {

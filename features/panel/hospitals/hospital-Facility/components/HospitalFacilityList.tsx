@@ -26,15 +26,19 @@ export default function HospitalFacilityList() {
     setFacilities(res);
   }
 
-  async function handleAdd(
-    values: Omit<HospitalFacility, "id" | "hospitalId">
-  ) {
+  async function handleAdd(values: {
+    name: string;
+    description?: string | undefined;
+  }) {
     await addFacility(values);
     setShowForm(false);
     loadFacilities();
   }
 
-  async function handleUpdate(values: Omit<HospitalFacility, "hospitalId">) {
+  async function handleUpdate(values: {
+    name: string;
+    description?: string | undefined;
+  }) {
     if (!editing) return;
     await updateFacility({ ...values, id: editing.id });
     setEditing(null);

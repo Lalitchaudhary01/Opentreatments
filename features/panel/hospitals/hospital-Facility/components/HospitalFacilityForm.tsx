@@ -32,7 +32,12 @@ export default function HospitalFacilityForm({
     formState: { errors },
   } = useForm<FacilityFormValues>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: defaultValues
+      ? {
+          name: defaultValues.name,
+          description: defaultValues.description ?? undefined,
+        }
+      : undefined,
   });
 
   return (

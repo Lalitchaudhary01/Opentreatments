@@ -8,26 +8,27 @@ interface Props {
   claim: Claim;
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
-  onCancel?: (id: string) => void;
 }
 
 export default function InsuranceClaimCard({
   claim,
   onApprove,
   onReject,
-  onCancel,
 }: Props) {
+  const billDetails = claim.billDetails as any;
+
   return (
     <div className="border rounded-lg p-4 shadow-sm mb-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">
-          {claim.billDetails.hospitalName} - {claim.billDetails.procedure}
+          {billDetails?.hospitalName || "N/A"} -{" "}
+          {billDetails?.procedure || "N/A"}
         </h3>
         <InsuranceClaimStatusBadge status={claim.status} />
       </div>
 
       <p className="text-sm text-gray-600">
-        Amount: ₹{claim.billDetails.amount.toLocaleString()}
+        Amount: ₹{billDetails?.amount?.toLocaleString() || "N/A"}
       </p>
 
       <div className="mt-2 text-xs text-gray-500">
@@ -50,14 +51,6 @@ export default function InsuranceClaimCard({
             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
           >
             Reject
-          </button>
-        )}
-        {onCancel && (
-          <button
-            onClick={() => onCancel(claim.id)}
-            className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
-          >
-            Cancel
           </button>
         )}
       </div>
