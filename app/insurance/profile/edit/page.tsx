@@ -2,20 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import {
-  InsuranceProfile,
-  InsuranceStatus,
-} from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
+import { InsuranceStatus } from "@prisma/client"; // ✅ Fix here
+import { InsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
 import { getInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/getInsuranceProfile";
 import { updateInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/updateInsuranceProfile";
 import InsuranceProfileForm from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileForm";
-// import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
-// import { updateInsuranceProfile } from "@/features/insurance-company-profile/actions/updateInsuranceProfile";
-// import InsuranceProfileForm from "@/features/insurance-company-profile/components/InsuranceProfileForm";
-// import {
-//   InsuranceProfile,
-//   InsuranceStatus,
-// } from "@/features/insurance-company-profile/types/insuranceProfile";
 
 export default function EditProfilePage() {
   const { data: session } = useSession();
@@ -30,7 +21,7 @@ export default function EditProfilePage() {
     fetchProfile();
   }, [session]);
 
-  async function handleUpdate(data: any) {
+  async function handleUpdate(data: Partial<InsuranceProfile>) {
     if (!profile || !session?.user?.id) return;
     try {
       if (profile.status !== InsuranceStatus.APPROVED) {
@@ -39,10 +30,10 @@ export default function EditProfilePage() {
       }
 
       await updateInsuranceProfile({ userId: session.user.id, ...data });
-      alert("Profile updated successfully ✅");
+      alert("✅ Profile updated successfully!");
     } catch (err) {
       console.error(err);
-      alert("Error updating profile");
+      alert("❌ Error updating profile");
     }
   }
 

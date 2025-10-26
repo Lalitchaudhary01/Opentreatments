@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { InsuranceStatus } from "../types/insuranceProfile";
+import { InsuranceStatus } from "@prisma/client";
 
 interface AdminUpdateInsuranceInput {
   companyId: string;

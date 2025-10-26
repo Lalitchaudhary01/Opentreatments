@@ -1,4 +1,4 @@
-import { ClaimStatus as ClaimStatusEnum } from "@prisma/client";
+import { Prisma, ClaimStatus as ClaimStatusEnum } from "@prisma/client";
 
 export type ClaimStatus = ClaimStatusEnum;
 

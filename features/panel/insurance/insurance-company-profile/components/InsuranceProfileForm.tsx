@@ -5,10 +5,9 @@ import {
   InsuranceProfileInput,
   InsuranceProfile,
 } from "../types/insuranceProfile";
-import { InsuranceStatus } from "../types/insuranceProfile";
 import { updateInsuranceProfile } from "../actions/updateInsuranceProfile";
 import { submitInsuranceProfile } from "../actions/submitInsuranceProfile";
-
+import { InsuranceStatus } from "@prisma/client"; // ✅ use Prisma enum
 
 interface InsuranceProfileFormProps {
   profile?: InsuranceProfile | null; // null = new submission, else edit
@@ -18,6 +17,7 @@ export default function InsuranceProfileForm({
   profile,
 }: InsuranceProfileFormProps) {
   const [formData, setFormData] = useState<InsuranceProfileInput>({
+    userId: profile?.userId || "", // ✅ include userId
     companyName: profile?.companyName || "",
     registrationNumber: profile?.registrationNumber || "",
     address: profile?.address || "",
@@ -44,15 +44,16 @@ export default function InsuranceProfileForm({
 
     try {
       if (profile) {
-        // Edit profile
-        await updateInsuranceProfile(profile.id, formData);
+        // ✅ Edit existing profile
+        await updateInsuranceProfile(formData);
         setMessage("✅ Profile updated successfully!");
       } else {
-        // New submission → status = PENDING
+        // ✅ New submission (default status = PENDING)
         await submitInsuranceProfile(formData);
         setMessage("✅ Profile submitted! Waiting for admin approval.");
       }
     } catch (error: any) {
+      console.error(error);
       setMessage(`❌ Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -85,7 +86,6 @@ export default function InsuranceProfileForm({
         value={formData.registrationNumber}
         onChange={handleChange}
         className="w-full p-2 border rounded"
-        required
       />
 
       <textarea
@@ -126,7 +126,7 @@ export default function InsuranceProfileForm({
         className="w-full p-2 border rounded"
       />
 
-      {/* For documents upload (can be expanded later with real file upload logic) */}
+      {/* Documents input (comma-separated URLs for now) */}
       <input
         type="text"
         name="documents"
@@ -135,7 +135,10 @@ export default function InsuranceProfileForm({
         onChange={(e) =>
           setFormData((prev) => ({
             ...prev,
-            documents: e.target.value.split(",").map((doc) => doc.trim()),
+            documents: e.target.value
+              .split(",")
+              .map((doc) => doc.trim())
+              .filter(Boolean),
           }))
         }
         className="w-full p-2 border rounded"
@@ -144,12 +147,20 @@ export default function InsuranceProfileForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
       >
         {loading ? "Saving..." : profile ? "Update Profile" : "Submit Profile"}
       </button>
 
-      {message && <p className="text-center mt-2">{message}</p>}
+      {message && (
+        <p
+          className={`text-center mt-2 ${
+            message.startsWith("✅") ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {message}
+        </p>
+      )}
     </form>
   );
 }

@@ -1,11 +1,8 @@
-export enum InsuranceStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
-}
+import { InsuranceStatus } from "@prisma/client"; // ✅ Import instead of redefining
 
 export interface InsuranceProfile {
   id: string; // Prisma UUID
+  userId: string;
   companyName: string;
   registrationNumber: string;
   address: string;
@@ -17,6 +14,7 @@ export interface InsuranceProfile {
   createdAt: Date;
   updatedAt: Date;
 }
+
 // For profile submission
 export type InsuranceProfileInput = Omit<
   InsuranceProfile,

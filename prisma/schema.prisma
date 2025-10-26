@@ -607,21 +607,24 @@ enum ClaimStatus {
 
 // Insurance company model (role-based, admin approval)
 model InsuranceCompany {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  name     String
-  email    String          @unique
-  provider String? // e.g., LIC, ICICI, HDFC
-  profile  Json? // additional company info
-  status   InsuranceStatus @default(PENDING)
-
-  plans  Plan[]
-  claims Claim[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String          @id @default(cuid())
+  userId             String          @unique
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name               String
+  email              String          @unique
+  contactPhone       String? // ✅ add this
+  registrationNumber String? // optional
+  logoUrl            String?
+  description        String?
+  provider           String?
+  profile            Json?
+  address            String?
+  website            String?
+  status             InsuranceStatus @default(PENDING)
+  plans              Plan[]
+  claims             Claim[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 // Insurance plans

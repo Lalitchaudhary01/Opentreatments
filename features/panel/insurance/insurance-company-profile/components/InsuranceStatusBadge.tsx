@@ -1,4 +1,4 @@
-import { InsuranceStatus } from "../types/insuranceProfile";
+import { InsuranceStatus } from "@prisma/client"; // ✅ Correct import
 
 interface InsuranceStatusBadgeProps {
   status: InsuranceStatus;

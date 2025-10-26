@@ -1,24 +1,25 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { InsuranceProfile, InsuranceStatus } from "../types/insuranceProfile";
+import { InsuranceStatus } from "@prisma/client";
+import { InsuranceProfile } from "../types/insuranceProfile";
 
+/**
+ * Submit new insurance company profile
+ */
 export async function submitInsuranceProfile(
   data: Omit<InsuranceProfile, "id" | "status" | "createdAt" | "updatedAt">
 ) {
   try {
-    const profile = await prisma.insuranceProfile.create({
+    const profile = await prisma.insuranceCompany.create({
       data: {
-        companyName: data.companyName,
-        registrationNumber: data.registrationNumber,
-        contactEmail: data.contactEmail,
+        userId: data.userId,
+        name: data.companyName,
+        registrationNumber: data.registrationNumber || null,
+        email: data.contactEmail,
         contactPhone: data.contactPhone,
         address: data.address,
         website: data.website,
-        establishedYear: data.establishedYear,
-        licenseNumber: data.licenseNumber,
-        logoUrl: data.logoUrl,
-        description: data.description,
         status: InsuranceStatus.PENDING, // default when submitting
       },
     });

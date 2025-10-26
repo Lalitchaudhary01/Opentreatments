@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
-import { InsuranceProfile, InsuranceStatus } from "../types/insuranceProfile";
+import { InsuranceProfile } from "../types/insuranceProfile";
+import { InsuranceStatus } from "@prisma/client";
 
 interface UpdateInsuranceProfileInput {
   userId: string;
@@ -28,9 +29,11 @@ export async function updateInsuranceProfile(
   const updated = await prisma.insuranceCompany.update({
     where: { userId: input.userId },
     data: {
-      name: input.companyName,
-      email: input.contactEmail,
-      // Add more fields if needed
+      name: input.companyName ?? existing.name,
+      email: input.contactEmail ?? existing.email,
+      address: input.address ?? existing.address,
+      contactPhone: input.contactPhone ?? existing.contactPhone,
+      website: input.website ?? existing.website,
       updatedAt: new Date(),
     },
   });
@@ -39,11 +42,11 @@ export async function updateInsuranceProfile(
     id: updated.id,
     userId: updated.userId,
     companyName: updated.name,
-    registrationNumber: updated.userId,
-    address: input.address || "",
+    registrationNumber: updated.registrationNumber || "",
+    address: updated.address || "",
     contactEmail: updated.email,
-    contactPhone: input.contactPhone || "",
-    website: input.website || "",
+    contactPhone: updated.contactPhone || "",
+    website: updated.website || "",
     status: updated.status,
     documents: input.documents || [],
     createdAt: updated.createdAt,
