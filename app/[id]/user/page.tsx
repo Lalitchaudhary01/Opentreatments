@@ -1,10 +1,15 @@
 import MyProfile from "@/features/user/components/MyProfile";
 
 interface UserProfilePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function UserProfilePage({ params }: UserProfilePageProps) {
+export default async function UserProfilePage({
+  params,
+}: UserProfilePageProps) {
+  const { id } = await params; // must await it now
+
   // params.id = logged-in user id
+
   return <MyProfile />;
 }
