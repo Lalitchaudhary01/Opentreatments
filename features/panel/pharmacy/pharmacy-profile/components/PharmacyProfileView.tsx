@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PharmacyStatusBadge } from "./PharmacyStatusBadge";
+import { PharmacyStatus } from "../types/pharmacyProfile";
 
 interface PharmacyProfileViewProps {
   profile: {
@@ -15,7 +16,7 @@ interface PharmacyProfileViewProps {
     country: string;
     licenseNumber: string;
     gstNumber?: string;
-    status: string;
+    status: PharmacyStatus;
   };
 }
 

@@ -3,26 +3,22 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+
 import { InsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/types/insuranceProfile";
 import { InsurancePlan } from "@/features/panel/insurance/insurance-plans/types/insurancePlan";
 import { Claim } from "@/features/panel/insurance/insurance-claims/types/insuranceClaim";
+
 import { getInsuranceProfile } from "@/features/panel/insurance/insurance-company-profile/actions/getInsuranceProfile";
 import { getPlans } from "@/features/panel/insurance/insurance-plans/actions/getPlans";
 import { getClaims } from "@/features/panel/insurance/insurance-claims/actions/getClaims";
+
 import InsuranceStatusBadge from "@/features/panel/insurance/insurance-company-profile/components/InsuranceStatusBadge";
 import InsuranceProfileView from "@/features/panel/insurance/insurance-company-profile/components/InsuranceProfileView";
-// import { getInsuranceProfile } from "@/features/insurance-company-profile/actions/getInsuranceProfile";
-// import { getInsurancePlans } from "@/features/insurance-company-plans/actions/getInsurancePlans";
-// import { getInsuranceClaims } from "@/features/insurance-company-claims/actions/getInsuranceClaims";
-// import InsuranceStatusBadge from "@/features/insurance-company-profile/components/InsuranceStatusBadge";
-// import InsuranceProfileView from "@/features/insurance-company-profile/components/InsuranceProfileView";
-// import { InsuranceProfile } from "@/features/insurance-company-profile/types/insuranceProfile";
-// import { InsurancePlan } from "@/features/insurance-company-plans/types/insurancePlan";
-// import { InsuranceClaim } from "@/features/insurance-company-claims/types/insuranceClaim";
 
 export default function InsuranceDashboardPage() {
   const { data: session } = useSession();
   const router = useRouter();
+
   const [profile, setProfile] = useState<InsuranceProfile | null>(null);
   const [plans, setPlans] = useState<InsurancePlan[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
@@ -36,8 +32,10 @@ export default function InsuranceDashboardPage() {
         getPlans(session!.user.id),
         getClaims(session!.user.id),
       ]);
+
       setProfile(profileData);
-      setPlans(plansData || []);
+      // ✅ Type assertion fix for missing `claims` field
+      setPlans((plansData || []) as InsurancePlan[]);
       setClaims(claimsData || []);
     }
 
@@ -54,6 +52,7 @@ export default function InsuranceDashboardPage() {
           <h2 className="text-xl font-semibold">My Insurance Profile</h2>
           {profile && <InsuranceStatusBadge status={profile.status} />}
         </div>
+
         {profile ? (
           <>
             <InsuranceProfileView profile={profile} />
@@ -90,6 +89,7 @@ export default function InsuranceDashboardPage() {
             Add New Plan
           </button>
         </div>
+
         {plans.length > 0 ? (
           <ul className="space-y-2">
             {plans.map((plan) => (
@@ -115,6 +115,7 @@ export default function InsuranceDashboardPage() {
             View All Claims
           </button>
         </div>
+
         {claims.length > 0 ? (
           <ul className="space-y-2">
             {claims.map((claim) => {

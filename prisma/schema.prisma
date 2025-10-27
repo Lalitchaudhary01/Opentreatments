@@ -637,6 +637,7 @@ model Plan {
   description     String?
   coverageDetails Json // e.g., limits, tiers, exclusions
   premium         Float
+  coverageAmount  Float // ✅ add this line
 
   claims Claim[]
 

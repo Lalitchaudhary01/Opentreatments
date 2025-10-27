@@ -7,6 +7,7 @@ interface ImportPlanInput {
   description?: string;
   coverageDetails: Record<string, any>;
   premium: number;
+  coverageAmount: number;
 }
 
 export async function importPlans(companyId: string, plans: ImportPlanInput[]) {

@@ -43,7 +43,12 @@ export default function PharmacyInventoryTable({ inventory, refresh }: Props) {
     }
 
     try {
-      await reduceStockOnSale({ stockEntryId: id, quantity: numberQty });
+      await reduceStockOnSale({
+        stockEntryId: id,
+        quantity: numberQty,
+        reason: "SALE",
+        note: "Stock reduced on sale",
+      });
       refresh();
     } catch (err: any) {
       alert(err.message || "Failed to reduce stock");
@@ -66,7 +71,7 @@ export default function PharmacyInventoryTable({ inventory, refresh }: Props) {
       <TableBody>
         {inventory.map((item) => (
           <TableRow key={item.id}>
-            <TableCell>{item.medicine.name}</TableCell>
+            <TableCell>{item.medicine?.name || "Unknown Medicine"}</TableCell>
             <TableCell>{item.batchNumber}</TableCell>
             <TableCell>{item.quantity}</TableCell>
             <TableCell>

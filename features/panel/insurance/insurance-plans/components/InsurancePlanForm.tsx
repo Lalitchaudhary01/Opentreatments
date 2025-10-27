@@ -1,12 +1,17 @@
 "use client";
+
 import { useState } from "react";
-import { InsurancePlan, CoverageDetails } from "../types/insurancePlan";
+import {
+  InsurancePlan,
+  CoverageDetails,
+  InsurancePlanInput,
+} from "../types/insurancePlan";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface InsurancePlanFormProps {
   initialData?: InsurancePlan;
-  onSubmit: (
-    data: Omit<InsurancePlan, "id" | "createdAt" | "updatedAt" | "claims">
-  ) => void;
+  onSubmit: (data: InsurancePlanInput) => void;
   onCancel?: () => void;
 }
 
@@ -20,8 +25,11 @@ export default function InsurancePlanForm({
     initialData?.description || ""
   );
   const [premium, setPremium] = useState(initialData?.premium || 0);
+  const [coverageAmount, setCoverageAmount] = useState(
+    initialData?.coverageAmount || 0
+  );
   const [coverageDetails, setCoverageDetails] = useState<CoverageDetails>(
-    initialData?.coverageDetails || {
+    (initialData?.coverageDetails as unknown as CoverageDetails) || {
       diseasesCovered: [],
       exclusions: [],
       hospitalNetwork: [],
@@ -35,10 +43,8 @@ export default function InsurancePlanForm({
       name,
       description,
       premium,
-      coverageAmount: initialData?.coverageAmount || 0, // You can add a field in the form for this
-      tenure: initialData?.tenure || 12, // Optional default
-      status: initialData?.status || "ACTIVE",
-      coverageDetails,
+      coverageAmount,
+      coverageDetails: coverageDetails as any,
     });
   };
 
@@ -56,7 +62,7 @@ export default function InsurancePlanForm({
     >
       <div>
         <label className="block text-sm font-medium mb-1">Plan Name</label>
-        <input
+        <Input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -67,7 +73,7 @@ export default function InsurancePlanForm({
 
       <div>
         <label className="block text-sm font-medium mb-1">Description</label>
-        <textarea
+        <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border rounded px-3 py-2"
@@ -77,10 +83,23 @@ export default function InsurancePlanForm({
 
       <div>
         <label className="block text-sm font-medium mb-1">Premium</label>
-        <input
+        <Input
           type="number"
           value={premium}
           onChange={(e) => setPremium(parseFloat(e.target.value))}
+          className="w-full border rounded px-3 py-2"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Coverage Amount
+        </label>
+        <Input
+          type="number"
+          value={coverageAmount}
+          onChange={(e) => setCoverageAmount(parseFloat(e.target.value))}
           className="w-full border rounded px-3 py-2"
           required
         />

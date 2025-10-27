@@ -21,7 +21,19 @@ export async function getMedicinesByPharmacy(
       },
     });
 
-    return medicines;
+    return medicines.map((medicine) => ({
+      id: medicine.id,
+      name: medicine.name,
+      description: medicine.description ?? undefined,
+      price: medicine.price,
+      stock: medicine.stock.reduce(
+        (total, stockEntry) => total + stockEntry.quantity,
+        0
+      ),
+      pharmacyId: medicine.pharmacyId,
+      createdAt: medicine.createdAt.toISOString(),
+      updatedAt: medicine.updatedAt.toISOString(),
+    }));
   } catch (error) {
     console.error(
       `❌ Error in getMedicinesByPharmacy for pharmacy ${pharmacyId}:`,

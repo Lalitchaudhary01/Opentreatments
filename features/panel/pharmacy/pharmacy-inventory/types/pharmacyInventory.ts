@@ -1,5 +1,23 @@
 import { StockType, InventoryChangeType } from "@prisma/client";
 
+// ------------------------ Medicine ------------------------
+export interface Medicine {
+  id: string;
+  name: string;
+  genericName?: string | null;
+  brand?: string | null;
+  category?: string | null;
+  dosageForm?: string | null;
+  strength?: string | null;
+  manufacturer?: string | null;
+  description?: string | null;
+  price: number;
+  mrp?: number | null;
+  gst?: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // ------------------------ Stock Entry ------------------------
 export interface StockEntry {
   id: string;
@@ -18,6 +36,7 @@ export interface StockEntry {
   updatedAt: Date;
 
   // optional relation fields
+  medicine?: Medicine;
   logs?: InventoryLog[];
 }
 

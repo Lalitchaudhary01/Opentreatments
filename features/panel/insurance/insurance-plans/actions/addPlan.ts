@@ -7,6 +7,7 @@ interface AddPlanInput {
   description?: string;
   coverageDetails: Record<string, any>; // JSON object
   premium: number;
+  coverageAmount: number;
 }
 
 export async function addPlan(companyId: string, data: AddPlanInput) {
@@ -18,6 +19,7 @@ export async function addPlan(companyId: string, data: AddPlanInput) {
         description: data.description,
         coverageDetails: data.coverageDetails,
         premium: data.premium,
+        coverageAmount: data.coverageAmount,
       },
     });
     return plan;

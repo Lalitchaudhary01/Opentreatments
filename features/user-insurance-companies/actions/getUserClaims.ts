@@ -11,6 +11,7 @@ export const getUserClaims = async (userId: string): Promise<UserClaim[]> => {
 
   return claims.map((claim) => ({
     id: claim.id,
+    userId: claim.userId,
     planId: claim.planId,
     companyId: claim.companyId,
     status: claim.status,

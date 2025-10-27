@@ -7,6 +7,7 @@ interface UpdatePlanInput {
   description?: string;
   coverageDetails?: Record<string, any>;
   premium?: number;
+  coverageAmount?: number;
 }
 
 export async function updatePlan(planId: string, data: UpdatePlanInput) {

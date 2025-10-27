@@ -4,16 +4,25 @@ import { UserCompany } from "../types/userInsuranceCompany";
 export async function getApprovedInsuranceCompanies(): Promise<UserCompany[]> {
   const companies = await prisma.insuranceCompany.findMany({
     where: { status: "APPROVED" },
-    include: { plans: true },
+    include: {
+      plans: {
+        include: {
+          claims: true,
+        },
+      },
+    },
   });
 
   return companies.map((c) => ({
     id: c.id,
     name: c.name,
-    address: c.address,
+    address: c.address || "",
     email: c.email,
-    phone: c.phone,
-    status: c.status,
-    plans: c.plans,
+    phone: c.contactPhone || "",
+    status: "APPROVED" as const,
+    plans: c.plans.map((plan) => ({
+      ...plan,
+      coverageDetails: plan.coverageDetails as any,
+    })),
   }));
 }
