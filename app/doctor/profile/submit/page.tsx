@@ -1,6 +1,6 @@
 
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth-options";
 import DoctorProfileForm from "@/features/panel/doctors/components/DoctorProfileForm";
 
 export default async function SubmitDoctorProfilePage() {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // ✅ Create this component similar to DoctorLogoutButton
+import { authOptions } from "@/lib/auth-options";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import DoctorLogoutButton from "@/components/layout/DoctorLogoutButton";
