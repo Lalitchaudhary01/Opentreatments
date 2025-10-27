@@ -1,4 +1,5 @@
 // app/doctor/consultations/page.tsx
+export const dynamic = "force-dynamic";
 import DoctorConsultationCard from "@/features/panel/doctors/doctor-consultations/components/DoctorConsultationCard";
 import prisma from "@/lib/prisma";
 
