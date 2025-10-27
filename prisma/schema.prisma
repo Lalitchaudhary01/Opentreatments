@@ -7,57 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  DOCTOR
-  ADMIN
-  HOSPITAL
-  PHARMACY // ✅ new role
-  INSURANCE_COMPANY
-}
-
-//user side
-
 model User {
-  id         String    @id @default(cuid())
-  email      String    @unique
-  name       String?
-  phone      String?   @unique
-  password   String?
-  isVerified Boolean   @default(false)
-  otp        String?
-  otpExpiry  DateTime?
-  createdAt  DateTime  @default(now())
-  role       Role      @default(USER)
-
-  // Relations
-  accounts Account[]
-  sessions Session[]
-  blogs    Blog[]
-  comments Comment[]
-  likes    Like[]
-  // policies Policy[] // ✅ relation: user policies
-
-  // Add this line for independent consultations
+  id                       String                    @id @default(cuid())
+  name                     String?
+  email                    String                    @unique
+  password                 String?
+  createdAt                DateTime                  @default(now())
+  role                     Role                      @default(USER)
+  isVerified               Boolean                   @default(false)
+  otp                      String?
+  otpExpiry                DateTime?
+  phone                    String?                   @unique
+  accounts                 Account[]
+  AdminAction              AdminAction[]
+  blogs                    Blog[]
+  claims                   Claim[]
+  comments                 Comment[]
   Hospital                 Hospital?
   independentConsultations IndependentConsultation[]
   IndependentDoctor        IndependentDoctor?
   IndependentReview        IndependentReview[]
+  InsuranceCompany         InsuranceCompany?
+  likes                    Like[]
   Notification             Notification[]
-  AdminAction              AdminAction[]
-
-  Pharmacy Pharmacy?
-  Orders   Order[]
-
-  policies         Policy[]
-  claims           Claim[]
-  InsuranceCompany InsuranceCompany?
+  Orders                   Order[]
+  Pharmacy                 Pharmacy?
+  policies                 Policy[]
+  sessions                 Session[]
 }
 
-//
-// ---------------------------
-// Authentication of users
-// ---------------------------
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -84,22 +62,18 @@ model Session {
   user         User     @relation(fields: [userId], references: [id])
 }
 
-//
-// ---------------------------
-// Blogs
-// ---------------------------
 model Blog {
   id        String    @id @default(cuid())
   title     String
   content   String
   authorId  String
   image     String?
-  author    User      @relation(fields: [authorId], references: [id])
-  comments  Comment[]
-  likes     Like[]
-  tags      BlogTag[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  author    User      @relation(fields: [authorId], references: [id])
+  tags      BlogTag[]
+  comments  Comment[]
+  likes     Like[]
 }
 
 model Comment {
@@ -107,19 +81,19 @@ model Comment {
   content   String
   blogId    String
   userId    String
-  blog      Blog     @relation(fields: [blogId], references: [id])
-  author    User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  author    User     @relation(fields: [userId], references: [id])
 }
 
 model Like {
   id        String   @id @default(cuid())
   blogId    String
   userId    String
+  createdAt DateTime @default(now())
   blog      Blog     @relation(fields: [blogId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
 
   @@unique([blogId, userId])
 }
@@ -139,45 +113,31 @@ model BlogTag {
   @@id([blogId, tagId])
 }
 
-//
-// ---------------------------
-// Hospital + Related Models
-// ---------------------------
-enum HospitalStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 model Hospital {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  name    String
-  slug    String  @unique
-  address String?
-  city    String?
-  state   String?
-  country String?
-  phone   String?
-  email   String?
-  website String?
-  logo    String?
-  image   String?
-
-  verified Boolean        @default(false)
-  status   HospitalStatus @default(PENDING)
-
-  services   Service[]
-  facilities Facility[]
+  id         String         @id @default(cuid())
+  name       String
+  slug       String         @unique
+  address    String?
+  city       String?
+  state      String?
+  country    String?
+  phone      String?
+  email      String?
+  website    String?
+  logo       String?
+  image      String?
+  verified   Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  status     HospitalStatus @default(PENDING)
+  userId     String         @unique
   doctors    Doctor[]
-  procedures Procedure[]
   estimates  Estimate[]
-
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  Insurance Insurance[]
+  facilities Facility[]
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Insurance  Insurance[]
+  procedures Procedure[]
+  services   Service[]
 }
 
 model Service {
@@ -206,7 +166,6 @@ model Insurance {
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 }
 
-//hospital side doctors
 model Doctor {
   id             String   @id @default(cuid())
   name           String
@@ -218,65 +177,323 @@ model Doctor {
 }
 
 model Procedure {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String?
   cost        Float?
   duration    String?
   hospitalId  String
-  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-
-  estimates Estimate[]
+  estimates   Estimate[]
+  hospital    Hospital   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 }
 
-//
-// ---------------------------
-// ✅ Insurance Policies
-// ---------------------------
 model Policy {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   userId       String
   name         String
   provider     String?
   policyNumber String?
   sumInsured   Float
-  deductible   Float    @default(0)
-  coPay        Float    @default(0) // % value
+  deductible   Float      @default(0)
+  coPay        Float      @default(0)
   startDate    DateTime
   endDate      DateTime
-  cashless     Boolean  @default(false)
+  cashless     Boolean    @default(false)
   pdfUrl       String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  estimates Estimate[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  estimates    Estimate[]
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-//
-// ---------------------------
-// ✅ Insurance Estimates
-// ---------------------------
 model Estimate {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   policyId      String
   hospitalId    String
   procedureId   String
   procedureCost Float
   coveredAmount Float
   outOfPocket   Float
-  createdAt     DateTime @default(now())
-
-  policy    Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
-  hospital  Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  procedure Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  hospital      Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  policy        Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  procedure     Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
 }
 
-//
-// ---------------------------
-// Pharmacy + Medicines
-// ---------------------------
-// ------------------------ Enums ------------------------
+model Pharmacy {
+  id            String         @id @default(cuid())
+  name          String
+  address       String?
+  city          String?
+  state         String?
+  phone         String
+  latitude      Float?
+  longitude     Float?
+  country       String?
+  createdAt     DateTime       @default(now())
+  email         String
+  gstNumber     String?
+  licenseNumber String
+  ownerName     String
+  status        PharmacyStatus @default(PENDING)
+  updatedAt     DateTime       @updatedAt
+  userId        String         @unique
+  InventoryLog  InventoryLog[]
+  medicines     Medicine[]
+  orders        Order[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stock         StockEntry[]   @relation("PharmacyStock")
+}
+
+model Medicine {
+  id            String         @id @default(cuid())
+  name          String
+  genericName   String?
+  strength      String?
+  price         Float
+  description   String?
+  pharmacyId    String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  brand         String?
+  category      String?
+  dosageForm    String?
+  gst           Float?
+  manufacturer  String?
+  mrp           Float?
+  inventoryLogs InventoryLog[]
+  pharmacy      Pharmacy       @relation(fields: [pharmacyId], references: [id])
+  orderItems    OrderItem[]
+  priceTrends   PriceTrend[]
+  stock         StockEntry[]
+  substitutes   Substitute[]   @relation("OriginalMedicine")
+  substituteFor Substitute[]   @relation("SubstituteMedicine")
+}
+
+model StockEntry {
+  id            String         @id @default(cuid())
+  medicineId    String
+  batchNumber   String
+  quantity      Int
+  expiryDate    DateTime
+  purchasePrice Float?
+  sellingPrice  Float?
+  type          StockType      @default(INCOMING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  pharmacyId    String
+  logs          InventoryLog[]
+  medicine      Medicine       @relation(fields: [medicineId], references: [id])
+  pharmacy      Pharmacy       @relation("PharmacyStock", fields: [pharmacyId], references: [id])
+}
+
+model InventoryLog {
+  id              String              @id @default(cuid())
+  stockEntryId    String
+  medicineId      String
+  pharmacyId      String
+  changeType      InventoryChangeType
+  quantityChanged Int
+  note            String?
+  createdAt       DateTime            @default(now())
+  medicine        Medicine            @relation(fields: [medicineId], references: [id])
+  pharmacy        Pharmacy            @relation(fields: [pharmacyId], references: [id])
+  stockEntry      StockEntry          @relation(fields: [stockEntryId], references: [id])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  userId     String
+  pharmacyId String
+  status     OrderStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  pharmacy   Pharmacy    @relation(fields: [pharmacyId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  medicineId String
+  quantity   Int
+  price      Float
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model PriceTrend {
+  id         String   @id @default(cuid())
+  medicineId String
+  price      Float
+  date       DateTime @default(now())
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+}
+
+model Substitute {
+  id                   String   @id @default(cuid())
+  medicineId           String
+  substituteMedicineId String
+  medicine             Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
+  substitute           Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
+}
+
+model IndependentDoctor {
+  id                String                    @id @default(cuid())
+  userId            String                    @unique
+  name              String
+  specialties       String[]
+  specialization    String
+  experience        Int?
+  gender            String?
+  profilePic        String?
+  fees              Float?
+  rating            Float                     @default(0)
+  totalReviews      Int                       @default(0)
+  languages         String[]
+  availability      Json?
+  badges            String[]
+  city              String?
+  status            DoctorStatus              @default(PENDING)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  consultations     IndependentConsultation[]
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  IndependentReview IndependentReview[]
+}
+
+model IndependentConsultation {
+  id                String             @id @default(cuid())
+  doctorId          String
+  userId            String
+  slot              DateTime
+  duration          Int?
+  status            ConsultationStatus @default(PENDING)
+  mode              String             @default("online")
+  fee               Float?
+  paymentId         String?
+  paymentStatus     String             @default("unpaid")
+  notes             String?
+  prescription      String?
+  cancelReason      String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  doctor            IndependentDoctor  @relation(fields: [doctorId], references: [id])
+  user              User               @relation(fields: [userId], references: [id])
+  IndependentReview IndependentReview?
+  Payment           Payment?
+}
+
+model IndependentReview {
+  id             String                  @id @default(cuid())
+  consultationId String                  @unique
+  doctorId       String
+  userId         String
+  rating         Int
+  feedback       String?
+  createdAt      DateTime                @default(now())
+  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  doctor         IndependentDoctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id             String                  @id @default(cuid())
+  consultationId String                  @unique
+  amount         Float
+  status         PaymentStatus           @default(PENDING)
+  provider       String?
+  transactionId  String?
+  createdAt      DateTime                @default(now())
+  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminId    String
+  actionType String
+  targetId   String
+  targetType String
+  details    String?
+  createdAt  DateTime @default(now())
+  admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model InsuranceCompany {
+  id                 String          @id @default(cuid())
+  userId             String          @unique
+  name               String
+  email              String          @unique
+  contactPhone       String?
+  registrationNumber String?
+  logoUrl            String?
+  description        String?
+  provider           String?
+  profile            Json?
+  address            String?
+  website            String?
+  status             InsuranceStatus @default(PENDING)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  claims             Claim[]
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plans              Plan[]
+}
+
+model Plan {
+  id              String           @id @default(cuid())
+  companyId       String
+  name            String
+  description     String?
+  coverageDetails Json
+  premium         Float
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  coverageAmount  Float
+  claims          Claim[]
+  company         InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model Claim {
+  id          String           @id @default(cuid())
+  userId      String
+  companyId   String
+  planId      String
+  billDetails Json
+  status      ClaimStatus      @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  company     InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  plan        Plan             @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
+  DOCTOR
+  HOSPITAL
+  PHARMACY
+  INSURANCE_COMPANY
+}
+
+enum HospitalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum PharmacyStatus {
   PENDING
   APPROVED
@@ -296,115 +513,6 @@ enum OrderStatus {
   CANCELLED
 }
 
-// ------------------------ Pharmacy ------------------------
-model Pharmacy {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  name          String
-  ownerName     String
-  email         String
-  phone         String
-  address       String?
-  city          String?
-  state         String?
-  country       String?
-  licenseNumber String
-  gstNumber     String?
-  status        PharmacyStatus @default(PENDING)
-
-  latitude  Float?
-  longitude Float?
-
-  medicines Medicine[]
-  stock     StockEntry[] @relation("PharmacyStock")
-  orders    Order[]
-
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  InventoryLog InventoryLog[]
-}
-
-// ------------------------ Medicine ------------------------
-model Medicine {
-  id         String   @id @default(cuid())
-  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id])
-  pharmacyId String
-
-  name         String
-  genericName  String?
-  brand        String?
-  category     String?
-  dosageForm   String? // Tablet, Syrup, Injection
-  strength     String? // 500mg, 250ml
-  manufacturer String?
-
-  description String?
-  price       Float
-  mrp         Float?
-  gst         Float?
-
-  stock StockEntry[] // batch-wise stock
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orderItems    OrderItem[]
-  priceTrends   PriceTrend[]
-  // --- Corrected substitute relations ---
-  substitutes   Substitute[] @relation("OriginalMedicine")
-  substituteFor Substitute[] @relation("SubstituteMedicine")
-
-  inventoryLogs InventoryLog[]
-}
-
-// ------------------------ StockEntry ------------------------
-// ------------------------ StockEntry ------------------------
-model StockEntry {
-  id         String   @id @default(cuid())
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
-  medicineId String
-
-  batchNumber String
-  quantity    Int
-  expiryDate  DateTime
-
-  purchasePrice Float?
-  sellingPrice  Float?
-  type          StockType @default(INCOMING) // INCOMING / OUTGOING
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  pharmacy   Pharmacy @relation("PharmacyStock", fields: [pharmacyId], references: [id])
-  pharmacyId String
-
-  // 🔥 relation to inventory logs
-  logs InventoryLog[]
-}
-
-// ------------------------ InventoryLog ------------------------
-model InventoryLog {
-  id           String     @id @default(cuid())
-  stockEntry   StockEntry @relation(fields: [stockEntryId], references: [id])
-  stockEntryId String
-
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
-  medicineId String
-
-  pharmacy   Pharmacy @relation(fields: [pharmacyId], references: [id])
-  pharmacyId String
-
-  changeType      InventoryChangeType
-  quantityChanged Int
-  note            String?
-
-  createdAt DateTime @default(now())
-}
-
-// ------------------------ Enums ------------------------
-
 enum InventoryChangeType {
   SALE
   DAMAGE
@@ -412,84 +520,10 @@ enum InventoryChangeType {
   MANUAL_ADJUSTMENT
 }
 
-// ------------------------ Order ------------------------
-model Order {
-  id         String      @id @default(cuid())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id])
-  pharmacyId String
-  pharmacy   Pharmacy    @relation(fields: [pharmacyId], references: [id])
-  status     OrderStatus @default(PENDING)
-
-  items OrderItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ------------------------ OrderItem ------------------------
-model OrderItem {
-  id         String   @id @default(cuid())
-  orderId    String
-  order      Order    @relation(fields: [orderId], references: [id])
-  medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
-  quantity   Int
-  price      Float // snapshot of medicine price at order time
-}
-
-// ------------------------ PriceTrend ------------------------
-model PriceTrend {
-  id         String   @id @default(cuid())
-  medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
-  price      Float
-  date       DateTime @default(now())
-}
-
-// ------------------------ Substitute ------------------------
-model Substitute {
-  id                   String @id @default(cuid())
-  medicineId           String
-  substituteMedicineId String
-
-  medicine   Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
-  substitute Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
-}
-
-//independt docots  
 enum DoctorStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model IndependentDoctor {
-  id     String @id @default(cuid())
-  userId String @unique // link to User model
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  name           String
-  specialties    String[]
-  specialization String
-  experience     Int?
-  gender         String?
-  profilePic     String?
-  fees           Float?
-  rating         Float    @default(0)
-  totalReviews   Int      @default(0)
-  languages      String[]
-  availability   Json?
-  badges         String[]
-  city           String?
-
-  status DoctorStatus @default(PENDING) // ✅ pending until admin approves
-
-  consultations IndependentConsultation[]
-
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  IndependentReview IndependentReview[]
 }
 
 enum ConsultationStatus {
@@ -500,61 +534,10 @@ enum ConsultationStatus {
   CANCELLED
 }
 
-model IndependentConsultation {
-  id                String             @id @default(cuid())
-  doctorId          String
-  doctor            IndependentDoctor  @relation(fields: [doctorId], references: [id])
-  userId            String
-  user              User               @relation(fields: [userId], references: [id])
-  slot              DateTime
-  duration          Int?
-  status            ConsultationStatus @default(PENDING) // enum used here ✅
-  mode              String             @default("online")
-  fee               Float?
-  paymentId         String?
-  paymentStatus     String             @default("unpaid")
-  notes             String?
-  prescription      String?
-  cancelReason      String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  IndependentReview IndependentReview?
-  Payment           Payment?
-}
-
-model IndependentReview {
-  id             String                  @id @default(cuid())
-  consultationId String                  @unique
-  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
-
-  doctorId String
-  doctor   IndependentDoctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  rating   Int // 1 to 5 stars
-  feedback String?
-
-  createdAt DateTime @default(now())
-}
-
 enum NotificationType {
   CONSULTATION_REQUEST
   CONSULTATION_STATUS
   ADMIN_APPROVAL
-}
-
-model Notification {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  type    NotificationType
-  message String
-  isRead  Boolean          @default(false)
-
-  createdAt DateTime @default(now())
 }
 
 enum PaymentStatus {
@@ -564,35 +547,6 @@ enum PaymentStatus {
   REFUNDED
 }
 
-model Payment {
-  id             String                  @id @default(cuid())
-  consultationId String                  @unique
-  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
-
-  amount        Float
-  status        PaymentStatus @default(PENDING)
-  provider      String? // Razorpay/Stripe
-  transactionId String? // gateway ka id
-  createdAt     DateTime      @default(now())
-}
-
-model AdminAction {
-  id      String @id @default(cuid())
-  adminId String
-  admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
-
-  actionType String
-  targetId   String // doctorId / consultationId / userId etc.
-  targetType String // "DOCTOR" | "CONSULTATION" | "USER"
-  details    String?
-
-  createdAt DateTime @default(now())
-}
-
-//insuranc companies
-// ---------------------------
-// Insurance Companies
-// ---------------------------
 enum InsuranceStatus {
   PENDING
   APPROVED
@@ -603,63 +557,4 @@ enum ClaimStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-// Insurance company model (role-based, admin approval)
-model InsuranceCompany {
-  id                 String          @id @default(cuid())
-  userId             String          @unique
-  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name               String
-  email              String          @unique
-  contactPhone       String? // ✅ add this
-  registrationNumber String? // optional
-  logoUrl            String?
-  description        String?
-  provider           String?
-  profile            Json?
-  address            String?
-  website            String?
-  status             InsuranceStatus @default(PENDING)
-  plans              Plan[]
-  claims             Claim[]
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-}
-
-// Insurance plans
-model Plan {
-  id        String           @id @default(cuid())
-  companyId String
-  company   InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  name            String
-  description     String?
-  coverageDetails Json // e.g., limits, tiers, exclusions
-  premium         Float
-  coverageAmount  Float // ✅ add this line
-
-  claims Claim[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// User claims
-model Claim {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  companyId String
-  company   InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  planId String
-  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
-
-  billDetails Json // uploaded bill, hospital, amount, procedure
-  status      ClaimStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
