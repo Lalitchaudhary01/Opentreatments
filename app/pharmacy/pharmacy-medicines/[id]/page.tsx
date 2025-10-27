@@ -2,11 +2,12 @@ import { getMedicineById } from "@/features/panel/pharmacy/pharmacy-medicines/ac
 import PharmacyMedicineCard from "@/features/panel/pharmacy/pharmacy-medicines/components/PharmacyMedicineCard";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function MedicineDetailsPage({ params }: Props) {
-  const medicine = await getMedicineById(params.id);
+  const { id } = await params
+  const medicine = await getMedicineById(id);
 
   if (!medicine) {
     return <p className="p-6 text-red-500">Medicine not found</p>;

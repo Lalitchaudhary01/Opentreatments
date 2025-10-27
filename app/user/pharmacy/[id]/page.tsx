@@ -22,7 +22,7 @@ import UserMedicineList from "@/features/user-pharmacies/components/UserMedicine
 import Header from "@/components/layout/Header";
 
 interface PharmacyPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const fadeInUp = {
@@ -35,8 +35,9 @@ const fadeInUp = {
 };
 
 export default async function PharmacyPage({ params }: PharmacyPageProps) {
-  const pharmacy = await getPharmacyById(params.id);
-  const medicines = await getMedicinesByPharmacy(params.id);
+  const { id } = await params
+  const pharmacy = await getPharmacyById(id);
+  const medicines = await getMedicinesByPharmacy(id);
 
   if (!pharmacy) {
     return (
@@ -256,9 +257,9 @@ export default async function PharmacyPage({ params }: PharmacyPageProps) {
 
             <CardContent>
               {medicines.length > 0 ? (
-                <UserMedicineList pharmacyId={params.id} />
+                <UserMedicineList pharmacyId={id} />
               ) : (
-                <div className="text-center py-12 px-6">
+                <div className="text-center py-12 px-6">v
                   <div className="bg-slate-100 dark:bg-slate-800 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                     <Package className="w-10 h-10 text-slate-400 dark:text-slate-600" />
                   </div>

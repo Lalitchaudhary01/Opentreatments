@@ -8,24 +8,25 @@ import { updateMedicine } from "@/features/panel/pharmacy/pharmacy-medicines/act
 import PharmacyMedicineForm from "@/features/panel/pharmacy/pharmacy-medicines/components/PharmacyMedicineForm";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export default function EditMedicinePage({ params }: Props) {
+export default async function EditMedicinePage({ params }: Props) {
+  const { id } = await params
   const router = useRouter();
   const [medicine, setMedicine] = useState<Medicine | null>(null);
 
   useEffect(() => {
     async function fetchMedicine() {
-      const data = await getMedicineById(params.id);
+      const data = await getMedicineById(id);
       setMedicine(data);
     }
     fetchMedicine();
-  }, [params.id]);
+  }, [id]);
 
   async function handleSubmit(values: any) {
-    await updateMedicine(params.id, values);
-    router.push(`/pharmacy-medicines/${params.id}`);
+    await updateMedicine(id, values);
+    router.push(`/pharmacy-medicines/${id}`);
   }
 
   if (!medicine) return <p className="p-6">Loading...</p>;
