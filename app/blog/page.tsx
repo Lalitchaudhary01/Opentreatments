@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getBlogs } from "@/features/Blogs/actions/getBlog";
 import BlogList from "@/features/Blogs/components/BlogList";
 

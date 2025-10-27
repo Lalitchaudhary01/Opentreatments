@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getBlogById } from "@/features/Blogs/actions/getBlogById";
 import CommentList from "@/features/Blogs/components/CommentList";
 import LikeButton from "@/features/Blogs/components/LikeButton";
