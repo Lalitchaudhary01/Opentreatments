@@ -32,12 +32,13 @@ import {
 import Header from "@/components/layout/Header";
 
 interface DoctorPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function UserDoctorPage({ params }: DoctorPageProps) {
+  const { id } = await params
   const doctor = await prisma.independentDoctor.findUnique({
-    where: { id: params.id, status: "APPROVED" },
+    where: { id: id, status: "APPROVED" },
   });
 
   if (!doctor) return notFound();

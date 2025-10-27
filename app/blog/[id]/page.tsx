@@ -26,11 +26,12 @@ import Header from "@/components/layout/Header";
 import Link from "next/link";
 
 interface BlogDetailsProps {
-  params: { id: string };
+  params: Promise<{ id: string }>; 
 }
 
 export default async function BlogDetailsPage({ params }: BlogDetailsProps) {
-  const blog = await getBlogById(params.id);
+  const { id } = await params;
+  const blog = await getBlogById(id);
 
   if (!blog) {
     return (

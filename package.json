@@ -3,14 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -turbopack",
     "lint": "eslint",
     "postinstall": "prisma generate --no-engine"
-
-    
-    
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -63,6 +60,7 @@
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.6",
     "nodemailer": "^6.10.1",
+    "pg": "^8.16.3",
     "prisma": "^6.18.0",
     "react": "19.1.0",
     "react-chartjs-2": "^5.3.0",
