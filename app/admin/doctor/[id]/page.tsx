@@ -3,12 +3,8 @@ import prisma from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminDoctorActions from "@/features/admin/doctors/components/AdminDoctorActions";
 
-// ✅ Don't define a custom PageProps interface — type inline instead
-export default async function AdminDoctorPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function AdminDoctorPage(props: any) {
+  const params = await props.params; // handles both Promise or object cases safely
   const doctor = await prisma.independentDoctor.findUnique({
     where: { id: params.id },
     include: {
@@ -45,7 +41,6 @@ export default async function AdminDoctorPage({
             <strong>Status:</strong> {doctor.status}
           </div>
 
-          {/* ✅ Client Component for actions */}
           <AdminDoctorActions
             doctorId={doctor.id}
             currentStatus={doctor.status as "PENDING" | "APPROVED" | "REJECTED"}
