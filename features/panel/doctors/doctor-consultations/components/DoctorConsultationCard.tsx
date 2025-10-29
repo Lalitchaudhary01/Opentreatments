@@ -43,9 +43,30 @@ export default function DoctorConsultationCard({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  // handleAction function mein today ka bhi redirect add karein
   const handleAction = (status: "APPROVED" | "REJECTED") => {
     startTransition(async () => {
       await updateConsultationStatus(consultation.id, status);
+
+      // Check if approved consultation is for today
+      if (status === "APPROVED") {
+        const consultationDate = new Date(consultation.slot);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const isToday =
+          consultationDate >= today &&
+          consultationDate < new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+        if (isToday) {
+          router.push("/doctor/consultations/today");
+        } else {
+          router.push("/doctor/consultations/approved");
+        }
+      } else {
+        router.push("/doctor/consultations/rejected");
+      }
+
       router.refresh();
     });
   };

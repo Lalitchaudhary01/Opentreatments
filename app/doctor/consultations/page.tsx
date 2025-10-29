@@ -1,79 +1,111 @@
 // app/doctor/consultations/page.tsx
 export const dynamic = "force-dynamic";
-import DoctorConsultationCard from "@/features/panel/doctors/doctor-consultations/components/DoctorConsultationCard";
+import Link from "next/link";
 import prisma from "@/lib/prisma";
 
 export default async function DoctorConsultationsPage() {
-  const pendingConsultations = await prisma.independentConsultation.findMany({
+  // Get today's date range
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Counts for badges
+  const todayCount = await prisma.independentConsultation.count({
+    where: {
+      status: "APPROVED",
+      slot: {
+        gte: today,
+        lt: tomorrow,
+      },
+    },
+  });
+
+  const pendingCount = await prisma.independentConsultation.count({
     where: { status: "PENDING" },
-    include: { user: true },
-    orderBy: { createdAt: "desc" },
   });
 
-  const approvedConsultations = await prisma.independentConsultation.findMany({
+  const approvedCount = await prisma.independentConsultation.count({
     where: { status: "APPROVED" },
-    include: { user: true },
-    orderBy: { createdAt: "desc" },
   });
 
-  const rejectedConsultations = await prisma.independentConsultation.findMany({
+  const rejectedCount = await prisma.independentConsultation.count({
     where: { status: "REJECTED" },
-    include: { user: true },
-    orderBy: { createdAt: "desc" },
   });
 
   return (
-    <div className="p-6 space-y-8">
-      <section>
-        <h1 className="text-2xl font-bold mb-2">Pending Consultations</h1>
-        {pendingConsultations.length === 0 ? (
-          <p>No pending consultations.</p>
-        ) : (
-          pendingConsultations.map((c) => (
-            <DoctorConsultationCard
-              key={c.id}
-              consultation={{
-                ...c,
-                status: c.status as "PENDING" | "APPROVED" | "REJECTED",
-              }}
-            />
-          ))
-        )}
-      </section>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-8">Consultations</h1>
 
-      <section>
-        <h1 className="text-2xl font-bold mb-2">Approved Consultations</h1>
-        {approvedConsultations.length === 0 ? (
-          <p>No approved consultations.</p>
-        ) : (
-          approvedConsultations.map((c) => (
-            <DoctorConsultationCard
-              key={c.id}
-              consultation={{
-                ...c,
-                status: c.status as "PENDING" | "APPROVED" | "REJECTED",
-              }}
-            />
-          ))
-        )}
-      </section>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Today's Schedule Card */}
+        <Link href="/doctor/consultations/today">
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer hover:border-blue-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-blue-800">
+                  Today's Schedule
+                </h2>
+                <p className="text-blue-600 mt-2">
+                  Approved consultations for today
+                </p>
+              </div>
+              <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold text-lg">
+                {todayCount}
+              </div>
+            </div>
+          </div>
+        </Link>
 
-      <section>
-        <h1 className="text-2xl font-bold mb-2">Rejected Consultations</h1>
-        {rejectedConsultations.length === 0 ? (
-          <p>No rejected consultations.</p>
-        ) : (
-          rejectedConsultations.map((c) => (
-            <DoctorConsultationCard
-              key={c.id}
-              consultation={{
-                ...c,
-                status: c.status as "PENDING" | "APPROVED" | "REJECTED",
-              }}
-            />
-          ))
-        )}
-      </section>
+        {/* Pending Card */}
+        <Link href="/doctor/consultations/pending">
+          <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer hover:border-orange-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-orange-800">Pending</h2>
+                <p className="text-orange-600 mt-2">
+                  Review new consultation requests
+                </p>
+              </div>
+              <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-bold text-lg">
+                {pendingCount}
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* Approved Card */}
+        <Link href="/doctor/consultations/approved">
+          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer hover:border-green-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-green-800">Approved</h2>
+                <p className="text-green-600 mt-2">
+                  All scheduled consultations
+                </p>
+              </div>
+              <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold text-lg">
+                {approvedCount}
+              </div>
+            </div>
+          </div>
+        </Link>
+
+        {/* Rejected Card */}
+        <Link href="/doctor/consultations/rejected">
+          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer hover:border-red-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-red-800">Rejected</h2>
+                <p className="text-red-600 mt-2">Declined requests</p>
+              </div>
+              <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full font-bold text-lg">
+                {rejectedCount}
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
-// features/admin-doctors/types/adminDoctor.ts
-
+// features/admin-doctors/types/adminDoctor.ts - Update this
 export enum DoctorStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
@@ -12,26 +11,24 @@ export interface AdminDoctor {
   name: string;
   specialties: string[];
   specialization: string;
-  experience?: number;
-  gender?: string;
-  profilePic?: string;
-  fees?: number;
+  experience: number; // Change from optional to required
+  gender: string; // Change from optional
+  profilePic: string; // Change from optional
+  fees: number; // Change from optional
   rating: number;
   totalReviews: number;
   languages: string[];
-  availability?: any; // JSON (can refine to a structured type later)
+  availability: string; // Change from any to string (JSON)
   badges: string[];
-  city?: string;
-
+  city: string; // Change from optional
   status: DoctorStatus;
-
   createdAt: string;
   updatedAt: string;
 }
 
 export interface UpdateDoctorStatusInput {
   doctorId: string;
-  status: DoctorStatus; // APPROVED | REJECTED
+  status: DoctorStatus;
 }
 
 export interface DeleteDoctorInput {
