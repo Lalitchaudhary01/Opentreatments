@@ -5,16 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminDoctorActions from "@/features/admin/doctors/components/AdminDoctorActions";
 
 interface AdminDoctorPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function AdminDoctorPage({
   params,
 }: AdminDoctorPageProps) {
-  const { id } = await params; // must await
-
   const doctor = await prisma.independentDoctor.findUnique({
-    where: { id },
+    where: { id: params.id },
     include: {
       user: {
         select: {
@@ -49,7 +47,7 @@ export default async function AdminDoctorPage({
             <strong>Status:</strong> {doctor.status}
           </div>
 
-          {/* Client Component for actions */}
+          {/* ✅ Client Component for actions */}
           <AdminDoctorActions
             doctorId={doctor.id}
             currentStatus={doctor.status as "PENDING" | "APPROVED" | "REJECTED"}
