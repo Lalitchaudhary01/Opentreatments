@@ -1,16 +1,14 @@
-// app/admin/doctor/[id]/page.tsx
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminDoctorActions from "@/features/admin/doctors/components/AdminDoctorActions";
 
-interface AdminDoctorPageProps {
-  params: { id: string };
-}
-
+// ✅ Don't define a custom PageProps interface — type inline instead
 export default async function AdminDoctorPage({
   params,
-}: AdminDoctorPageProps) {
+}: {
+  params: { id: string };
+}) {
   const doctor = await prisma.independentDoctor.findUnique({
     where: { id: params.id },
     include: {
