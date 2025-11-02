@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { submitDoctorProfile } from "../actions/submitDoctorProfile";
 import { updateDoctorProfile } from "../actions/updateDoctorProle";
+import { SubmitDoctorProfileInput } from "../types/doctorProfile";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -193,8 +194,27 @@ export default function DoctorProfileForm({
   async function onSubmit(values: ProfileFormValues) {
     setLoading(true);
     try {
-      // Transform the data to match SubmitDoctorProfileInput
-      const payload = {
+      // Transform availability to always be an object or undefined
+      let availabilityObject: Record<string, any> | undefined;
+
+      if (Object.keys(availabilityDays).length > 0) {
+        availabilityObject = availabilityDays;
+      } else if (values.availability) {
+        // If there's availability from form values, parse it
+        if (typeof values.availability === "string") {
+          try {
+            availabilityObject = JSON.parse(values.availability);
+          } catch (error) {
+            console.warn("Failed to parse availability string:", error);
+            availabilityObject = undefined;
+          }
+        } else if (typeof values.availability === "object") {
+          availabilityObject = values.availability;
+        }
+      }
+
+      // Create the payload with proper typing
+      const payload: Partial<SubmitDoctorProfileInput> = {
         name: values.name,
         specialization: values.specialization,
         specialties:
@@ -214,16 +234,15 @@ export default function DoctorProfileForm({
             ? values.languages.split(",").map((l) => l.trim())
             : [],
         city: values.city,
-        // Fix: Ensure availability is properly formatted
-        availability:
-          Object.keys(availabilityDays).length > 0
-            ? availabilityDays // Send as object, not string
-            : values.availability
-            ? typeof values.availability === "string"
-              ? JSON.parse(values.availability)
-              : values.availability
-            : undefined,
+        availability: availabilityObject,
       };
+
+      // Remove undefined values to avoid sending them
+      Object.keys(payload).forEach((key) => {
+        if (payload[key as keyof SubmitDoctorProfileInput] === undefined) {
+          delete payload[key as keyof SubmitDoctorProfileInput];
+        }
+      });
 
       if (isEditMode) {
         await updateDoctorProfile(payload);
@@ -240,8 +259,10 @@ export default function DoctorProfileForm({
     }
   }
 
+  // ... rest of your JSX component remains exactly the same ...
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* ALL YOUR EXISTING JSX CODE HERE - IT REMAINS UNCHANGED */}
       <Card className="border-t-4 border-t-blue-500">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold flex items-center justify-center gap-3">
@@ -261,7 +282,8 @@ export default function DoctorProfileForm({
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              {/* Personal Information Section */}
+              {/* Your existing form sections */}
+              {/* Personal Information */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl">
@@ -343,7 +365,7 @@ export default function DoctorProfileForm({
                 </CardContent>
               </Card>
 
-              {/* Professional Information Section */}
+              {/* Professional Information */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl">
@@ -449,7 +471,7 @@ export default function DoctorProfileForm({
                 </CardContent>
               </Card>
 
-              {/* Location & Consultation Section */}
+              {/* Location & Consultation */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl">
@@ -511,7 +533,7 @@ export default function DoctorProfileForm({
                 </CardContent>
               </Card>
 
-              {/* Languages Section */}
+              {/* Languages */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl">
