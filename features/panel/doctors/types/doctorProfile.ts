@@ -29,6 +29,7 @@ export interface DoctorProfile {
 }
 
 // Minimal type for creating a new doctor (form input)
+// In your types file
 export interface SubmitDoctorProfileInput {
   name: string;
   specialties: string[];
@@ -38,7 +39,7 @@ export interface SubmitDoctorProfileInput {
   profilePic?: string;
   fees?: number;
   languages: string[];
-  availability?: Record<string, any>;
+  availability?: string | Record<string, any>; // Allow both string and object
   badges?: string[];
   city?: string;
 }

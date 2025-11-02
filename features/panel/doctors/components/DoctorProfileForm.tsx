@@ -193,24 +193,36 @@ export default function DoctorProfileForm({
   async function onSubmit(values: ProfileFormValues) {
     setLoading(true);
     try {
+      // Transform the data to match SubmitDoctorProfileInput
       const payload = {
-        ...values,
+        name: values.name,
+        specialization: values.specialization,
         specialties:
           specialtyTags.length > 0
             ? specialtyTags
             : values.specialties
             ? values.specialties.split(",").map((s) => s.trim())
             : [],
+        experience: values.experience,
+        gender: values.gender,
+        profilePic: values.profilePic,
+        fees: values.fees,
         languages:
           languageTags.length > 0
             ? languageTags
             : values.languages
             ? values.languages.split(",").map((l) => l.trim())
             : [],
+        city: values.city,
+        // Fix: Ensure availability is properly formatted
         availability:
           Object.keys(availabilityDays).length > 0
-            ? JSON.stringify(availabilityDays)
-            : values.availability,
+            ? availabilityDays // Send as object, not string
+            : values.availability
+            ? typeof values.availability === "string"
+              ? JSON.parse(values.availability)
+              : values.availability
+            : undefined,
       };
 
       if (isEditMode) {
