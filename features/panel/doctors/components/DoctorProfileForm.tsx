@@ -43,8 +43,8 @@ import {
   Edit,
 } from "lucide-react";
 import { submitDoctorProfile } from "../actions/submitDoctorProfile";
-import { updateDoctorProfile } from "../actions/updateDoctorProle";
 import { SubmitDoctorProfileInput } from "../types/doctorProfile";
+import { updateDoctorProfile } from "../actions/updateDoctorProfile";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name is required"),

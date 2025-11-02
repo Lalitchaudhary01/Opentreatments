@@ -1,4 +1,3 @@
-// features/panel/doctors/actions/submitDoctorProfile.ts
 "use server";
 
 import prisma from "@/lib/prisma";
