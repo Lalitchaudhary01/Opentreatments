@@ -105,11 +105,14 @@ export default function DoctorProfileForm({
       if (typeof initialData.availability === "string") {
         return JSON.parse(initialData.availability);
       }
-      return {};
+      if (typeof initialData.availability === "object") {
+        return initialData.availability;
+      }
     } catch (error) {
       console.warn("Failed to parse availability:", error);
-      return {};
     }
+
+    return {};
   });
 
   const isEditMode = !!initialData;
@@ -139,7 +142,10 @@ export default function DoctorProfileForm({
         ? initialData.languages.join(", ")
         : initialData?.languages || "",
       city: initialData?.city || "",
-      availability: initialData?.availability || "",
+      availability:
+        typeof initialData?.availability === "object"
+          ? JSON.stringify(initialData.availability)
+          : initialData?.availability || "",
     },
   });
 
@@ -189,14 +195,23 @@ export default function DoctorProfileForm({
     try {
       const payload = {
         ...values,
-        specialties: specialtyTags.length > 0 ? specialtyTags : [],
-        languages: languageTags.length > 0 ? languageTags : [],
-        availability: JSON.stringify(availabilityDays),
+        specialties:
+          specialtyTags.length > 0
+            ? specialtyTags
+            : values.specialties
+            ? values.specialties.split(",").map((s) => s.trim())
+            : [],
+        languages:
+          languageTags.length > 0
+            ? languageTags
+            : values.languages
+            ? values.languages.split(",").map((l) => l.trim())
+            : [],
+        availability:
+          Object.keys(availabilityDays).length > 0
+            ? JSON.stringify(availabilityDays)
+            : values.availability,
       };
-
-      // Remove the form fields that are only used for internal state
-      delete (payload as any).specialties;
-      delete (payload as any).languages;
 
       if (isEditMode) {
         await updateDoctorProfile(payload);
