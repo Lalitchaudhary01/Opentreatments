@@ -32,14 +32,14 @@ export interface DoctorProfile {
 // In your types file
 export interface SubmitDoctorProfileInput {
   name: string;
-  specialties: string[];
   specialization: string;
+  specialties: string[];
+  languages: string[];
   experience?: number;
   gender?: string;
   profilePic?: string;
   fees?: number;
-  languages: string[];
-  availability?: string | Record<string, any>; // Allow both string and object
+  availability?: string | Record<string, any>;
   badges?: string[];
   city?: string;
 }
