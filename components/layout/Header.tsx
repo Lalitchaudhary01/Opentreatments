@@ -19,7 +19,11 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-const Header = () => {
+interface HeaderProps {
+  showNav?: boolean; // 👈 control visibility of nav items
+}
+
+const Header = ({ showNav = true }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -39,7 +43,6 @@ const Header = () => {
     }
   }, [isSearchOpen]);
 
-  // Close search on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isSearchOpen) {
@@ -53,7 +56,6 @@ const Header = () => {
 
   const user = session?.user;
 
-  // Navigation items
   const navItems = [
     { name: "Doctors", href: "/user/doctors" },
     { name: "Hospitals", href: "/user/hospitals" },
@@ -64,9 +66,7 @@ const Header = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Handle search logic here
       console.log("Searching for:", searchQuery);
-      // You can add navigation or API call here
       setIsSearchOpen(false);
       setSearchQuery("");
     }
@@ -93,22 +93,23 @@ const Header = () => {
               />
             </Link>
 
-            {/* Desktop Navigation Items */}
-            <nav className="hidden md:flex items-center gap-6">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+            {/* DESKTOP NAV */}
+            {showNav && (
+              <nav className="hidden md:flex items-center gap-6">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="text-sm font-medium transition-colors hover:text-primary"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </nav>
+            )}
 
-            {/* Desktop Menu */}
+            {/* DESKTOP MENU */}
             <nav className="hidden md:flex items-center gap-6">
-              {/* Premium Search Button */}
               <Button
                 variant="outline"
                 size="sm"
@@ -147,13 +148,12 @@ const Header = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link
-                        href={`/${session.user?.id}/user`}
+                        href={`/${session?.user?.id}/user`}
                         className="w-full cursor-pointer"
                       >
                         My Profile
                       </Link>
                     </DropdownMenuItem>
-
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onClick={() => signOut({ callbackUrl: "/auth" })}
@@ -166,7 +166,7 @@ const Header = () => {
                 <Button
                   variant="default"
                   size="sm"
-                  className="text-lg  bg-[#10B981] hover:bg-[#0ea271] text-white"
+                  className="text-lg bg-[#10B981] hover:bg-[#0ea271] text-white"
                 >
                   <Link href="/auth">Login / Signup</Link>
                 </Button>
@@ -175,7 +175,6 @@ const Header = () => {
 
             {/* MOBILE MENU BUTTON */}
             <div className="md:hidden flex items-center gap-2">
-              {/* Mobile Search Button */}
               <Button
                 variant="outline"
                 size="icon"
@@ -186,8 +185,8 @@ const Header = () => {
               </Button>
 
               <Button
-                variant={"ghost"}
-                size={"icon"}
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? (
@@ -200,7 +199,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* MOBILE NAV */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -210,17 +209,17 @@ const Header = () => {
               className="md:hidden border-t bg-background"
             >
               <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-                {/* Mobile Navigation Items */}
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="text-sm font-medium py-2 transition-colors hover:text-primary"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+                {showNav &&
+                  navItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="text-sm font-medium py-2 transition-colors hover:text-primary"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
 
                 <div className="border-t pt-4 mt-2">
                   <ThemeToggleButton />
@@ -243,104 +242,6 @@ const Header = () => {
           )}
         </AnimatePresence>
       </header>
-
-      {/* Premium Search Overlay */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => {
-                setIsSearchOpen(false);
-                setSearchQuery("");
-              }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
-            />
-
-            {/* Search Modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -20 }}
-              className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[90%] max-w-2xl z-[70]"
-            >
-              <div className="bg-background/95 backdrop-blur-xl border rounded-2xl shadow-2xl p-6">
-                <form onSubmit={handleSearch} className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      placeholder="Search for hospitals, medicines, consultations..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-12 pr-12 py-4 bg-muted/50 border-0 rounded-xl text-lg placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-300"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setIsSearchOpen(false);
-                        setSearchQuery("");
-                      }}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-muted rounded-lg"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  {/* Quick Search Suggestions */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-4 border-t">
-                    {[
-                      "Hospitals",
-                      "Medicines",
-                      "Insurance",
-                      "Consultations",
-                    ].map((suggestion) => (
-                      <Button
-                        key={suggestion}
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          setSearchQuery(suggestion);
-                          if (suggestion.trim()) {
-                            // Handle search logic here
-                            console.log("Searching for:", suggestion);
-                            setIsSearchOpen(false);
-                            setSearchQuery("");
-                          }
-                        }}
-                        className="text-xs bg-muted/50 hover:bg-muted border-0 rounded-lg transition-colors duration-200"
-                      >
-                        {suggestion}
-                      </Button>
-                    ))}
-                  </div>
-                </form>
-
-                {/* Search Tips */}
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-xs text-muted-foreground text-center">
-                    Press{" "}
-                    <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px]">
-                      Esc
-                    </kbd>{" "}
-                    to close or{" "}
-                    <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px]">
-                      Enter
-                    </kbd>{" "}
-                    to search
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </>
   );
 };

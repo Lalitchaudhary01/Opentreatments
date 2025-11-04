@@ -26,6 +26,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
+import Header from "@/components/layout/Header";
 
 export default function DoctorDashboardPage() {
   const { data: session, status } = useSession();
@@ -80,34 +81,7 @@ export default function DoctorDashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top Navigation Bar */}
-      <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center">
-                  <Stethoscope className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-slate-900 text-xl">
-                    OpenTreatMent Doctor Portal
-                  </h2>
-                  <p className="text-xs text-slate-600">{currentDate}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" className="relative hover:bg-slate-100">
-                <Bell className="w-5 h-5 text-slate-700" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-cyan-600 rounded-full text-xs text-white flex items-center justify-center font-bold">
-                  3
-                </span>
-              </Button>
-              <DoctorLogoutButton />
-            </div>
-          </div>
-        </div>
-      </div>
+      <Header showNav={false} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Welcome Section */}
