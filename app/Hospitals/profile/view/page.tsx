@@ -7,7 +7,7 @@ export default async function ViewHospitalProfilePage() {
   const profile = await getHospitalProfile();
 
   if (!profile) {
-    redirect("/Hospitals/profile/submit");
+    redirect("/hospitals/profile/submit");
   }
 
   // Transform null values to undefined for the component
