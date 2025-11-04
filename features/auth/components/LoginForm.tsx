@@ -159,7 +159,7 @@ export default function AuthForm() {
 
       if (form.role === "DOCTOR") router.push("/doctor");
       else if (form.role === "ADMIN") router.push("/admin/dashbaord");
-      else if (form.role === "HOSPITAL") router.push("/Hospitals");
+      else if (form.role === "HOSPITAL") router.push("/hospitals");
       else if (form.role === "PHARMACY") router.push("/pharmacy/dashboard");
       else router.push("/");
     } catch (error) {

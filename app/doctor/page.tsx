@@ -148,10 +148,13 @@ export default function DoctorDashboardPage() {
                 </div>
               </div>
               <div className="flex lg:flex-col gap-3">
-                <Button className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold flex items-center gap-2 px-6 py-6">
-                  <Calendar className="w-5 h-5" />
-                  Today's Schedule
-                </Button>
+                <Link href="/doctor/consultations/today">
+                  <Button className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold flex items-center gap-2 px-6 py-6">
+                    <Calendar className="w-5 h-5" />
+                    Today's Schedule
+                  </Button>
+                </Link>
+
                 <Button className="bg-slate-700 hover:bg-slate-800 text-white font-bold flex items-center gap-2 px-6 py-6">
                   <Video className="w-5 h-5" />
                   Start Video Call
