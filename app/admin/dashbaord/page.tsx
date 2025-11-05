@@ -14,6 +14,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -44,7 +46,7 @@ export default function AdminDashboardPage() {
       approved: stats.doctors.approved,
       icon: Stethoscope,
       link: "/admin/doctor",
-      gradient: "from-zinc-900 to-zinc-800",
+      gradient: "from-cyan-500 via-teal-500 to-sky-500",
     },
     {
       title: "Hospitals",
@@ -53,7 +55,7 @@ export default function AdminDashboardPage() {
       approved: stats.hospitals.approved,
       icon: Building,
       link: "/admin/hospitals/hospitals",
-      gradient: "from-zinc-800 to-zinc-900",
+      gradient: "from-teal-500 via-cyan-500 to-sky-500",
     },
     {
       title: "Insurance Companies",
@@ -62,7 +64,7 @@ export default function AdminDashboardPage() {
       approved: stats.insurance.approved,
       icon: CreditCard,
       link: "/admin/insurance",
-      gradient: "from-zinc-900 to-zinc-800",
+      gradient: "from-sky-500 via-cyan-500 to-teal-500",
     },
     {
       title: "Pharmacies",
@@ -71,7 +73,7 @@ export default function AdminDashboardPage() {
       approved: stats.pharmacies.approved,
       icon: ShoppingCart,
       link: "/admin/pharmacy",
-      gradient: "from-zinc-800 to-zinc-900",
+      gradient: "from-cyan-500 via-sky-500 to-teal-500",
     },
   ];
 
@@ -94,72 +96,93 @@ export default function AdminDashboardPage() {
     stats.pharmacies.approved;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 -left-40 w-[600px] h-[600px] bg-gradient-to-r from-cyan-400/10 via-teal-400/10 to-sky-400/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 -right-40 w-[600px] h-[600px] bg-gradient-to-r from-teal-500/10 via-sky-400/10 to-cyan-400/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      </div>
+
       {/* Header */}
       <Header showNav={false} />
 
-      <div className="p-8 max-w-7xl mx-auto mt-8 space-y-8">
+      <div className="p-8 max-w-7xl mx-auto mt-8 space-y-8 relative z-10">
         {/* Page Header */}
-        <div className="border-b border-zinc-200 pb-6">
-          <h1 className="text-4xl font-bold text-zinc-900 mb-2">
+        <div className="border-b-2 border-cyan-200 pb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-cyan-50 to-teal-50 border-2 border-cyan-300 rounded-full shadow-lg">
+              <Sparkles className="w-4 h-4 text-cyan-600 animate-pulse" />
+              <span className="bg-gradient-to-r from-cyan-700 to-teal-700 bg-clip-text text-transparent font-bold text-sm">
+                Admin Portal
+              </span>
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-slate-900 to-slate-800 bg-clip-text text-transparent mb-2">
             Admin Dashboard
           </h1>
-          <p className="text-zinc-600 text-lg">
+          <p className="text-slate-600 text-lg font-semibold">
             Centralized management and oversight of all system entities
           </p>
         </div>
 
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border-zinc-200 bg-gradient-to-br from-zinc-50 to-white">
-            <CardContent className="pt-6">
+          <Card className="border-2 border-cyan-200 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-600 mb-1">
+                  <p className="text-sm font-bold text-slate-600 mb-1 uppercase tracking-wider">
                     Total Entities
                   </p>
-                  <p className="text-3xl font-bold text-zinc-900">
+                  <p className="text-5xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
                     {totalUsers}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-zinc-900 rounded-xl flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
+                <div className="h-16 w-16 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Users className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-zinc-200 bg-gradient-to-br from-zinc-50 to-white">
-            <CardContent className="pt-6">
+          <Card className="border-2 border-teal-200 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-600 mb-1">
+                  <p className="text-sm font-bold text-slate-600 mb-1 uppercase tracking-wider">
                     Pending Approval
                   </p>
-                  <p className="text-3xl font-bold text-zinc-900">
+                  <p className="text-5xl font-black bg-gradient-to-r from-teal-600 to-sky-600 bg-clip-text text-transparent">
                     {totalPending}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-zinc-900 rounded-xl flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-white" />
+                <div className="h-16 w-16 bg-gradient-to-br from-teal-500 to-sky-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Clock className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-zinc-200 bg-gradient-to-br from-zinc-50 to-white">
-            <CardContent className="pt-6">
+          <Card className="border-2 border-sky-200 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sky-400/20 to-transparent rounded-full blur-2xl" />
+            <CardContent className="pt-6 relative z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-zinc-600 mb-1">
+                  <p className="text-sm font-bold text-slate-600 mb-1 uppercase tracking-wider">
                     Approved
                   </p>
-                  <p className="text-3xl font-bold text-zinc-900">
+                  <p className="text-5xl font-black bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">
                     {totalApproved}
                   </p>
                 </div>
-                <div className="h-12 w-12 bg-zinc-900 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-white" />
+                <div className="h-16 w-16 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <CheckCircle className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -168,43 +191,50 @@ export default function AdminDashboardPage() {
 
         {/* Entity Cards */}
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 mb-4">
+          <h2 className="text-3xl font-black bg-gradient-to-r from-slate-900 to-slate-800 bg-clip-text text-transparent mb-6">
             Entity Management
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {statCards.map((stat) => (
               <Link key={stat.title} href={stat.link}>
-                <Card className="group border-zinc-200 hover:border-zinc-900 transition-all duration-300 hover:shadow-xl overflow-hidden cursor-pointer h-full">
-                  <div className={`bg-gradient-to-br ${stat.gradient} p-6`}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="h-12 w-12 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                        <stat.icon className="h-6 w-6 text-white" />
+                <Card className="group border-2 border-cyan-200 hover:border-cyan-400 transition-all duration-300 hover:shadow-2xl overflow-hidden cursor-pointer h-full">
+                  <div
+                    className={`bg-gradient-to-br ${stat.gradient} p-6 relative overflow-hidden`}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    <div className="flex items-center justify-between mb-4 relative z-10">
+                      <div className="h-14 w-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border-2 border-white/30 shadow-lg">
+                        <stat.icon className="h-7 w-7 text-white" />
                       </div>
-                      <TrendingUp className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
+                      <TrendingUp className="h-5 w-5 text-white/60 group-hover:text-white transition-colors" />
                     </div>
-                    <h3 className="text-white font-semibold text-lg mb-1">
+                    <h3 className="text-white font-bold text-lg mb-1 relative z-10">
                       {stat.title}
                     </h3>
-                    <p className="text-4xl font-bold text-white mb-4">
+                    <p className="text-5xl font-black text-white mb-4 relative z-10 drop-shadow-lg">
                       {stat.total}
                     </p>
                   </div>
-                  <CardContent className="pt-4">
-                    <div className="flex items-center justify-between text-sm">
+                  <CardContent className="pt-4 bg-white">
+                    <div className="flex items-center justify-between text-sm mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                        <span className="text-zinc-600">Approved</span>
+                        <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 shadow-sm"></div>
+                        <span className="text-slate-600 font-semibold">
+                          Approved
+                        </span>
                       </div>
-                      <span className="font-semibold text-zinc-900">
+                      <span className="font-black text-slate-900">
                         {stat.approved}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm mt-2">
+                    <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                        <span className="text-zinc-600">Pending</span>
+                        <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-sm"></div>
+                        <span className="text-slate-600 font-semibold">
+                          Pending
+                        </span>
                       </div>
-                      <span className="font-semibold text-zinc-900">
+                      <span className="font-black text-slate-900">
                         {stat.pending}
                       </span>
                     </div>
@@ -215,114 +245,130 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions & Recent Activity */}
+        {/* Quick Actions & System Status */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="border-zinc-200">
-            <CardHeader className="border-b border-zinc-200 bg-zinc-50">
-              <CardTitle className="text-zinc-900 text-xl">
-                Quick Actions
-              </CardTitle>
+          <Card className="border-2 border-cyan-200 shadow-2xl bg-white/90 backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-full blur-3xl" />
+            <CardHeader className="border-b border-cyan-100 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-lg flex items-center justify-center shadow-lg">
+                  <Activity className="h-5 w-5 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-black bg-gradient-to-r from-slate-900 to-slate-800 bg-clip-text text-transparent">
+                  Quick Actions
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 relative z-10">
               <div className="grid grid-cols-1 gap-3">
-                <Link href="/admin/doctor">
+                <Link href="/admin/doctor" className="group">
                   <Button
                     variant="outline"
-                    className="w-full justify-start h-14 border-zinc-200 hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition-all group"
+                    className="w-full justify-start h-14 border-2 border-cyan-200 hover:bg-gradient-to-r hover:from-cyan-500 hover:via-teal-500 hover:to-sky-500 hover:text-white hover:border-cyan-400 transition-all"
                   >
-                    <div className="h-8 w-8 rounded-lg bg-zinc-100 group-hover:bg-white/20 flex items-center justify-center mr-3">
-                      <Stethoscope className="h-4 w-4 text-zinc-900 group-hover:text-white" />
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-cyan-100 to-teal-100 group-hover:from-white/20 group-hover:to-white/20 flex items-center justify-center mr-3 transition-all">
+                      <Stethoscope className="h-5 w-5 text-cyan-600 group-hover:text-white" />
                     </div>
-                    <span className="font-medium">Manage Doctors</span>
+                    <span className="font-bold">Manage Doctors</span>
+                    <ArrowRight className="h-4 w-4 ml-auto group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link href="/admin/hospitals/hospitals">
+                <Link href="/admin/hospitals/hospitals" className="group">
                   <Button
                     variant="outline"
-                    className="w-full justify-start h-14 border-zinc-200 hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition-all group"
+                    className="w-full justify-start h-14 border-2 border-teal-200 hover:bg-gradient-to-r hover:from-teal-500 hover:via-cyan-500 hover:to-sky-500 hover:text-white hover:border-teal-400 transition-all"
                   >
-                    <div className="h-8 w-8 rounded-lg bg-zinc-100 group-hover:bg-white/20 flex items-center justify-center mr-3">
-                      <Building className="h-4 w-4 text-zinc-900 group-hover:text-white" />
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-teal-100 to-cyan-100 group-hover:from-white/20 group-hover:to-white/20 flex items-center justify-center mr-3 transition-all">
+                      <Building className="h-5 w-5 text-teal-600 group-hover:text-white" />
                     </div>
-                    <span className="font-medium">Manage Hospitals</span>
+                    <span className="font-bold">Manage Hospitals</span>
+                    <ArrowRight className="h-4 w-4 ml-auto group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link href="/admin/insurance">
+                <Link href="/admin/insurance" className="group">
                   <Button
                     variant="outline"
-                    className="w-full justify-start h-14 border-zinc-200 hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition-all group"
+                    className="w-full justify-start h-14 border-2 border-sky-200 hover:bg-gradient-to-r hover:from-sky-500 hover:via-cyan-500 hover:to-teal-500 hover:text-white hover:border-sky-400 transition-all"
                   >
-                    <div className="h-8 w-8 rounded-lg bg-zinc-100 group-hover:bg-white/20 flex items-center justify-center mr-3">
-                      <CreditCard className="h-4 w-4 text-zinc-900 group-hover:text-white" />
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-sky-100 to-cyan-100 group-hover:from-white/20 group-hover:to-white/20 flex items-center justify-center mr-3 transition-all">
+                      <CreditCard className="h-5 w-5 text-sky-600 group-hover:text-white" />
                     </div>
-                    <span className="font-medium">Manage Insurance</span>
+                    <span className="font-bold">Manage Insurance</span>
+                    <ArrowRight className="h-4 w-4 ml-auto group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <Link href="/admin/pharmacy">
+                <Link href="/admin/pharmacy" className="group">
                   <Button
                     variant="outline"
-                    className="w-full justify-start h-14 border-zinc-200 hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition-all group"
+                    className="w-full justify-start h-14 border-2 border-cyan-200 hover:bg-gradient-to-r hover:from-cyan-500 hover:via-sky-500 hover:to-teal-500 hover:text-white hover:border-cyan-400 transition-all"
                   >
-                    <div className="h-8 w-8 rounded-lg bg-zinc-100 group-hover:bg-white/20 flex items-center justify-center mr-3">
-                      <ShoppingCart className="h-4 w-4 text-zinc-900 group-hover:text-white" />
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 group-hover:from-white/20 group-hover:to-white/20 flex items-center justify-center mr-3 transition-all">
+                      <ShoppingCart className="h-5 w-5 text-cyan-600 group-hover:text-white" />
                     </div>
-                    <span className="font-medium">Manage Pharmacies</span>
+                    <span className="font-bold">Manage Pharmacies</span>
+                    <ArrowRight className="h-4 w-4 ml-auto group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-zinc-200">
-            <CardHeader className="border-b border-zinc-200 bg-zinc-50">
-              <CardTitle className="text-zinc-900 text-xl">
-                System Status
-              </CardTitle>
+          <Card className="border-2 border-teal-200 shadow-2xl bg-white/90 backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-teal-400/10 to-transparent rounded-full blur-3xl" />
+            <CardHeader className="border-b border-teal-100 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-lg flex items-center justify-center shadow-lg">
+                  <TrendingUp className="h-5 w-5 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-black bg-gradient-to-r from-slate-900 to-slate-800 bg-clip-text text-transparent">
+                  System Status
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 relative z-10">
               <div className="space-y-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0">
-                      <Activity className="h-5 w-5 text-zinc-900" />
+                    <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-cyan-100 to-teal-100 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <Activity className="h-6 w-6 text-cyan-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-zinc-900">System Health</p>
-                      <p className="text-sm text-zinc-600 mt-1">
+                      <p className="font-bold text-slate-900">System Health</p>
+                      <p className="text-sm text-slate-600 mt-1 font-semibold">
                         All services operational
                       </p>
                     </div>
                   </div>
-                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                  <div className="h-3.5 w-3.5 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 shadow-lg animate-pulse"></div>
                 </div>
 
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="h-5 w-5 text-zinc-900" />
+                    <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-teal-100 to-sky-100 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <AlertCircle className="h-6 w-6 text-teal-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-zinc-900">
+                      <p className="font-bold text-slate-900">
                         Pending Reviews
                       </p>
-                      <p className="text-sm text-zinc-600 mt-1">
+                      <p className="text-sm text-slate-600 mt-1 font-semibold">
                         {totalPending} items require attention
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm font-semibold text-zinc-900 bg-zinc-100 px-3 py-1 rounded-full">
+                  <span className="text-sm font-black text-white bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 rounded-full shadow-lg">
                     {totalPending}
                   </span>
                 </div>
 
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="h-5 w-5 text-zinc-900" />
+                    <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-sky-100 to-cyan-100 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <TrendingUp className="h-6 w-6 text-sky-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-zinc-900">Approval Rate</p>
-                      <p className="text-sm text-zinc-600 mt-1">
+                      <p className="font-bold text-slate-900">Approval Rate</p>
+                      <p className="text-sm text-slate-600 mt-1 font-semibold">
                         {totalUsers > 0
                           ? Math.round((totalApproved / totalUsers) * 100)
                           : 0}
@@ -330,7 +376,7 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <span className="text-sm font-semibold text-zinc-900">
+                  <span className="text-sm font-black text-white bg-gradient-to-r from-cyan-500 to-teal-500 px-3 py-1.5 rounded-full shadow-lg">
                     {totalUsers > 0
                       ? Math.round((totalApproved / totalUsers) * 100)
                       : 0}
