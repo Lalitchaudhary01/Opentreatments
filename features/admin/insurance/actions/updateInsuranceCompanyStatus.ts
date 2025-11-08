@@ -1,32 +1,35 @@
 "use server";
 
-import  prisma  from "@/lib/prisma";
-import { AdminInsuranceCompany, AdminInsuranceCompanyStatus } from "../types/adminInsuranceCompany";
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import {
+  AdminInsuranceCompany,
+  AdminInsuranceCompanyStatus,
+} from "../types/adminInsuranceCompany";
 
 export async function updateInsuranceCompanyStatus(
   id: string,
   status: AdminInsuranceCompanyStatus
 ): Promise<AdminInsuranceCompany> {
-  try {
-    const updatedCompany = await prisma.insuranceCompany.update({
-      where: { id },
-      data: { status },
-    });
+  const u = await prisma.insuranceCompany.update({
+    where: { id },
+    data: { status },
+  });
 
-    return {
-      id: updatedCompany.id,
-      name: updatedCompany.name,
-      email: updatedCompany.email,
-      phone: "", // Default value since it's not in the Prisma model
-      address: "", // Default value since it's not in the Prisma model
-      licenseNumber: "", // Default value since it's not in the Prisma model
-      description: updatedCompany.provider || undefined,
-      status: updatedCompany.status as AdminInsuranceCompanyStatus,
-      createdAt: updatedCompany.createdAt.toISOString(),
-      updatedAt: updatedCompany.updatedAt.toISOString(),
-    };
-  } catch (error) {
-    console.error(`❌ Error updating insurance company status for id=${id}:`, error);
-    throw new Error("Failed to update insurance company status");
-  }
+  // Optional but useful: refresh admin list page(s)
+  revalidatePath("/admin/insurance");
+  revalidatePath("/admin/insurance/companies");
+
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    phone: u.contactPhone ?? null,
+    address: u.address ?? null,
+    licenseNumber: u.registrationNumber ?? null,
+    website: u.website ?? null,
+    status: u.status as AdminInsuranceCompanyStatus,
+    createdAt: u.createdAt.toISOString(),
+    updatedAt: u.updatedAt.toISOString(),
+  };
 }

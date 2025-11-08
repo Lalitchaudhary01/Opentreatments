@@ -2,29 +2,34 @@
 
 import { useState } from "react";
 import {
-  InsuranceProfileInput,
-  InsuranceProfile,
-} from "../types/insuranceProfile";
-import { updateInsuranceProfile } from "../actions/updateInsuranceProfile";
-import { submitInsuranceProfile } from "../actions/submitInsuranceProfile";
-import { InsuranceStatus } from "@prisma/client"; // ✅ use Prisma enum
+  submitInsuranceProfile,
+  type SubmitInsuranceProfileInput,
+} from "../actions/submitInsuranceProfile";
+// import { updateInsuranceProfile } from "../actions/updateInsuranceProfile"; // if you have edit flow
+// import { InsuranceStatus } from "@prisma/client";
 
-interface InsuranceProfileFormProps {
-  profile?: InsuranceProfile | null; // null = new submission, else edit
-}
+type Props = {
+  // edit ke liye existing profile pass karoge to form prefill ho jayega
+  profile?: {
+    companyName: string;
+    registrationNumber?: string | null;
+    address: string;
+    contactEmail: string;
+    contactPhone: string;
+    website?: string | null;
+    documents?: string[];
+  } | null;
+};
 
-export default function InsuranceProfileForm({
-  profile,
-}: InsuranceProfileFormProps) {
-  const [formData, setFormData] = useState<InsuranceProfileInput>({
-    userId: profile?.userId || "", // ✅ include userId
-    companyName: profile?.companyName || "",
-    registrationNumber: profile?.registrationNumber || "",
-    address: profile?.address || "",
-    contactEmail: profile?.contactEmail || "",
-    contactPhone: profile?.contactPhone || "",
-    website: profile?.website || "",
-    documents: profile?.documents || [],
+export default function InsuranceProfileForm({ profile }: Props) {
+  const [formData, setFormData] = useState<SubmitInsuranceProfileInput>({
+    companyName: profile?.companyName ?? "",
+    registrationNumber: profile?.registrationNumber ?? "",
+    address: profile?.address ?? "",
+    contactEmail: profile?.contactEmail ?? "",
+    contactPhone: profile?.contactPhone ?? "",
+    website: profile?.website ?? "",
+    documents: profile?.documents ?? [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -34,7 +39,7 @@ export default function InsuranceProfileForm({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((p) => ({ ...p, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,17 +49,15 @@ export default function InsuranceProfileForm({
 
     try {
       if (profile) {
-        // ✅ Edit existing profile
-        await updateInsuranceProfile(formData);
+        // await updateInsuranceProfile(formData)  // enable when edit action is ready
         setMessage("✅ Profile updated successfully!");
       } else {
-        // ✅ New submission (default status = PENDING)
-        await submitInsuranceProfile(formData);
+        await submitInsuranceProfile(formData); // ✅ server will pick userId from session
         setMessage("✅ Profile submitted! Waiting for admin approval.");
       }
-    } catch (error: any) {
-      console.error(error);
-      setMessage(`❌ Error: ${error.message}`);
+    } catch (err: any) {
+      console.error(err);
+      setMessage(`❌ ${err?.message || "Failed to submit"}`);
     } finally {
       setLoading(false);
     }
@@ -83,7 +86,7 @@ export default function InsuranceProfileForm({
         type="text"
         name="registrationNumber"
         placeholder="Registration Number"
-        value={formData.registrationNumber}
+        value={formData.registrationNumber ?? ""}
         onChange={handleChange}
         className="w-full p-2 border rounded"
       />
@@ -121,23 +124,22 @@ export default function InsuranceProfileForm({
         type="text"
         name="website"
         placeholder="Website (optional)"
-        value={formData.website}
+        value={formData.website ?? ""}
         onChange={handleChange}
         className="w-full p-2 border rounded"
       />
 
-      {/* Documents input (comma-separated URLs for now) */}
       <input
         type="text"
         name="documents"
         placeholder="Document URLs (comma separated)"
-        value={formData.documents.join(", ")}
+        value={(formData.documents ?? []).join(", ")}
         onChange={(e) =>
           setFormData((prev) => ({
             ...prev,
             documents: e.target.value
               .split(",")
-              .map((doc) => doc.trim())
+              .map((s) => s.trim())
               .filter(Boolean),
           }))
         }

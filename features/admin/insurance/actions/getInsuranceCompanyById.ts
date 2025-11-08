@@ -1,19 +1,24 @@
 "use server";
 
-import  prisma  from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { AdminInsuranceCompany } from "../types/adminInsuranceCompany";
 
 export async function getInsuranceCompanyById(
   id: string
 ): Promise<AdminInsuranceCompany | null> {
-  try {
-    const company = await prisma.insuranceCompany.findUnique({
-      where: { id },
-    });
+  const c = await prisma.insuranceCompany.findUnique({ where: { id } });
+  if (!c) return null;
 
-    return company as AdminInsuranceCompany | null;
-  } catch (error) {
-    console.error(`❌ Error fetching insurance company with id=${id}:`, error);
-    throw new Error("Failed to fetch insurance company");
-  }
+  return {
+    id: c.id,
+    name: c.name,
+    email: c.email,
+    phone: c.contactPhone ?? null,
+    address: c.address ?? null,
+    licenseNumber: c.registrationNumber ?? null,
+    website: c.website ?? null,
+    status: c.status as any,
+    createdAt: c.createdAt.toISOString(),
+    updatedAt: c.updatedAt.toISOString(),
+  };
 }

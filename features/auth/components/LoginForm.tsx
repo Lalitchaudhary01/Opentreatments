@@ -49,7 +49,14 @@ export default function AuthForm() {
   });
 
   const roles = {
-    login: ["USER", "DOCTOR", "ADMIN", "HOSPITAL", "PHARMACY"],
+    login: [
+      "USER",
+      "DOCTOR",
+      "ADMIN",
+      "HOSPITAL",
+      "PHARMACY",
+      "INSURANCE_COMPANY",
+    ],
     register: [
       "USER",
       "DOCTOR",
@@ -161,6 +168,8 @@ export default function AuthForm() {
       else if (form.role === "ADMIN") router.push("/admin/dashbaord");
       else if (form.role === "HOSPITAL") router.push("/hospitals");
       else if (form.role === "PHARMACY") router.push("/pharmacy/dashboard");
+      else if (form.role === "INSURANCE_COMPANY")
+        router.push("/insurance/dashbaord");
       else router.push("/");
     } catch (error) {
       alert("An error occurred during login");

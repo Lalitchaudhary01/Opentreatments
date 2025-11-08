@@ -1,31 +1,30 @@
 "use server";
 
-import  prisma  from "@/lib/prisma";
-import { AdminInsuranceCompany, AdminInsuranceCompanyStatus } from "../types/adminInsuranceCompany";
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import {
+  AdminInsuranceCompany,
+  AdminInsuranceCompanyStatus,
+} from "../types/adminInsuranceCompany";
 
 export async function getInsuranceCompanies(
-  status?: "PENDING" | "APPROVED" | "REJECTED"
+  status?: AdminInsuranceCompanyStatus
 ): Promise<AdminInsuranceCompany[]> {
-  try {
-    const companies = await prisma.insuranceCompany.findMany({
-      where: status ? { status } : {},
-      orderBy: { createdAt: "desc" },
-    });
+  const companies = await prisma.insuranceCompany.findMany({
+    where: status ? { status } : {},
+    orderBy: { createdAt: "desc" },
+  });
 
-    return companies.map((company) => ({
-      id: company.id,
-      name: company.name,
-      email: company.email,
-      phone: "", // Default value since it's not in the Prisma model
-      address: "", // Default value since it's not in the Prisma model
-      licenseNumber: "", // Default value since it's not in the Prisma model
-      description: company.provider || undefined,
-      status: company.status as AdminInsuranceCompanyStatus,
-      createdAt: company.createdAt.toISOString(),
-      updatedAt: company.updatedAt.toISOString(),
-    }));
-  } catch (error) {
-    console.error("❌ Error fetching insurance companies:", error);
-    throw new Error("Failed to fetch insurance companies");
-  }
+  return companies.map((c) => ({
+    id: c.id,
+    name: c.name,
+    email: c.email,
+    phone: c.contactPhone ?? null, // ✅ correct mapping
+    address: c.address ?? null, // ✅ correct mapping
+    licenseNumber: c.registrationNumber ?? null, // ✅ correct mapping
+    website: c.website ?? null,
+    status: c.status as AdminInsuranceCompanyStatus,
+    createdAt: c.createdAt.toISOString(),
+    updatedAt: c.updatedAt.toISOString(),
+  }));
 }

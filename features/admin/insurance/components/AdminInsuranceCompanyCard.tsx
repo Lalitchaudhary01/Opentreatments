@@ -29,8 +29,28 @@ export default function AdminInsuranceCompanyCard({
     <div className="border rounded-xl p-4 shadow-sm flex justify-between items-center">
       <div>
         <h3 className="font-semibold text-lg">{company.name}</h3>
-        <p className="text-sm text-gray-500">📍 {company.address}</p>
-        <p className="text-sm">📧 {company.email}</p>
+        {company.address && (
+          <p className="text-sm text-gray-500">📍 {company.address}</p>
+        )}
+        {company.email && <p className="text-sm">📧 {company.email}</p>}
+        {company.phone && <p className="text-sm">📞 {company.phone}</p>}
+        {company.licenseNumber && (
+          <p className="text-sm">🆔 Reg#: {company.licenseNumber}</p>
+        )}
+        {company.website && (
+          <p className="text-sm">
+            🔗{" "}
+            <a
+              className="text-blue-600 underline"
+              href={company.website}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {company.website}
+            </a>
+          </p>
+        )}
+
         <p className="mt-2 text-xs">
           Status:{" "}
           <span

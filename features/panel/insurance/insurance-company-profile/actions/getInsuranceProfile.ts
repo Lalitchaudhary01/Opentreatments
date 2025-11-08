@@ -1,3 +1,4 @@
+"use server";
 import prisma from "@/lib/prisma";
 import { InsuranceProfile } from "../types/insuranceProfile";
 import { InsuranceStatus } from "@prisma/client"; // ✅ Use Prisma’s enum
