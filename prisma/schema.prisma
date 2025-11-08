@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -35,6 +34,8 @@ model User {
   Pharmacy                 Pharmacy?
   policies                 Policy[]
   sessions                 Session[]
+  LabCompany               LabCompany?
+  labBookings              LabBooking[]
 }
 
 model Account {
@@ -558,4 +559,114 @@ enum ClaimStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model LabCompany {
+  id                 String       @id @default(cuid())
+  userId             String       @unique
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name               String
+  registrationNumber String?
+  email              String       @unique
+  phone              String?      @unique
+  address            String
+  city               String?
+  website            String?
+  documents          String[]
+  status             LabStatus    @default(PENDING)
+  tests              LabTest[]
+  packages           LabPackage[]
+  slots              LabSlot[]
+  bookings           LabBooking[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model LabTest {
+  id              String           @id @default(cuid())
+  labId           String
+  lab             LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  name            String
+  code            String? // keep optional if needed
+  price           Int
+  sampleType      String?
+  method          String?
+  tatHours        Int?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  labPackageTests LabPackageTest[]
+
+  @@unique([labId, code]) // <= per-lab uniqueness
+  @@index([labId]) // perf
+}
+
+model LabPackage {
+  id          String     @id @default(cuid())
+  labId       String
+  lab         LabCompany @relation(fields: [labId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Int
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  packageTests LabPackageTest[]
+}
+
+model LabPackageTest {
+  packageId String
+  testId    String
+  pkg       LabPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  test      LabTest    @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@id([packageId, testId])
+  @@index([testId])
+}
+
+model LabSlot {
+  id        String     @id @default(cuid())
+  labId     String
+  lab       LabCompany @relation(fields: [labId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  capacity  Int        @default(10)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([labId])
+}
+
+model LabBooking {
+  id          String        @id @default(cuid())
+  labId       String
+  lab         LabCompany    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String
+  itemId      String
+  appointment DateTime
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([labId])
+  @@index([userId])
+}
+
+enum LabStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
 }
