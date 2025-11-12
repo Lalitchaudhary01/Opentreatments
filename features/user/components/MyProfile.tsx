@@ -23,6 +23,9 @@ import {
   Crown,
   Star,
   TrendingUp,
+  ArrowLeft,
+  Upload,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,7 +34,7 @@ import { deleteBlog } from "@/features/Blogs/actions/deleteBlog";
 import { getUserBlogs } from "@/features/Blogs/actions/getUserBlogs";
 import Header from "@/components/layout/Header";
 
-export default function MyProfile() {
+export default function MedicalProfile() {
   const { data: session, status } = useSession();
   const [loadingSession, setLoadingSession] = useState(true);
 
@@ -41,14 +44,13 @@ export default function MyProfile() {
 
   if (loadingSession) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-950 dark:to-purple-950">
+      <div className="flex items-center justify-center min-h-screen bg-background-light dark:bg-background-dark">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-transparent bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-transparent bg-gradient-to-r from-purple-500 to-pink-500 rounded-full absolute top-0 left-0 animate-reverse-spin"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-transparent bg-gradient-to-r from-primary to-blue-500"></div>
           </div>
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-semibold animate-pulse">
-            Loading your premium profile...
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600 font-semibold animate-pulse">
+            Loading your medical profile...
           </p>
         </div>
       </div>
@@ -62,232 +64,120 @@ export default function MyProfile() {
 
   const user = {
     id: (session.user as any)?.id,
-    name: session.user?.name || "",
+    name: session.user?.name || "Alexandra Chen",
     email: session.user?.email || "",
     phone: (session.user as any)?.phone || "",
     image: session.user?.image || "",
+    age: 34,
+    bloodGroup: "O+",
+    gender: "Female",
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-white text-black dark:bg-black dark:text-white">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-background-light dark:bg-background-dark font-display">
+      {/* Top App Bar */}
+      <div className="sticky top-0 z-20 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm p-4 justify-between">
+        <div className="flex size-12 shrink-0 items-center">
+          <ArrowLeft className="text-dark-blue dark:text-white h-6 w-6" />
+        </div>
+        <h2 className="text-dark-blue dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">
+          My Profile
+        </h2>
+        <div className="flex w-12 items-center justify-end">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-dark-blue dark:text-white"
+          >
+            <Settings className="h-6 w-6" />
+          </Button>
+        </div>
+      </div>
 
-      {/* Header Section */}
-      <Header />
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto mt-12 px-6 py-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
-          <div className="lg:col-span-1">
-            <ProfileCard user={user} />
+      <div className="relative flex flex-col w-full">
+        {/* Header Image & Profile Header Combined */}
+        <div className="relative mb-28">
+          <div className="w-full h-52 bg-gradient-to-br from-primary/40 to-blue-500/40 flex flex-col justify-end overflow-hidden">
+            <div className="absolute inset-0 bg-dark-blue/20"></div>
           </div>
-          <Link href="/user/consultations">
-            <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-              My Consultations
-            </Button>
-          </Link>
-
-          {/* Blogs Section */}
-          <div className="lg:col-span-2">
-            <UserBlogs userId={user.id} />
+          <div className="absolute -bottom-24 left-0 right-0 px-4">
+            <div className="flex w-full flex-col items-center gap-4 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg shadow-primary/10">
+              <div className="flex flex-col items-center gap-3">
+                <Avatar className="h-28 w-28 -mt-20 border-4 border-white dark:border-gray-800">
+                  <AvatarImage src={user.image} alt={user.name} />
+                  <AvatarFallback className="text-2xl font-bold bg-primary text-white">
+                    {user.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-dark-blue dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">
+                    {user.name}
+                  </p>
+                  <p className="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal text-center">
+                    {user.age} years old | {user.bloodGroup} Blood Group
+                  </p>
+                </div>
+              </div>
+              <Button className="bg-primary/20 text-primary hover:bg-primary/30">
+                Edit Profile
+              </Button>
+            </div>
           </div>
         </div>
+
+        {/* Accordions Section */}
+        <div className="flex flex-col p-4 gap-4">
+          <PersonalInfoAccordion user={user} />
+          <ContactDetailsAccordion user={user} />
+          <MedicalInfoAccordion />
+          <LifestyleInfoAccordion />
+        </div>
+
+        {/* Insurance & Reports Section */}
+        <InsuranceReportsSection />
+
+        <div className="h-5 bg-background-light dark:bg-background-dark"></div>
       </div>
     </div>
   );
 }
 
-function ProfileCard({ user }: { user: any }) {
-  const [name, setName] = useState(user.name);
-  const [phone, setPhone] = useState(user.phone);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setSuccess(false);
-
-    try {
-      const updatedUser = await updateUser({ id: user.id, name, phone });
-      setName(updatedUser.name);
-      setPhone(updatedUser.phone);
-      setSuccess(true);
-      setIsEditing(false);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      console.error(err);
-      setSuccess(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const initials = name.charAt(0).toUpperCase() || "U";
+function PersonalInfoAccordion({ user }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-slate-800 relative">
-      <CardContent className="p-6">
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-              Profile
-            </h2>
-            <p className="text-sm text-blue-500 font-medium">Premium User</p>
+    <Card className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm shadow-primary/5">
+      <CardContent className="p-0">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex w-full cursor-pointer items-center justify-between gap-4 py-4 px-4"
+        >
+          <div className="flex items-center gap-3">
+            <User className="h-5 w-5 text-primary" />
+            <p className="text-dark-blue dark:text-white text-base font-bold">
+              Personal Information
+            </p>
           </div>
-          {!isEditing && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditing(true)}
-              className="text-blue-500 border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950"
-            >
-              Edit Profile
-            </Button>
-          )}
-        </div>
+          <ChevronDown
+            className={`h-5 w-5 text-dark-blue dark:text-white transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
 
-        {!isEditing ? (
-          <>
-            {/* Profile Info Display */}
-            <div className="flex items-start gap-6 mb-8">
-              {/* Avatar Section */}
-              <div className="flex-shrink-0">
-                <Avatar className="h-24 w-24 border-4 border-gray-200 dark:border-gray-700">
-                  <AvatarImage
-                    src={user.image}
-                    alt={name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-2xl font-bold  text-white">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-
-              {/* User Details */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                  {name}
-                </h3>
-                <p className="text-sm text-blue-500 mb-4">Premium User</p>
-              </div>
-            </div>
-
-            {/* Contact Information Section */}
-            <div className="space-y-6">
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-                Contact Information
-              </h4>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Email
-                </Label>
-                <p className="text-sm text-gray-800 dark:text-white font-medium">
-                  {user.email}
-                </p>
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Phone
-                </Label>
-                <p className="text-sm text-gray-800 dark:text-white font-medium">
-                  {phone || "Not provided"}
-                </p>
-              </div>
-            </div>
-          </>
-        ) : (
-          /* Edit Form */
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-3">
-              <Label
-                htmlFor="name"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Full Name
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={user.email}
-                readOnly
-                className="bg-gray-100 dark:bg-slate-700 cursor-not-allowed opacity-70"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label
-                htmlFor="phone"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Phone Number
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="Enter phone number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
-              />
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-blue-500 hover:bg-blue-600"
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Saving...
-                  </div>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsEditing(false)}
-                className="px-6"
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        )}
-
-        {success && (
-          <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <p className="text-green-800 dark:text-green-200 text-sm font-medium text-center">
-              Profile updated successfully!
+        {isOpen && (
+          <div className="text-gray-600 dark:text-gray-300 text-sm font-normal leading-relaxed pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-4 px-4">
+            <p>
+              <strong>Name:</strong> {user.name}
+            </p>
+            <p>
+              <strong>Gender:</strong> {user.gender}
+            </p>
+            <p>
+              <strong>Age:</strong> {user.age}
+            </p>
+            <p>
+              <strong>Blood Group:</strong> {user.bloodGroup}
             </p>
           </div>
         )}
@@ -296,185 +186,242 @@ function ProfileCard({ user }: { user: any }) {
   );
 }
 
-function UserBlogs({ userId }: { userId: string }) {
-  const [blogs, setBlogs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+function ContactDetailsAccordion({ user }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const loadBlogs = async () => {
-      try {
-        const data = await getUserBlogs();
-        setBlogs(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadBlogs();
-  }, [userId]);
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this blog?")) return;
-    try {
-      await deleteBlog(id);
-      setBlogs((prev) => prev.filter((b) => b.id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  if (loading) {
-    return (
-      <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-slate-800">
-        <CardContent className="p-8">
-          <div className="flex items-center justify-center">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-3"></div>
-            <p className="text-gray-600 dark:text-gray-400">
-              Loading your blogs...
+  return (
+    <Card className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm shadow-primary/5">
+      <CardContent className="p-0">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex w-full cursor-pointer items-center justify-between gap-4 py-4 px-4"
+        >
+          <div className="flex items-center gap-3">
+            <Phone className="h-5 w-5 text-primary" />
+            <p className="text-dark-blue dark:text-white text-base font-bold">
+              Contact Details
             </p>
+          </div>
+          <ChevronDown
+            className={`h-5 w-5 text-dark-blue dark:text-white transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {isOpen && (
+          <div className="text-gray-600 dark:text-gray-300 text-sm font-normal leading-relaxed pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-4 px-4">
+            <p>
+              <strong>Phone:</strong> +1 (555) 123-4567
+            </p>
+            <p>
+              <strong>Email:</strong> {user.email}
+            </p>
+            <p>
+              <strong>Address:</strong> 123 Health St, Medville, USA
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MedicalInfoAccordion() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Card className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm shadow-primary/5">
+      <CardContent className="p-0">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex w-full cursor-pointer items-center justify-between gap-4 py-4 px-4"
+        >
+          <div className="flex items-center gap-3">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <p className="text-dark-blue dark:text-white text-base font-bold">
+              Medical Information
+            </p>
+          </div>
+          <ChevronDown
+            className={`h-5 w-5 text-dark-blue dark:text-white transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {isOpen && (
+          <div className="text-gray-600 dark:text-gray-300 text-sm font-normal leading-relaxed pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-4 px-4">
+            <p>
+              <strong>Allergies:</strong> Penicillin, Peanuts
+            </p>
+            <p>
+              <strong>Chronic Diseases:</strong> Asthma
+            </p>
+            <p>
+              <strong>Current Medication:</strong> Albuterol Inhaler (As needed)
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LifestyleInfoAccordion() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Card className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm shadow-primary/5">
+      <CardContent className="p-0">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex w-full cursor-pointer items-center justify-between gap-4 py-4 px-4"
+        >
+          <div className="flex items-center gap-3">
+            <User className="h-5 w-5 text-primary" />
+            <p className="text-dark-blue dark:text-white text-base font-bold">
+              Lifestyle Information
+            </p>
+          </div>
+          <ChevronDown
+            className={`h-5 w-5 text-dark-blue dark:text-white transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {isOpen && (
+          <div className="text-gray-600 dark:text-gray-300 text-sm font-normal leading-relaxed pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-4 px-4">
+            <p>
+              <strong>Smoking:</strong> Non-smoker
+            </p>
+            <p>
+              <strong>Alcohol:</strong> Occasionally
+            </p>
+            <p>
+              <strong>Exercise:</strong> 3 times a week
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function InsuranceReportsSection() {
+  return (
+    <div className="px-4 pb-4">
+      <h3 className="text-dark-blue dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] pb-4 pt-2">
+        Insurance & Medical Reports
+      </h3>
+
+      {/* Insurance Card */}
+      <Card className="rounded-xl p-5 mb-4 bg-gradient-to-br from-primary/80 to-primary dark:from-primary/50 dark:to-primary/70 shadow-lg shadow-primary/30 backdrop-blur-md relative overflow-hidden border-0">
+        <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/20"></div>
+        <div className="absolute -bottom-10 -left-6 w-32 h-32 rounded-full bg-white/10"></div>
+        <CardContent className="relative z-10 p-0">
+          <div className="flex justify-between items-start mb-4">
+            <p className="text-white font-bold text-xl">HealthWell Insurance</p>
+            <Crown className="text-white h-8 w-8" />
+          </div>
+          <div className="text-white space-y-1">
+            <p className="text-sm opacity-80">Policy Number</p>
+            <p className="font-semibold tracking-wider">HW-987654321</p>
+          </div>
+          <div className="text-white mt-3">
+            <p className="text-sm opacity-80">Member ID</p>
+            <p className="font-semibold tracking-wider">AC-123456</p>
           </div>
         </CardContent>
       </Card>
-    );
-  }
 
-  return (
-    <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-slate-800">
-      <CardContent className="p-6">
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-              My Blogs
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {blogs.length} {blogs.length === 1 ? "article" : "articles"}{" "}
-              published
-            </p>
-          </div>
-          <Link href="/blog/create">
-            <Button className="bg-[#10B981] hover:bg-[#1a8c66] text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              New Blog
-            </Button>
-          </Link>
-        </div>
-
-        <Separator className="mb-6" />
-
-        {blogs.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <BookOpen className="h-8 w-8 text-gray-400 dark:text-gray-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-              No blogs yet
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Start sharing your thoughts with the world!
-            </p>
-            <Link href="/blog/create">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Blog
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {blogs.map((blog, index) => (
-              <Card
-                key={blog.id}
-                className="border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
+      {/* Medical Reports List */}
+      <Card className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm shadow-primary/5">
+        <CardContent className="p-0">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-primary" />
+                <p className="text-dark-blue dark:text-white text-sm">
+                  Blood Test - Jan 2024.pdf
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-gray-400"
               >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          #{index + 1}
-                        </Badge>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Published
-                        </span>
-                      </div>
-
-                      <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 line-clamp-1">
-                        {blog.title}
-                      </h4>
-
-                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-3">
-                        {blog.content}
-                      </p>
-
-                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          <span>0 views</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>Today</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Link href={`/blog/edit/${blog.id}`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit3 className="h-3 w-3" />
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(blog.id)}
-                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-primary" />
+                <p className="text-dark-blue dark:text-white text-sm">
+                  X-Ray Report - Dec 2023.pdf
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-gray-400"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <Button className="w-full mt-6 gap-2 h-12 bg-primary text-white hover:bg-opacity-90">
+            <Upload className="h-4 w-4" />
+            Upload New Report
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
-// Add custom CSS for animations
-const styles = `
-  @keyframes spin-slow {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  @keyframes reverse-spin {
-    from {
-      transform: rotate(360deg);
-    }
-    to {
-      transform: rotate(0deg);
-    }
-  }
-  
-  .animate-spin-slow {
-    animation: spin-slow 3s linear infinite;
-  }
-  
-  .animate-reverse-spin {
-    animation: reverse-spin 2s linear infinite;
-  }
-`;
+// Additional icons needed
+function FileText(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M10 9H8" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+    </svg>
+  );
+}
+
+function MoreVertical(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="12" cy="5" r="1" />
+      <circle cx="12" cy="19" r="1" />
+    </svg>
+  );
+}
