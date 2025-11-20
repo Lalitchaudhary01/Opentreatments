@@ -7,6 +7,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Patient {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic Personal Info
+  fullName    String?
+  age         Int?
+  gender      String?
+  phoneNumber String?
+  email       String?
+  address     String?
+
+  // Physical Data
+  height     String?
+  weight     String?
+  bloodGroup String?
+
+  // Medical History
+  conditions    String[] // known diseases
+  allergies     String[]
+  medications   Json?
+  pastSurgeries String[]
+  familyHistory String[] // diabetes, BP, thyroid, etc.
+
+  // Lifestyle (Full Body Checkup Essentials)
+  smokingStatus      String? // smoker / non-smoker / past smoker
+  alcoholConsumption String? // none / occasional / regular
+  dietType           String? // veg / non-veg / vegan
+  sleepHours         Int? // avg daily sleep
+  activityLevel      String? // low / moderate / high
+  waterIntake        Int? // glasses/day
+  stressLevel        String? // low / moderate / high
+
+  // Checkup & Doctor Visit
+  healthScore     Int?
+  lastVisit       DateTime?
+  nextAppointment DateTime?
+  primaryDoctor   String?
+
+  // System Fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id                       String                    @id @default(cuid())
   name                     String?
@@ -36,6 +81,7 @@ model User {
   sessions                 Session[]
   LabCompany               LabCompany?
   labBookings              LabBooking[]
+  patientProfile           Patient?
 }
 
 model Account {
