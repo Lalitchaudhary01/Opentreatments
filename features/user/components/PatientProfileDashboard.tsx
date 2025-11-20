@@ -28,7 +28,7 @@ const fadeInUp = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, ease: "easeOut" },
   },
 };
 
@@ -129,19 +129,16 @@ export default function PatientProfileDashboard() {
       >
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Sidebar */}
-          <motion.div className="lg:col-span-1" variants={fadeInUp}>
+          <motion.div className="lg:col-span-1">
             <ProfileSidebar user={user} patient={patient} />
           </motion.div>
 
           {/* Main Content */}
-          <motion.div className="lg:col-span-3 space-y-6" variants={fadeInUp}>
+          <motion.div className="lg:col-span-3 space-y-6">
             <WelcomeCard user={user} patient={patient} />
 
             {/* Tab Navigation */}
-            <motion.div
-              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50"
-              variants={fadeInUp}
-            >
+            <motion.div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50">
               <div className="flex overflow-x-auto scrollbar-hide border-b border-slate-200/50 dark:border-slate-700/50">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
