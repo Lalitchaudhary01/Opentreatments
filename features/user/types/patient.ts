@@ -21,6 +21,7 @@ export interface Patient {
   medications: Medication[];
   pastSurgeries: string[];
   familyHistory: string[];
+  appointments?: Appointment[];
 
   // Lifestyle
   smokingStatus: string | null;

@@ -64,7 +64,11 @@ export default function AppointmentsContent({
     setLoading(true);
 
     if (editingId) {
-      await onEdit(editingId, newAppointment);
+      const payload: any = { ...newAppointment };
+      if (payload.date) {
+        payload.date = new Date(payload.date);
+      }
+      await onEdit(editingId, payload);
     } else {
       const payload: any = { patientId, ...newAppointment };
       payload.date = new Date(newAppointment.date);

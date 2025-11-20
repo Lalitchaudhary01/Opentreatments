@@ -159,7 +159,7 @@ export function usePatientData(userId: string) {
   ) => {
     try {
       setError(null);
-      const result = await updateAppointment(id, appointmentData);
+      const result = await updateAppointment(userId, id, appointmentData);
 
       if (result.success) {
         setAppointments((prev) =>
@@ -181,7 +181,7 @@ export function usePatientData(userId: string) {
   const removeAppointment = async (id: string) => {
     try {
       setError(null);
-      const result = await deleteAppointment(id);
+      const result = await deleteAppointment(userId, id);
 
       if (result.success) {
         setAppointments((prev) => prev.filter((apt) => apt.id !== id));

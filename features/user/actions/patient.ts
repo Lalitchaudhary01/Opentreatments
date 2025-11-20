@@ -1,8 +1,146 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { Patient, Medication } from "@/features/user/types/patient";
+import { randomUUID } from "crypto";
+import {
+  Patient,
+  Medication,
+  Appointment,
+} from "@/features/user/types/patient";
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+
+const isString = (value: unknown): value is string => typeof value === "string";
+
+const parseOptionalDate = (value: unknown): Date | null => {
+  if (value instanceof Date) return value;
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  return null;
+};
+
+const normalizeMedications = (value: unknown): Medication[] => {
+  if (!Array.isArray(value)) return [];
+
+  const result: Medication[] = [];
+
+  value.forEach((item) => {
+    if (typeof item !== "object" || item === null) return;
+
+    const med = item as Record<string, unknown>;
+    if (
+      isString(med.id) &&
+      isString(med.name) &&
+      isString(med.dosage) &&
+      isString(med.frequency) &&
+      isString(med.forCondition)
+    ) {
+      result.push({
+        id: med.id,
+        name: med.name,
+        dosage: med.dosage,
+        frequency: med.frequency,
+        forCondition: med.forCondition,
+        startDate: parseOptionalDate(med.startDate),
+        endDate: parseOptionalDate(med.endDate),
+      });
+    }
+  });
+
+  return result;
+};
+
+const serializeMedications = (
+  value?: Medication[]
+): Prisma.JsonArray | undefined => {
+  if (!value) return undefined;
+
+  return value.map<Prisma.JsonObject>((medication) => ({
+    ...medication,
+    startDate: medication.startDate ? medication.startDate.toISOString() : null,
+    endDate: medication.endDate ? medication.endDate.toISOString() : null,
+  }));
+};
+
+const APPOINTMENT_STATUSES: Appointment["status"][] = [
+  "scheduled",
+  "completed",
+  "cancelled",
+  "rescheduled",
+];
+
+const isAppointmentStatus = (value: unknown): value is Appointment["status"] =>
+  typeof value === "string" &&
+  APPOINTMENT_STATUSES.includes(value as Appointment["status"]);
+
+const normalizeAppointments = (value: unknown): Appointment[] => {
+  if (!Array.isArray(value)) return [];
+
+  const result: Appointment[] = [];
+
+  value.forEach((item) => {
+    if (typeof item !== "object" || item === null) return;
+
+    const appointment = item as Record<string, unknown>;
+    const date = parseOptionalDate(appointment.date);
+    if (
+      !date ||
+      !isString(appointment.id) ||
+      !isString(appointment.patientId) ||
+      !isString(appointment.time) ||
+      !isString(appointment.doctor) ||
+      !isString(appointment.type) ||
+      !isAppointmentStatus(appointment.status)
+    ) {
+      return;
+    }
+
+    const createdAt = parseOptionalDate(appointment.createdAt) || date;
+    const updatedAt =
+      parseOptionalDate(appointment.updatedAt) || createdAt || date;
+
+    result.push({
+      id: appointment.id,
+      patientId: appointment.patientId,
+      date,
+      time: appointment.time,
+      doctor: appointment.doctor,
+      type: appointment.type,
+      status: appointment.status,
+      notes:
+        appointment.notes === null
+          ? null
+          : isString(appointment.notes)
+          ? appointment.notes
+          : undefined,
+      createdAt,
+      updatedAt,
+    });
+  });
+
+  return result;
+};
+
+const serializeAppointments = (
+  value?: Appointment[]
+): Prisma.JsonArray | undefined => {
+  if (!value) return undefined;
+
+  return value.map<Prisma.JsonObject>((appointment) => ({
+    id: appointment.id,
+    patientId: appointment.patientId,
+    date: appointment.date.toISOString(),
+    time: appointment.time,
+    doctor: appointment.doctor,
+    type: appointment.type,
+    status: appointment.status,
+    notes: appointment.notes ?? null,
+    createdAt: appointment.createdAt.toISOString(),
+    updatedAt: appointment.updatedAt.toISOString(),
+  }));
+};
 
 // Get patient data - agar nahi hai toh create karega
 export async function getPatientData(userId: string): Promise<Patient | null> {
@@ -31,6 +169,7 @@ export async function getPatientData(userId: string): Promise<Patient | null> {
           medications: [],
           pastSurgeries: [],
           familyHistory: [],
+          appointments: [],
         },
       });
     }
@@ -40,9 +179,10 @@ export async function getPatientData(userId: string): Promise<Patient | null> {
       ...patient,
       conditions: patient.conditions || [],
       allergies: patient.allergies || [],
-      medications: (patient.medications as Medication[]) || [],
+      medications: normalizeMedications(patient.medications),
       pastSurgeries: patient.pastSurgeries || [],
       familyHistory: patient.familyHistory || [],
+      appointments: normalizeAppointments(patient.appointments),
     } as Patient;
   } catch (error) {
     console.error("Error fetching patient data:", error);
@@ -80,6 +220,7 @@ export async function updatePatientPersonalInfo(
         medications: [],
         pastSurgeries: [],
         familyHistory: [],
+        appointments: [],
       },
     });
 
@@ -103,10 +244,15 @@ export async function updateMedicalHistory(
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const { medications, ...restMedicalData } = medicalData;
+
     await prisma.patient.update({
       where: { userId },
       data: {
-        ...medicalData,
+        ...restMedicalData,
+        ...(medications !== undefined && {
+          medications: serializeMedications(medications),
+        }),
         updatedAt: new Date(),
       },
     });
@@ -179,12 +325,12 @@ export async function updateCheckupData(
 // Appointments
 export async function getPatientAppointments(userId: string) {
   try {
-    const appointments = await prisma.appointment.findMany({
-      where: { patientId: userId },
-      orderBy: { date: "desc" },
+    const patient = await prisma.patient.findUnique({
+      where: { userId },
+      select: { appointments: true },
     });
 
-    return appointments;
+    return patient ? normalizeAppointments(patient.appointments) : [];
   } catch (error) {
     console.error("Error fetching appointments:", error);
     return [];
@@ -197,16 +343,48 @@ export async function createAppointment(appointmentData: {
   time: string;
   doctor: string;
   type: string;
-  status: string;
+  status: Appointment["status"];
   notes?: string | null;
 }) {
   try {
-    const appointment = await prisma.appointment.create({
-      data: appointmentData,
+    const patient = await prisma.patient.findUnique({
+      where: { userId: appointmentData.patientId },
+      select: { appointments: true },
+    });
+
+    if (!patient) {
+      return { success: false, error: "Patient not found" };
+    }
+
+    const existingAppointments = normalizeAppointments(patient.appointments);
+    const now = new Date();
+
+    const newAppointment: Appointment = {
+      id: randomUUID(),
+      patientId: appointmentData.patientId,
+      date: appointmentData.date,
+      time: appointmentData.time,
+      doctor: appointmentData.doctor,
+      type: appointmentData.type,
+      status: appointmentData.status,
+      notes: appointmentData.notes ?? null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await prisma.patient.update({
+      where: { userId: appointmentData.patientId },
+      data: {
+        appointments: serializeAppointments([
+          ...existingAppointments,
+          newAppointment,
+        ]),
+        updatedAt: now,
+      },
     });
 
     revalidatePath("/[id]/user", "page");
-    return { success: true, data: appointment };
+    return { success: true, data: newAppointment };
   } catch (error) {
     console.error("Error creating appointment:", error);
     return { success: false, error: "Failed to create appointment" };
@@ -214,22 +392,55 @@ export async function createAppointment(appointmentData: {
 }
 
 export async function updateAppointment(
+  patientId: string,
   id: string,
   appointmentData: Partial<{
     date: Date;
     time: string;
     doctor: string;
     type: string;
-    status: string;
+    status: Appointment["status"];
     notes: string | null;
   }>
 ) {
   try {
-    await prisma.appointment.update({
-      where: { id },
+    const patient = await prisma.patient.findUnique({
+      where: { userId: patientId },
+      select: { appointments: true },
+    });
+
+    if (!patient) {
+      return { success: false, error: "Patient not found" };
+    }
+
+    const appointments = normalizeAppointments(patient.appointments);
+    const index = appointments.findIndex((apt) => apt.id === id);
+
+    if (index === -1) {
+      return { success: false, error: "Appointment not found" };
+    }
+
+    const now = new Date();
+    const updatedAppointment: Appointment = {
+      ...appointments[index],
+      ...(appointmentData.date ? { date: appointmentData.date } : {}),
+      ...(appointmentData.time ? { time: appointmentData.time } : {}),
+      ...(appointmentData.doctor ? { doctor: appointmentData.doctor } : {}),
+      ...(appointmentData.type ? { type: appointmentData.type } : {}),
+      ...(appointmentData.status ? { status: appointmentData.status } : {}),
+      ...(appointmentData.notes !== undefined
+        ? { notes: appointmentData.notes }
+        : {}),
+      updatedAt: now,
+    };
+
+    appointments[index] = updatedAppointment;
+
+    await prisma.patient.update({
+      where: { userId: patientId },
       data: {
-        ...appointmentData,
-        updatedAt: new Date(),
+        appointments: serializeAppointments(appointments),
+        updatedAt: now,
       },
     });
 
@@ -241,10 +452,30 @@ export async function updateAppointment(
   }
 }
 
-export async function deleteAppointment(id: string) {
+export async function deleteAppointment(patientId: string, id: string) {
   try {
-    await prisma.appointment.delete({
-      where: { id },
+    const patient = await prisma.patient.findUnique({
+      where: { userId: patientId },
+      select: { appointments: true },
+    });
+
+    if (!patient) {
+      return { success: false, error: "Patient not found" };
+    }
+
+    const appointments = normalizeAppointments(patient.appointments);
+    const filtered = appointments.filter((apt) => apt.id !== id);
+
+    if (filtered.length === appointments.length) {
+      return { success: false, error: "Appointment not found" };
+    }
+
+    await prisma.patient.update({
+      where: { userId: patientId },
+      data: {
+        appointments: serializeAppointments(filtered),
+        updatedAt: new Date(),
+      },
     });
 
     revalidatePath("/[id]/user", "page");
