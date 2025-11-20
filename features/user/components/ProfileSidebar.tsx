@@ -24,7 +24,7 @@ export default function ProfileSidebar({ user, patient }: ProfileSidebarProps) {
 
   const userInitials = user.name?.charAt(0).toUpperCase() || "U";
 
-  const formatDate = (date: Date | undefined) => {
+  const formatDate = (date: Date | null | undefined) => {
     if (!date) return "Not scheduled";
     return new Date(date).toLocaleDateString("en-US", {
       day: "numeric",

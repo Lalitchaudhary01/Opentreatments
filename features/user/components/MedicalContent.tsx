@@ -47,6 +47,16 @@ export default function MedicalContent({
   });
   const [loading, setLoading] = useState(false);
 
+  // Ensure arrays are never null
+  const safePatient = {
+    ...patient,
+    conditions: patient.conditions || [],
+    allergies: patient.allergies || [],
+    medications: patient.medications || [],
+    pastSurgeries: patient.pastSurgeries || [],
+    familyHistory: patient.familyHistory || [],
+  };
+
   const toggleSection = (section: string) => {
     setExpandedSections((prev) =>
       prev.includes(section)
@@ -90,7 +100,7 @@ export default function MedicalContent({
         };
 
         const success = await onUpdate({
-          medications: [...patient.medications, newMed],
+          medications: [...safePatient.medications, newMed],
         });
 
         setLoading(false);
@@ -102,7 +112,7 @@ export default function MedicalContent({
       if (newItem.trim()) {
         setLoading(true);
         const success = await onUpdate({
-          [section]: [...(patient[section] as string[]), newItem],
+          [section]: [...(safePatient[section] as string[]), newItem],
         });
 
         setLoading(false);
@@ -120,11 +130,13 @@ export default function MedicalContent({
     let updateData = {};
     if (section === "medications") {
       updateData = {
-        medications: patient.medications.filter((_, i) => i !== index),
+        medications: safePatient.medications.filter((_, i) => i !== index),
       };
     } else {
       updateData = {
-        [section]: (patient[section] as string[]).filter((_, i) => i !== index),
+        [section]: (safePatient[section] as string[]).filter(
+          (_, i) => i !== index
+        ),
       };
     }
 
@@ -137,7 +149,7 @@ export default function MedicalContent({
     field: keyof Medication,
     value: string
   ) => {
-    const updatedMedications = patient.medications.map((med, i) =>
+    const updatedMedications = safePatient.medications.map((med, i) =>
       i === index ? { ...med, [field]: value } : med
     );
 
@@ -151,38 +163,40 @@ export default function MedicalContent({
       key: "conditions" as const,
       title: "Current Conditions",
       icon: TrendingUp,
-      data: patient.conditions,
+      data: safePatient.conditions,
       description: "Chronic illnesses, diseases, or health conditions",
     },
     {
       key: "medications" as const,
       title: "Current Medications",
       icon: Pill,
-      data: patient.medications,
+      data: safePatient.medications,
       description: "Prescription and over-the-counter medications",
     },
     {
       key: "allergies" as const,
       title: "Allergies",
       icon: AlertTriangle,
-      data: patient.allergies,
+      data: safePatient.allergies,
       description: "Drug, food, and environmental allergies",
     },
     {
       key: "pastSurgeries" as const,
       title: "Past Surgeries",
       icon: Stethoscope,
-      data: patient.pastSurgeries,
+      data: safePatient.pastSurgeries,
       description: "Previous surgical procedures and operations",
     },
     {
       key: "familyHistory" as const,
       title: "Family History",
       icon: Users,
-      data: patient.familyHistory,
+      data: safePatient.familyHistory,
       description: "Hereditary conditions and family medical history",
     },
   ];
+
+  // ... rest of the component remains the same with safePatient usage
 
   const frequencyOptions = [
     "Once daily",

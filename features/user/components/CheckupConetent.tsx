@@ -70,7 +70,7 @@ export default function CheckupContent({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const formatDate = (date: Date | undefined) => {
+  const formatDate = (date: Date | null | undefined) => {
     if (!date) return "Not recorded";
     return new Date(date).toLocaleDateString("en-US", {
       day: "numeric",
@@ -79,8 +79,8 @@ export default function CheckupContent({
     });
   };
 
-  const getHealthStatus = (score: number | undefined) => {
-    if (!score) return { text: "Not assessed", color: "gray" };
+  const getHealthStatus = (score: number | null | undefined) => {
+    if (score == null) return { text: "Not assessed", color: "gray" };
     if (score >= 80) return { text: "Excellent", color: "green" };
     if (score >= 60) return { text: "Good", color: "blue" };
     if (score >= 40) return { text: "Fair", color: "yellow" };

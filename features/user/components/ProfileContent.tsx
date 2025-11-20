@@ -42,7 +42,16 @@ export default function ProfileContent({
     setLoading(true);
     const dataToUpdate = {
       ...formData,
-      age: formData.age ? parseInt(formData.age) : undefined,
+      age: formData.age ? parseInt(formData.age) : null,
+      // Convert empty strings to null for Prisma
+      fullName: formData.fullName || null,
+      gender: formData.gender || null,
+      phoneNumber: formData.phoneNumber || null,
+      email: formData.email || null,
+      address: formData.address || null,
+      height: formData.height || null,
+      weight: formData.weight || null,
+      bloodGroup: formData.bloodGroup || null,
     };
 
     const success = await onUpdate(dataToUpdate);
@@ -72,10 +81,18 @@ export default function ProfileContent({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Helper function to display values safely
+  const displayValue = (
+    value: string | null | undefined,
+    fallback: string = "Not provided"
+  ) => {
+    return value || fallback;
+  };
+
   const personalInfo = [
     {
       label: "Full Name",
-      value: patient.fullName || "Not provided",
+      value: displayValue(patient.fullName),
     },
     {
       label: "Age",
@@ -83,11 +100,11 @@ export default function ProfileContent({
     },
     {
       label: "Gender",
-      value: patient.gender || "Not provided",
+      value: displayValue(patient.gender),
     },
     {
       label: "Blood Group",
-      value: patient.bloodGroup || "Not provided",
+      value: displayValue(patient.bloodGroup),
     },
     {
       label: "Height",
@@ -102,15 +119,15 @@ export default function ProfileContent({
   const contactInfo = [
     {
       label: "Email",
-      value: patient.email || "Not provided",
+      value: displayValue(patient.email),
     },
     {
       label: "Phone",
-      value: patient.phoneNumber || "Not provided",
+      value: displayValue(patient.phoneNumber),
     },
     {
       label: "Address",
-      value: patient.address || "Not provided",
+      value: displayValue(patient.address),
     },
   ];
 

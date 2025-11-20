@@ -3,17 +3,17 @@ export interface Patient {
   userId: string;
 
   // Basic Personal Info
-  fullName?: string;
-  age?: number;
-  gender?: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: string;
+  fullName: string | null;
+  age: number | null;
+  gender: string | null;
+  phoneNumber: string | null;
+  email: string | null;
+  address: string | null;
 
   // Physical Data
-  height?: string;
-  weight?: string;
-  bloodGroup?: string;
+  height: string | null;
+  weight: string | null;
+  bloodGroup: string | null;
 
   // Medical History
   conditions: string[];
@@ -23,19 +23,19 @@ export interface Patient {
   familyHistory: string[];
 
   // Lifestyle
-  smokingStatus?: "smoker" | "non-smoker" | "past-smoker";
-  alcoholConsumption?: "none" | "occasional" | "regular";
-  dietType?: "veg" | "non-veg" | "vegan";
-  sleepHours?: number;
-  activityLevel?: "low" | "moderate" | "high";
-  waterIntake?: number;
-  stressLevel?: "low" | "moderate" | "high";
+  smokingStatus: string | null;
+  alcoholConsumption: string | null;
+  dietType: string | null;
+  sleepHours: number | null;
+  activityLevel: string | null;
+  waterIntake: number | null;
+  stressLevel: string | null;
 
   // Checkup & Doctor Visit
-  healthScore?: number;
-  lastVisit?: Date;
-  nextAppointment?: Date;
-  primaryDoctor?: string;
+  healthScore: number | null;
+  lastVisit: Date | null;
+  nextAppointment: Date | null;
+  primaryDoctor: string | null;
 
   // System Fields
   createdAt: Date;
@@ -48,8 +48,8 @@ export interface Medication {
   dosage: string;
   frequency: string;
   forCondition: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: Date | null;
+  endDate?: Date | null;
 }
 
 export interface Appointment {
@@ -60,7 +60,7 @@ export interface Appointment {
   doctor: string;
   type: string;
   status: "scheduled" | "completed" | "cancelled" | "rescheduled";
-  notes?: string;
+  notes?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

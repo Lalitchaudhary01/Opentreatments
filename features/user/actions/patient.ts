@@ -23,9 +23,9 @@ export async function getPatientData(userId: string): Promise<Patient | null> {
       patient = await prisma.patient.create({
         data: {
           userId,
-          fullName: user.name || "",
-          email: user.email || "",
-          phoneNumber: user.phone || "",
+          fullName: user.name,
+          email: user.email,
+          phoneNumber: user.phone,
           conditions: [],
           allergies: [],
           medications: [],
@@ -35,6 +35,7 @@ export async function getPatientData(userId: string): Promise<Patient | null> {
       });
     }
 
+    // Convert null values to empty arrays for array fields
     return {
       ...patient,
       conditions: patient.conditions || [],
@@ -42,7 +43,7 @@ export async function getPatientData(userId: string): Promise<Patient | null> {
       medications: (patient.medications as Medication[]) || [],
       pastSurgeries: patient.pastSurgeries || [],
       familyHistory: patient.familyHistory || [],
-    };
+    } as Patient;
   } catch (error) {
     console.error("Error fetching patient data:", error);
     return null;
@@ -53,15 +54,15 @@ export async function getPatientData(userId: string): Promise<Patient | null> {
 export async function updatePatientPersonalInfo(
   userId: string,
   data: {
-    fullName?: string;
-    age?: number;
-    gender?: string;
-    phoneNumber?: string;
-    email?: string;
-    address?: string;
-    height?: string;
-    weight?: string;
-    bloodGroup?: string;
+    fullName?: string | null;
+    age?: number | null;
+    gender?: string | null;
+    phoneNumber?: string | null;
+    email?: string | null;
+    address?: string | null;
+    height?: string | null;
+    weight?: string | null;
+    bloodGroup?: string | null;
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -122,13 +123,13 @@ export async function updateMedicalHistory(
 export async function updateLifestyleData(
   userId: string,
   lifestyleData: {
-    smokingStatus?: string;
-    alcoholConsumption?: string;
-    dietType?: string;
-    sleepHours?: number;
-    activityLevel?: string;
-    waterIntake?: number;
-    stressLevel?: string;
+    smokingStatus?: string | null;
+    alcoholConsumption?: string | null;
+    dietType?: string | null;
+    sleepHours?: number | null;
+    activityLevel?: string | null;
+    waterIntake?: number | null;
+    stressLevel?: string | null;
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -152,10 +153,10 @@ export async function updateLifestyleData(
 export async function updateCheckupData(
   userId: string,
   checkupData: {
-    healthScore?: number;
-    lastVisit?: Date;
-    nextAppointment?: Date;
-    primaryDoctor?: string;
+    healthScore?: number | null;
+    lastVisit?: Date | null;
+    nextAppointment?: Date | null;
+    primaryDoctor?: string | null;
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -197,7 +198,7 @@ export async function createAppointment(appointmentData: {
   doctor: string;
   type: string;
   status: string;
-  notes?: string;
+  notes?: string | null;
 }) {
   try {
     const appointment = await prisma.appointment.create({
@@ -220,7 +221,7 @@ export async function updateAppointment(
     doctor: string;
     type: string;
     status: string;
-    notes: string;
+    notes: string | null;
   }>
 ) {
   try {
