@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Appointment } from "../../types/patient";
+import { Appointment } from "../types/patient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,11 +66,9 @@ export default function AppointmentsContent({
     if (editingId) {
       await onEdit(editingId, newAppointment);
     } else {
-      await onAdd({
-        patientId,
-        date: new Date(newAppointment.date),
-        ...newAppointment,
-      });
+      const payload: any = { patientId, ...newAppointment };
+      payload.date = new Date(newAppointment.date);
+      await onAdd(payload);
     }
 
     setLoading(false);
