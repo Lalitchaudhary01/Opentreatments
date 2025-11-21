@@ -2,41 +2,37 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import DoctorLogoutButton from "@/components/layout/DoctorLogoutButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  UserPlus,
-  Eye,
-  Edit,
-  Calendar,
-  Activity,
-  Clock,
-  Users,
-  FileText,
-  TrendingUp,
+  Search,
   Bell,
-  CheckCircle,
-  AlertCircle,
-  Video,
-  Stethoscope,
-  Pill,
   Heart,
-  ArrowRight,
-  Sparkles,
-  Zap,
+  User,
+  MessageCircle,
+  Users,
+  ClipboardCheck,
+  Settings,
+  Edit,
+  Eye,
+  Calendar,
+  CreditCard,
+  BookOpen,
+  Clock,
+  AlertCircle,
 } from "lucide-react";
-import Header from "@/components/layout/Header";
 
 export default function DoctorDashboardPage() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="flex min-h-screen items-center justify-center bg-[#F4FAFA] dark:bg-[#0A1414]">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-700 font-semibold">Loading...</p>
+          <div className="w-16 h-16 border-4 border-[#00C6D2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#001B36] dark:text-gray-200 font-semibold">
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -44,23 +40,23 @@ export default function DoctorDashboardPage() {
 
   if (!session || session.user.role !== "DOCTOR") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <Card className="max-w-lg mx-4 shadow-xl border border-slate-200">
+      <div className="flex min-h-screen items-center justify-center bg-[#F4FAFA] dark:bg-[#0A1414]">
+        <Card className="max-w-lg mx-4 shadow-lg backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
           <CardContent className="pt-8 pb-8">
             <div className="text-center space-y-6">
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                <AlertCircle className="w-10 h-10 text-red-600" />
+              <div className="w-20 h-20 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto">
+                <AlertCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                <h2 className="text-3xl font-bold text-[#001B36] dark:text-white mb-3">
                   Access Restricted
                 </h2>
-                <p className="text-slate-600 text-lg">
+                <p className="text-[#6C7A89] dark:text-gray-400 text-lg">
                   This area is exclusively for verified medical professionals.
                 </p>
               </div>
               <Link href="/login">
-                <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-6 text-lg">
+                <Button className="w-full bg-[#00C6D2] hover:bg-[#00B4C0] text-white font-bold py-6 text-lg">
                   Return to Login
                 </Button>
               </Link>
@@ -71,430 +67,304 @@ export default function DoctorDashboardPage() {
     );
   }
 
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Top Navigation Bar */}
-      <Header showNav={false} />
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#F4FAFA] dark:bg-[#0A1414]">
+      {/* Background Effects */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[#00C6D2]/20 dark:bg-[#00C6D2]/30 rounded-full blur-[150px] -translate-y-1/4 translate-x-1/4 opacity-50 dark:opacity-40"></div>
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-[#00C6D2]/20 dark:bg-[#00C6D2]/30 rounded-full blur-[150px] translate-y-1/4 -translate-x-1/4 opacity-50 dark:opacity-40"></div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Welcome Section */}
-        <Card className="bg-white border border-slate-200 shadow-lg">
-          <CardContent className="p-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex items-center gap-6">
-                <div className="relative flex-shrink-0">
-                  <div className="w-20 h-20 bg-cyan-600 rounded-2xl flex items-center justify-center text-4xl font-bold text-white">
-                    {session.user.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-teal-500 rounded-full border-4 border-white flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-4xl lg:text-5xl font-bold text-slate-900">
-                      Dr. {session.user.name}
-                    </h1>
-                    <span className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm font-semibold">
-                      Verified
-                    </span>
-                  </div>
-                  <p className="text-slate-600 text-xl mb-4">
-                    Welcome back! Ready to make a difference today?
-                  </p>
-                  <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {session.user.email}
-                    </span>
-                    {session.user.phone && (
-                      <span className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                          />
-                        </svg>
-                        {session.user.phone}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex lg:flex-col gap-3">
-                <Link href="/doctor/consultations/today">
-                  <Button className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold flex items-center gap-2 px-6 py-6">
-                    <Calendar className="w-5 h-5" />
-                    Today's Schedule
-                  </Button>
-                </Link>
-
-                <Button className="bg-slate-700 hover:bg-slate-800 text-white font-bold flex items-center gap-2 px-6 py-6">
-                  <Video className="w-5 h-5" />
-                  Start Video Call
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Analytics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border border-slate-200 shadow-md hover:shadow-xl transition-shadow">
-            <CardContent className="pt-6 pb-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-slate-600 text-sm font-semibold mb-1">
-                    Total Patients
-                  </p>
-                  <h3 className="text-5xl font-bold text-cyan-600 mb-2">248</h3>
-                  <div className="flex items-center gap-1 text-teal-600 text-xs font-medium">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>+12% from last month</span>
-                  </div>
-                </div>
-                <div className="w-14 h-14 bg-cyan-100 rounded-xl flex items-center justify-center">
-                  <Users className="w-7 h-7 text-cyan-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border border-slate-200 shadow-md hover:shadow-xl transition-shadow">
-            <CardContent className="pt-6 pb-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-slate-600 text-sm font-semibold mb-1">
-                    Today's Appointments
-                  </p>
-                  <h3 className="text-5xl font-bold text-teal-600 mb-2">12</h3>
-                  <div className="flex items-center gap-1 text-teal-600 text-xs font-medium">
-                    <CheckCircle className="w-3 h-3" />
-                    <span>5 completed, 7 pending</span>
-                  </div>
-                </div>
-                <div className="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center">
-                  <Calendar className="w-7 h-7 text-teal-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border border-slate-200 shadow-md hover:shadow-xl transition-shadow">
-            <CardContent className="pt-6 pb-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-slate-600 text-sm font-semibold mb-1">
-                    Pending Reviews
-                  </p>
-                  <h3 className="text-5xl font-bold text-orange-600 mb-2">7</h3>
-                  <div className="flex items-center gap-1 text-orange-600 text-xs font-medium">
-                    <Clock className="w-3 h-3" />
-                    <span>Requires your attention</span>
-                  </div>
-                </div>
-                <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
-                  <AlertCircle className="w-7 h-7 text-orange-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border border-slate-200 shadow-md hover:shadow-xl transition-shadow">
-            <CardContent className="pt-6 pb-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-slate-600 text-sm font-semibold mb-1">
-                    Monthly Consultations
-                  </p>
-                  <h3 className="text-5xl font-bold text-blue-600 mb-2">89</h3>
-                  <div className="flex items-center gap-1 text-blue-600 text-xs font-medium">
-                    <Heart className="w-3 h-3" />
-                    <span>98% satisfaction rate</span>
-                  </div>
-                </div>
-                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <Activity className="w-7 h-7 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Quick Actions */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white border border-slate-200 shadow-lg">
-              <CardHeader className="border-b border-slate-200 pb-4">
-                <CardTitle className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                  <Activity className="w-6 h-6 text-cyan-600" />
-                  Quick Actions
-                </CardTitle>
-                <p className="text-sm text-slate-600 mt-2">
-                  Manage your profile and patient care efficiently
-                </p>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <Link href="/doctor/profile/submit" className="group">
-                    <div className="h-full p-6 rounded-xl border-2 border-slate-200 hover:border-cyan-600 transition-all bg-white hover:shadow-lg">
-                      <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-cyan-600 transition-colors">
-                        <UserPlus className="w-6 h-6 text-cyan-600 group-hover:text-white transition-colors" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-2">
-                        Submit Profile
-                      </h3>
-                      <p className="text-sm text-slate-600 mb-3">
-                        Create and submit your professional medical profile
-                      </p>
-                      <div className="flex items-center text-cyan-600 text-sm font-semibold">
-                        Get Started <ArrowRight className="w-4 h-4 ml-1" />
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link href="/doctor/profile/view" className="group">
-                    <div className="h-full p-6 rounded-xl border-2 border-slate-200 hover:border-teal-600 transition-all bg-white hover:shadow-lg">
-                      <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-teal-600 transition-colors">
-                        <Eye className="w-6 h-6 text-teal-600 group-hover:text-white transition-colors" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-2">
-                        View Profile
-                      </h3>
-                      <p className="text-sm text-slate-600 mb-3">
-                        Review your complete professional information
-                      </p>
-                      <div className="flex items-center text-teal-600 text-sm font-semibold">
-                        View Details <ArrowRight className="w-4 h-4 ml-1" />
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link href="/doctor/profile/edit" className="group">
-                    <div className="h-full p-6 rounded-xl border-2 border-slate-200 hover:border-blue-600 transition-all bg-white hover:shadow-lg">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors">
-                        <Edit className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-2">
-                        Edit Profile
-                      </h3>
-                      <p className="text-sm text-slate-600 mb-3">
-                        Update and modify your professional details
-                      </p>
-                      <div className="flex items-center text-blue-600 text-sm font-semibold">
-                        Edit Now <ArrowRight className="w-4 h-4 ml-1" />
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link href="/doctor/consultations" className="group">
-                    <div className="h-full p-6 rounded-xl border-2 border-slate-200 hover:border-purple-600 transition-all bg-white hover:shadow-lg">
-                      <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-600 transition-colors">
-                        <FileText className="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" />
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-lg mb-2">
-                        Consultations
-                      </h3>
-                      <p className="text-sm text-slate-600 mb-3">
-                        Manage appointments and patient consultations
-                      </p>
-                      <div className="flex items-center text-purple-600 text-sm font-semibold">
-                        Open Console <ArrowRight className="w-4 h-4 ml-1" />
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <aside className="w-64 flex-shrink-0 bg-white/50 dark:bg-black/20 p-4 border-r border-white/80 dark:border-black/30 flex flex-col">
+          <div className="flex items-center gap-2 px-4 py-4 mb-8">
+            <Heart className="text-[#00C6D2] text-3xl" />
+            <h1 className="text-xl font-bold text-[#001B36] dark:text-white">
+              OpenTreatment
+            </h1>
           </div>
 
-          {/* Today's Schedule */}
-          <div>
-            <Card className="bg-white border border-slate-200 shadow-lg h-full">
-              <CardHeader className="border-b border-slate-200 pb-4">
-                <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <Calendar className="w-6 h-6 text-cyan-600" />
-                  Today's Schedule
-                </CardTitle>
-                <p className="text-sm text-slate-600 mt-2">
-                  Your upcoming appointments
-                </p>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  {[
-                    {
-                      time: "09:00 AM",
-                      patient: "Sarah Johnson",
-                      type: "Check-up",
-                      color: "cyan",
-                    },
-                    {
-                      time: "10:30 AM",
-                      patient: "Mike Davis",
-                      type: "Follow-up",
-                      color: "teal",
-                    },
-                    {
-                      time: "02:00 PM",
-                      patient: "Emma Wilson",
-                      type: "Consultation",
-                      color: "blue",
-                    },
-                    {
-                      time: "04:00 PM",
-                      patient: "James Brown",
-                      type: "Emergency",
-                      color: "orange",
-                    },
-                  ].map((appointment, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 transition-all border border-slate-200"
-                    >
-                      <div
-                        className={`w-10 h-10 bg-${appointment.color}-100 rounded-xl flex items-center justify-center flex-shrink-0`}
-                      >
-                        <Clock
-                          className={`w-5 h-5 text-${appointment.color}-600`}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-slate-900 truncate">
-                          {appointment.patient}
-                        </p>
-                        <p className="text-sm text-slate-600">
-                          {appointment.type}
-                        </p>
-                      </div>
-                      <span className="text-xs font-semibold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full whitespace-nowrap">
-                        {appointment.time}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <Button className="w-full mt-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
-                  View Full Calendar
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <Card className="bg-white border border-slate-200 shadow-lg">
-          <CardHeader className="border-b border-slate-200 pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                  <Activity className="w-6 h-6 text-cyan-600" />
-                  Recent Activity
-                </CardTitle>
-                <p className="text-sm text-slate-600 mt-2">
-                  Your latest patient interactions and updates
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                className="text-sm font-semibold border-2 hover:bg-slate-50"
+          <ul className="flex flex-col gap-2">
+            <li>
+              <Link
+                href="/doctor"
+                className="flex h-12 items-center gap-4 rounded-2xl px-4 bg-[#00C6D2]/20 text-[#00C6D2]"
               >
-                View All
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              {[
-                {
-                  patient: "John Doe",
-                  action: "Consultation completed",
-                  detail: "General checkup and prescription issued",
-                  time: "2 hours ago",
-                  icon: CheckCircle,
-                  color: "teal",
-                },
-                {
-                  patient: "Jane Smith",
-                  action: "Appointment scheduled",
-                  detail: "Follow-up visit for next week",
-                  time: "4 hours ago",
-                  icon: Calendar,
-                  color: "cyan",
-                },
-                {
-                  patient: "Mike Johnson",
-                  action: "Prescription issued",
-                  detail: "Medication for chronic condition",
-                  time: "Yesterday",
-                  icon: Pill,
-                  color: "blue",
-                },
-                {
-                  patient: "Emily Davis",
-                  action: "Lab results reviewed",
-                  detail: "All parameters within normal range",
-                  time: "2 days ago",
-                  icon: FileText,
-                  color: "purple",
-                },
-              ].map((activity, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-4 p-5 rounded-xl hover:bg-slate-50 transition-all border border-slate-200"
-                >
-                  <div
-                    className={`w-10 h-10 bg-${activity.color}-100 rounded-xl flex items-center justify-center flex-shrink-0`}
-                  >
-                    <activity.icon
-                      className={`w-5 h-5 text-${activity.color}-600`}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4 mb-1">
-                      <p className="font-bold text-slate-900">
-                        {activity.patient}
-                      </p>
-                      <span className="text-xs text-slate-500 whitespace-nowrap">
-                        {activity.time}
-                      </span>
-                    </div>
-                    <p className="font-semibold text-slate-700 text-sm mb-1">
-                      {activity.action}
-                    </p>
-                    <p className="text-sm text-slate-600">{activity.detail}</p>
-                  </div>
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-current rounded-full"></div>
                 </div>
-              ))}
+                <p className="text-base font-bold">Dashboard</p>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/doctor/profile/view"
+                className="flex h-12 items-center gap-4 rounded-2xl px-4 text-[#6C7A89] dark:text-gray-400 hover:bg-[#00C6D2]/10 hover:text-[#00C6D2] dark:hover:bg-[#00C6D2]/20"
+              >
+                <User className="w-6 h-6" />
+                <p className="text-base font-bold">Profile</p>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/doctor/consultations"
+                className="flex h-12 items-center gap-4 rounded-2xl px-4 text-[#6C7A89] dark:text-gray-400 hover:bg-[#00C6D2]/10 hover:text-[#00C6D2] dark:hover:bg-[#00C6D2]/20"
+              >
+                <MessageCircle className="w-6 h-6" />
+                <p className="text-base font-bold">Consultations</p>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/doctor/patients"
+                className="flex h-12 items-center gap-4 rounded-2xl px-4 text-[#6C7A89] dark:text-gray-400 hover:bg-[#00C6D2]/10 hover:text-[#00C6D2] dark:hover:bg-[#00C6D2]/20"
+              >
+                <Users className="w-6 h-6" />
+                <p className="text-base font-bold">Patients</p>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/doctor/approvals"
+                className="flex h-12 items-center gap-4 rounded-2xl px-4 text-[#6C7A89] dark:text-gray-400 hover:bg-[#00C6D2]/10 hover:text-[#00C6D2] dark:hover:bg-[#00C6D2]/20"
+              >
+                <ClipboardCheck className="w-6 h-6" />
+                <p className="text-base font-bold">Approvals</p>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/doctor/settings"
+                className="flex h-12 items-center gap-4 rounded-2xl px-4 text-[#6C7A89] dark:text-gray-400 hover:bg-[#00C6D2]/10 hover:text-[#00C6D2] dark:hover:bg-[#00C6D2]/20"
+              >
+                <Settings className="w-6 h-6" />
+                <p className="text-base font-bold">Settings</p>
+              </Link>
+            </li>
+          </ul>
+
+          <div className="mt-auto"></div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+          {/* Header */}
+          <header className="flex items-center p-6 pb-4 flex-shrink-0 z-10">
+            <div className="flex-1 max-w-xl">
+              <div className="flex w-full items-stretch rounded-2xl h-12">
+                <div className="text-[#6C7A89] dark:text-gray-400 flex border-r-0 border-none bg-white/60 dark:bg-[#102224]/60 items-center justify-center pl-4 rounded-l-2xl backdrop-blur-md border border-white/80 dark:border-[#193436]/80">
+                  <Search className="w-5 h-5" />
+                </div>
+                <input
+                  className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-2xl text-[#001B36] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-[#00C6D2]/50 border-none bg-white/60 dark:bg-[#102224]/60 h-full placeholder:text-[#6C7A89] dark:placeholder:text-gray-500 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal backdrop-blur-md border border-white/80 dark:border-[#193436]/80 border-l-0"
+                  placeholder="Search..."
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
+
+            <div className="flex flex-1 items-center justify-end gap-4">
+              <button className="relative flex items-center justify-center w-12 h-12 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                <Bell className="text-2xl text-[#6C7A89] dark:text-gray-400" />
+                <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-[#F4FAFA] dark:border-[#0A1414]"></div>
+              </button>
+
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+                <div>
+                  <p className="font-bold text-[#001B36] dark:text-white">
+                    Dr. {session.user.name}
+                  </p>
+                  <p className="text-sm text-[#6C7A89] dark:text-gray-400">
+                    Cardiologist
+                  </p>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Dashboard Content */}
+          <div className="px-6 py-4 flex-1">
+            {/* Welcome Section */}
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-[#001B36] dark:text-white">
+                Welcome back, Dr. {session.user.name}!
+              </h2>
+              <p className="text-[#6C7A89] dark:text-gray-400 mt-1">
+                Here's a summary of your activity today.
+              </p>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Total Bookings */}
+                <Card className="p-6 rounded-2xl shadow-sm backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
+                  <CardContent className="flex items-start justify-between p-0">
+                    <div>
+                      <p className="text-sm font-bold text-[#6C7A89] dark:text-gray-400">
+                        Total Bookings
+                      </p>
+                      <p className="text-4xl font-bold text-[#001B36] dark:text-white mt-2">
+                        1,254
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md bg-gradient-to-br from-white/30 to-white/0 border border-white/50 dark:border-white/10">
+                      <BookOpen className="text-[#00C6D2] text-2xl" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Pending Approvals */}
+                <Card className="p-6 rounded-2xl shadow-sm backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
+                  <CardContent className="flex items-start justify-between p-0">
+                    <div>
+                      <p className="text-sm font-bold text-[#6C7A89] dark:text-gray-400">
+                        Pending Approvals
+                      </p>
+                      <p className="text-4xl font-bold text-[#001B36] dark:text-white mt-2">
+                        12
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md bg-gradient-to-br from-white/30 to-white/0 border border-white/50 dark:border-white/10">
+                      <ClipboardCheck className="text-[#00C6D2] text-2xl" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Today's Appointments */}
+                <Card className="p-6 rounded-2xl shadow-sm backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
+                  <CardContent className="flex items-start justify-between p-0">
+                    <div>
+                      <p className="text-sm font-bold text-[#6C7A89] dark:text-gray-400">
+                        Today's Appointments
+                      </p>
+                      <p className="text-4xl font-bold text-[#001B36] dark:text-white mt-2">
+                        8
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md bg-gradient-to-br from-white/30 to-white/0 border border-white/50 dark:border-white/10">
+                      <Calendar className="text-[#00C6D2] text-2xl" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Earnings */}
+                <Card className="p-6 rounded-2xl shadow-sm backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
+                  <CardContent className="flex items-start justify-between p-0">
+                    <div>
+                      <p className="text-sm font-bold text-[#6C7A89] dark:text-gray-400">
+                        Earnings (Today)
+                      </p>
+                      <p className="text-4xl font-bold text-[#001B36] dark:text-white mt-2">
+                        $2,800
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md bg-gradient-to-br from-white/30 to-white/0 border border-white/50 dark:border-white/10">
+                      <CreditCard className="text-[#00C6D2] text-2xl" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Links and Schedule */}
+              <div className="col-span-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Quick Links */}
+                <Card className="col-span-1 lg:col-span-1 p-6 rounded-2xl shadow-sm backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="text-xl font-bold text-[#001B36] dark:text-white">
+                      Quick Links
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-3">
+                    <Link
+                      href="/doctor/profile/edit"
+                      className="flex items-center p-4 rounded-2xl bg-[#00C6D2]/10 dark:bg-[#00C6D2]/20 hover:bg-[#00C6D2]/20 dark:hover:bg-[#00C6D2]/30 transition-colors"
+                    >
+                      <Edit className="text-[#00C6D2] mr-4 w-5 h-5" />
+                      <span className="font-bold text-[#001B36] dark:text-white">
+                        Edit Profile
+                      </span>
+                    </Link>
+
+                    <Link
+                      href="/doctor/profile/view"
+                      className="flex items-center p-4 rounded-2xl bg-[#00C6D2]/10 dark:bg-[#00C6D2]/20 hover:bg-[#00C6D2]/20 dark:hover:bg-[#00C6D2]/30 transition-colors"
+                    >
+                      <Eye className="text-[#00C6D2] mr-4 w-5 h-5" />
+                      <span className="font-bold text-[#001B36] dark:text-white">
+                        View Profile
+                      </span>
+                    </Link>
+
+                    <Link
+                      href="/doctor/consultations"
+                      className="flex items-center p-4 rounded-2xl bg-[#00C6D2]/10 dark:bg-[#00C6D2]/20 hover:bg-[#00C6D2]/20 dark:hover:bg-[#00C6D2]/30 transition-colors"
+                    >
+                      <MessageCircle className="text-[#00C6D2] mr-4 w-5 h-5" />
+                      <span className="font-bold text-[#001B36] dark:text-white">
+                        Consultations
+                      </span>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Today's Schedule */}
+                <Card className="col-span-1 lg:col-span-2 p-6 rounded-2xl shadow-sm backdrop-blur-md bg-white/60 dark:bg-[#102224]/60 border border-white/80 dark:border-[#193436]/80">
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="text-xl font-bold text-[#001B36] dark:text-white">
+                      Today's Schedule
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-4">
+                    {[
+                      {
+                        name: "Liam Johnson",
+                        type: "Follow-up Visit",
+                        time: "09:30 AM",
+                      },
+                      {
+                        name: "Sophia Rodriguez",
+                        type: "New Patient Consultation",
+                        time: "10:15 AM",
+                      },
+                      {
+                        name: "Ananya Sharma",
+                        type: "Cardiology Check-up",
+                        time: "11:30 AM",
+                      },
+                    ].map((appointment, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center p-4 rounded-2xl bg-gray-500/10 dark:bg-gray-500/20"
+                      >
+                        <div className="w-12 h-12 bg-slate-300 dark:bg-slate-600 rounded-full mr-4"></div>
+                        <div className="flex-1">
+                          <p className="font-bold text-[#001B36] dark:text-white">
+                            {appointment.name}
+                          </p>
+                          <p className="text-sm text-[#6C7A89] dark:text-gray-400">
+                            {appointment.type}
+                          </p>
+                        </div>
+                        <p className="font-bold text-[#00C6D2] text-lg">
+                          {appointment.time}
+                        </p>
+                      </div>
+                    ))}
+
+                    <div className="text-center mt-4">
+                      <Link
+                        href="/doctor/consultations/today"
+                        className="text-[#00C6D2] font-bold hover:underline"
+                      >
+                        View All Appointments
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

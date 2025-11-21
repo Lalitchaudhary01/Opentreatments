@@ -29,17 +29,9 @@ export default async function ViewDoctorProfilePage() {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Profile</h1>
+    <div>
       <DoctorProfileView profile={profile} />
-      {profile.status === "APPROVED" && (
-        <Link
-          href="/doctor/profile/edit"
-          className="text-blue-600 underline mt-4 inline-block"
-        >
-          Edit Profile
-        </Link>
-      )}
+      
     </div>
   );
 }
