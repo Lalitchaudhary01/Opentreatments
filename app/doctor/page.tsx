@@ -276,6 +276,15 @@ export default function DoctorDashboardPage() {
                   </CardHeader>
                   <CardContent className="p-0 space-y-3">
                     <Link
+                      href="/doctor/profile/submit"
+                      className="flex items-center p-4 rounded-2xl bg-[#00C6D2]/10 dark:bg-[#00C6D2]/20 hover:bg-[#00C6D2]/20 dark:hover:bg-[#00C6D2]/30 transition-colors"
+                    >
+                      <Edit className="text-[#00C6D2] mr-4 w-5 h-5" />
+                      <span className="font-bold text-[#001B36] dark:text-white">
+                        submit profile
+                      </span>
+                    </Link>
+                    <Link
                       href="/doctor/profile/edit"
                       className="flex items-center p-4 rounded-2xl bg-[#00C6D2]/10 dark:bg-[#00C6D2]/20 hover:bg-[#00C6D2]/20 dark:hover:bg-[#00C6D2]/30 transition-colors"
                     >
