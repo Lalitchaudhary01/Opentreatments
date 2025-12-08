@@ -373,7 +373,7 @@ export default async function HospitalDashboardPage() {
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-0">
                 {/* Submit Profile */}
-                <Link href="/hospital/profile/submit" className="group">
+                <Link href="/hospitals/profile/submit" className="group">
                   <Card className="h-full p-6 rounded-2xl border-2 border-[#00C6D2]/30 hover:border-[#00C6D2] transition-all bg-white/60 dark:bg-[#102224]/60 hover:shadow-lg">
                     <div className="flex items-start gap-4">
                       <div className="rounded-xl bg-gradient-to-br from-[#00C6D2] to-teal-500 p-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
@@ -395,7 +395,7 @@ export default async function HospitalDashboardPage() {
                 </Link>
 
                 {/* View Profile */}
-                <Link href="/hospital/profile/view" className="group">
+                <Link href="/hospitals/profile/view" className="group">
                   <Card className="h-full p-6 rounded-2xl border-2 border-[#00C6D2]/30 hover:border-[#00C6D2] transition-all bg-white/60 dark:bg-[#102224]/60 hover:shadow-lg">
                     <div className="flex items-start gap-4">
                       <div className="rounded-xl bg-gradient-to-br from-[#00C6D2] to-teal-500 p-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
@@ -417,7 +417,7 @@ export default async function HospitalDashboardPage() {
                 </Link>
 
                 {/* Edit Details */}
-                <Link href="/hospital/profile/edit" className="group">
+                <Link href="/hospitals/profile/edit" className="group">
                   <Card className="h-full p-6 rounded-2xl border-2 border-[#00C6D2]/30 hover:border-[#00C6D2] transition-all bg-white/60 dark:bg-[#102224]/60 hover:shadow-lg">
                     <div className="flex items-start gap-4">
                       <div className="rounded-xl bg-gradient-to-br from-[#00C6D2] to-teal-500 p-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
@@ -439,7 +439,7 @@ export default async function HospitalDashboardPage() {
                 </Link>
 
                 {/* Appointments */}
-                <Link href="/hospital/appointments" className="group">
+                <Link href="/hospitals/appointments" className="group">
                   <Card className="h-full p-6 rounded-2xl border-2 border-[#00C6D2]/30 hover:border-[#00C6D2] transition-all bg-white/60 dark:bg-[#102224]/60 hover:shadow-lg">
                     <div className="flex items-start gap-4">
                       <div className="rounded-xl bg-gradient-to-br from-[#00C6D2] to-teal-500 p-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
