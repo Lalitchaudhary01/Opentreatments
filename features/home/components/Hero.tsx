@@ -32,7 +32,7 @@ const fadeInUp = {
 const staggerContainer = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+    transition: { staggerChildren: 0.1, delayChildren: 0.05 },
   },
 };
 
@@ -63,66 +63,56 @@ export default function HeroSection() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <Header />
-      {/* Hero Section */}
+
+      {/* Hero Section - COMPACT VERSION */}
       <motion.section
-        className="relative pt-32 pb-20 px-4 overflow-hidden"
+        className="relative pt-16 sm:pt-20 md:pt-24 px-4 sm:px-6 overflow-hidden min-h-[calc(100vh-60px)] flex items-center"
         initial="hidden"
         animate={isLoaded ? "visible" : "hidden"}
         variants={staggerContainer}
       >
-        {/* Mega Background Effects */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 -left-40 w-[700px] h-[700px] bg-gradient-to-r from-cyan-400/20 via-teal-400/20 to-sky-400/20 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-20 -right-40 w-[700px] h-[700px] bg-gradient-to-r from-teal-500/20 via-sky-400/20 to-cyan-400/20 rounded-full blur-3xl animate-float-delayed" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-to-r from-cyan-500/10 to-teal-500/10 rounded-full blur-3xl animate-pulse-luxury" />
+        {/* Optimized Background Effects - Lighter for compact layout */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Simplified Gradients */}
+          <div className="absolute top-10 -left-20 sm:top-20 sm:-left-40 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-gradient-to-r from-cyan-400/15 via-teal-400/15 to-sky-400/15 rounded-full blur-2xl sm:blur-3xl" />
+          <div className="absolute bottom-10 -right-20 sm:bottom-20 sm:-right-40 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-gradient-to-r from-teal-500/15 via-sky-400/15 to-cyan-400/15 rounded-full blur-2xl sm:blur-3xl" />
 
           {/* Top Beam */}
           <motion.div
-            className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+            className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
             variants={beamAnimation}
             initial="hidden"
             animate="visible"
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatDelay: 3,
+            }}
           />
 
-          {/* Grid Pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
-
-          {/* Floating Particles */}
-          <motion.div
-            className="absolute top-32 left-24"
-            animate={{ y: [0, -30, 0], rotate: [0, 180, 360] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Sparkles className="w-8 h-8 text-cyan-400/40" />
-          </motion.div>
-          <motion.div
-            className="absolute top-48 right-32"
-            animate={{ y: [0, 30, 0], rotate: [0, -180, -360] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Zap className="w-10 h-10 text-teal-400/40" />
-          </motion.div>
+          {/* Subtle Grid Pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.02)_1px,transparent_1px)] bg-[size:40px_40px] sm:bg-[size:64px_64px]" />
         </div>
 
         <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left Content */}
-            <motion.div variants={fadeInUp}>
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-50 via-white to-teal-50 dark:from-cyan-900/40 dark:via-slate-800/60 dark:to-teal-900/40 border-2 border-cyan-300 dark:border-cyan-600 rounded-full mb-10 font-bold text-base shadow-2xl backdrop-blur-md relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                <Sparkles className="w-5 h-5 text-cyan-600 dark:text-cyan-400 relative z-10 animate-pulse" />
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
+            {/* Left Content - COMPACT */}
+            <motion.div variants={fadeInUp} className="order-2 lg:order-1">
+              {/* Compact Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-50 via-white to-teal-50 dark:from-cyan-900/30 dark:via-slate-800/50 dark:to-teal-900/30 border border-cyan-300 dark:border-cyan-600 rounded-full mb-4 sm:mb-6 font-semibold text-xs sm:text-sm shadow-lg backdrop-blur-sm relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-600 dark:text-cyan-400 relative z-10" />
                 <span className="bg-gradient-to-r from-cyan-700 via-teal-700 to-sky-700 dark:from-cyan-300 dark:via-teal-300 dark:to-sky-300 bg-clip-text text-transparent relative z-10">
                   Transparent Healthcare Pricing
                 </span>
               </div>
 
-              {/* Main Heading */}
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-8 leading-[0.95] tracking-tight">
+              {/* Compact Main Heading */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4 md:mb-6 leading-[1.1] tracking-tight">
                 <span className="block bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-50 dark:to-slate-100 bg-clip-text text-transparent">
                   Know the
                 </span>
-                <span className="block bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 dark:from-cyan-400 dark:via-teal-400 dark:to-sky-400 bg-clip-text text-transparent animate-gradient my-2">
+                <span className="block bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 dark:from-cyan-400 dark:via-teal-400 dark:to-sky-400 bg-clip-text text-transparent my-1 sm:my-2">
                   cost before
                 </span>
                 <span className="block bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-50 dark:to-slate-100 bg-clip-text text-transparent">
@@ -130,239 +120,176 @@ export default function HeroSection() {
                 </span>
               </h1>
 
-              {/* Subheading */}
-              <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 leading-relaxed font-semibold">
+              {/* Compact Subheading */}
+              <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 mb-4 sm:mb-6 md:mb-8 leading-relaxed font-medium">
                 Compare hospital, medicine, and consultation prices across
                 India.
-                <br />
-                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">
+                <br className="hidden sm:block" />
+                <span className="text-xs sm:text-sm md:text-base font-normal text-slate-500 dark:text-slate-400 block mt-1 sm:mt-2">
                   Make informed healthcare decisions with{" "}
-                  <span className="font-bold bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-400 dark:to-teal-400 bg-clip-text text-transparent">
+                  <span className="font-semibold bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-400 dark:to-teal-400 bg-clip-text text-transparent">
                     verified pricing data
                   </span>
                 </span>
               </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-6 mb-12">
+              {/* Compact CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-10">
                 <motion.button
-                  className="group relative px-10 py-5 bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 text-white font-black text-xl rounded-2xl shadow-2xl transition-all duration-500 overflow-hidden"
-                  whileHover={{ scale: 1.05, y: -4 }}
+                  className="group relative px-5 sm:px-6 md:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 text-white font-semibold sm:font-bold text-sm sm:text-base md:text-lg rounded-lg sm:rounded-xl shadow-lg transition-all duration-300 overflow-hidden w-full sm:w-auto"
+                  whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  <div className="absolute inset-0 rounded-2xl bg-cyan-400/50 blur-xl opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500" />
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    <Search className="w-6 h-6" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 via-teal-600 to-sky-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                     Start Searching
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
                 </motion.button>
 
                 <motion.button
-                  className="group relative px-10 py-5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-black text-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden"
-                  whileHover={{ scale: 1.05, y: -4 }}
+                  className="group relative px-5 sm:px-6 md:px-8 py-3 sm:py-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-semibold sm:font-bold text-sm sm:text-base md:text-lg rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden w-full sm:w-auto"
+                  whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    <Play className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                  <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-300 -z-10" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />
                     Watch Demo
                   </span>
                 </motion.button>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap gap-8">
+              {/* Compact Trust Indicators - INLINE */}
+              <div className="flex items-center justify-start gap-4 sm:gap-6 md:gap-8">
                 {[
-                  { label: "10,000+ Patients", icon: "👥" },
-                  { label: "500+ Hospitals", icon: "🏥" },
-                  { label: "99% Accuracy", icon: "✓" },
+                  {
+                    label: "10K+ Patients",
+                    icon: "👥",
+                    fullLabel: "10,000+ Patients",
+                  },
+                  {
+                    label: "500+ Hospitals",
+                    icon: "🏥",
+                    fullLabel: "500+ Hospitals",
+                  },
+                  {
+                    label: "99% Accurate",
+                    icon: "✓",
+                    fullLabel: "99% Accuracy",
+                  },
                 ].map((item, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-center gap-3"
+                    className="flex items-center gap-2"
                     variants={scaleIn}
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-md sm:rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow">
                       {item.icon}
                     </div>
-                    <span className="text-slate-700 dark:text-slate-300 font-bold text-base">
-                      {item.label}
-                    </span>
+                    <div className="hidden sm:block">
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold text-xs sm:text-sm">
+                        {item.fullLabel}
+                      </span>
+                    </div>
+                    <div className="sm:hidden">
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold text-xs">
+                        {item.label}
+                      </span>
+                    </div>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
 
-            {/* Right - Hero Image */}
-            <motion.div variants={scaleIn} className="relative lg:-mt-16">
-              {/* Multi-layer Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-br from-cyan-400 via-teal-400 to-sky-400 rounded-[2.5rem] blur-3xl opacity-30 animate-pulse-glow" />
+            {/* Right - Compact Hero Image */}
+            <motion.div
+              variants={scaleIn}
+              className="relative order-1 lg:order-2 mb-4 sm:mb-0"
+            >
+              {/* Subtle Glow */}
+              <div className="absolute -inset-2 sm:-inset-3 bg-gradient-to-br from-cyan-400 via-teal-400 to-sky-400 rounded-xl sm:rounded-2xl blur-lg sm:blur-xl opacity-15 sm:opacity-20" />
 
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 dark:border-slate-800/50 max-w-xl mx-auto">
-                {/* Image Container */}
-                <div className="aspect-[4/3] relative overflow-hidden">
+              <div className="relative rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-lg border-2 border-white/50 dark:border-slate-800/50 max-w-full mx-auto">
+                {/* Image Container - Slightly Smaller */}
+                <div className="aspect-[4/3] sm:aspect-[4/3.2] relative overflow-hidden">
                   <img
                     src="/Hero.png"
                     alt="Healthcare Consulting"
                     className="w-full h-full object-cover"
+                    loading="eager"
                   />
 
                   {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-                  {/* Animated Shine */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-1500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                 </div>
 
-                {/* Floating Card 1 - Top Right */}
-                {/* <motion.div
-                  className="absolute top-8 right-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl p-5 shadow-2xl border-2 border-white/50 dark:border-slate-800/50"
-                  animate={{ y: [0, -15, 0] }}
+                {/* Compact Floating Cards */}
+                <motion.div
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-lg border border-white/50 dark:border-slate-800/50"
+                  animate={{ y: [0, -5, 0] }}
                   transition={{
-                    duration: 4,
+                    duration: 3,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <TrendingUp className="w-7 h-7 text-white" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-md flex items-center justify-center shadow">
+                      <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                     </div>
                     <div>
-                      <div className="text-3xl font-black bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-400 dark:to-teal-400 bg-clip-text text-transparent">
-                        ₹15,000
+                      <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-cyan-600 to-teal-600 dark:from-cyan-400 dark:to-teal-400 bg-clip-text text-transparent">
+                        ₹15K
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 font-bold">
+                      <div className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-semibold">
                         Avg. Saved
                       </div>
                     </div>
                   </div>
-                </motion.div> */}
+                </motion.div>
 
-                {/* Floating Card 2 - Bottom Left */}
-                {/* <motion.div
-                  className="absolute bottom-8 left-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl p-5 shadow-2xl border-2 border-white/50 dark:border-slate-800/50"
-                  animate={{ y: [0, 15, 0] }}
+                <motion.div
+                  className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-lg border border-white/50 dark:border-slate-800/50"
+                  animate={{ y: [0, 5, 0] }}
                   transition={{
-                    duration: 4,
+                    duration: 3,
                     repeat: Infinity,
                     ease: "easeInOut",
                     delay: 0.5,
                   }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Star className="w-7 h-7 text-white fill-white" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-sky-500 to-cyan-500 rounded-md flex items-center justify-center shadow">
+                      <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white fill-white" />
                     </div>
                     <div>
-                      <div className="text-3xl font-black bg-gradient-to-r from-sky-600 to-cyan-600 dark:from-sky-400 dark:to-cyan-400 bg-clip-text text-transparent">
+                      <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-sky-600 to-cyan-600 dark:from-sky-400 dark:to-cyan-400 bg-clip-text text-transparent">
                         4.9/5
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400 font-bold">
-                        User Rating
+                      <div className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-semibold">
+                        Rating
                       </div>
                     </div>
                   </div>
-                </motion.div> */}
+                </motion.div>
               </div>
             </motion.div>
           </div>
         </div>
       </motion.section>
+
+      {/* Rest of your sections */}
       <GallerySection />
-
-      {/* Features with Images */}
       <FeaturesSection />
-
-      {/* Stats Section with Background Image */}
       <StatsSection />
-
-      {/* Testimonials */}
       <TestimonialsSection />
-      {/* How It Works with Images */}
       <HowItWorksSection />
-
-      {/* Blog/Insights with Images */}
       <BlogSection />
-
-      {/* CTA Section with Background */}
       <CTASection />
-
-      {/* Footer */}
       <Footer />
-
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
-            opacity: 0.2;
-          }
-          50% {
-            transform: translateY(-40px) rotate(10deg);
-            opacity: 0.3;
-          }
-        }
-
-        @keyframes pulseLuxury {
-          0%,
-          100% {
-            opacity: 0.1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.2;
-            transform: scale(1.15);
-          }
-        }
-
-        @keyframes pulseGlow {
-          0%,
-          100% {
-            opacity: 0.3;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(1.05);
-          }
-        }
-
-        @keyframes gradient {
-          0%,
-          100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-
-        .animate-float {
-          animation: float 18s ease-in-out infinite;
-        }
-
-        .animate-float-delayed {
-          animation: float 18s ease-in-out 9s infinite;
-        }
-
-        .animate-pulse-luxury {
-          animation: pulseLuxury 12s ease-in-out infinite;
-        }
-
-        .animate-pulse-glow {
-          animation: pulseGlow 4s ease-in-out infinite;
-        }
-
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 8s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }
