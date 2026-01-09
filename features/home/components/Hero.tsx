@@ -19,6 +19,7 @@ import { BlogSection } from "./BlogSection";
 import { CTASection } from "./CTASection";
 import Footer from "@/components/layout/Footer";
 import { StatsSection } from "./StatsSection";
+import ServicesPage from "./ServicePage";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
@@ -282,6 +283,7 @@ export default function HeroSection() {
       </motion.section>
 
       {/* Rest of your sections */}
+      <ServicesPage />
       <GallerySection />
       <FeaturesSection />
       <StatsSection />
