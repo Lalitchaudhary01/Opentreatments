@@ -375,7 +375,9 @@ export default async function DoctorConsultationsPage() {
                             {new Date(consultation.slot).toLocaleTimeString()}
                           </td>
                           <td className="p-4 text-[#6C7A89] dark:text-gray-300">
-                            {consultation.consultationType || "Follow-up"}
+                            {consultation.mode === "online"
+                              ? "Online"
+                              : "In-Person"}
                           </td>
                           <td className="p-4">
                             <span className="px-3 py-1 text-xs font-bold text-yellow-800 bg-yellow-100 dark:text-yellow-100 dark:bg-yellow-800/40 rounded-full">
@@ -463,11 +465,7 @@ export default async function DoctorConsultationsPage() {
                             </span>
                           </td>
                           <td className="p-4 text-[#6C7A89] dark:text-gray-300">
-                            {consultation.followUpDate
-                              ? new Date(
-                                  consultation.followUpDate
-                                ).toLocaleDateString()
-                              : "Not scheduled"}
+                            Not scheduled
                           </td>
                         </tr>
                       ))}

@@ -109,13 +109,13 @@ export default function HeroSection() {
 
               {/* Compact Main Heading */}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-4 md:mb-6 leading-[1.1] tracking-tight">
-                <span className="block bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-50 dark:to-slate-100 bg-clip-text text-transparent">
-                  Know the
+                <span className="inline bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-50 dark:to-slate-100 bg-clip-text text-transparent">
+                  Know the{" "}
                 </span>
-                <span className="block bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 dark:from-cyan-400 dark:via-teal-400 dark:to-sky-400 bg-clip-text text-transparent my-1 sm:my-2">
-                  cost before
+                <span className="inline bg-gradient-to-r from-cyan-500 via-teal-500 to-sky-500 dark:from-cyan-400 dark:via-teal-400 dark:to-sky-400 bg-clip-text text-transparent">
+                  cost before{" "}
                 </span>
-                <span className="block bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-50 dark:to-slate-100 bg-clip-text text-transparent">
+                <span className="inline bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-50 dark:to-slate-100 bg-clip-text text-transparent">
                   you step in
                 </span>
               </h1>
