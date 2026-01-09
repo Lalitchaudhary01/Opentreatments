@@ -72,42 +72,38 @@ export default function ServicesCarousel() {
           </div>
 
           {/* Carousel */}
-          <div className="overflow-x-auto scrollbar-hide flex gap-6 snap-x snap-mandatory pb-4 w-fit mx-auto">
-            <div className="flex gap-6 snap-x snap-mandatory pb-4 w-fit mx-auto">
-              {services.map((service, index) => (
+          {/* Carousel */}
+          <div className="flex gap-10 overflow-x-auto scrollbar-hide pb-4">
+            {services.map((service, index) => (
+              <div
+                key={index}
+                onClick={() => router.push(`/services/${service.slug}`)}
+                className="min-w-[120px] sm:min-w-[140px] cursor-pointer text-center group"
+              >
+                {/* Circle */}
                 <div
-                  key={index}
-                  onClick={() => router.push(`/services/${service.slug}`)}
-                  className="min-w-[120px] sm:min-w-[140px] snap-start flex flex-col items-center text-center cursor-pointer group"
+                  className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full overflow-hidden 
+        bg-gradient-to-br from-cyan-500/20 to-teal-500/20 
+        shadow-sm 
+        transition-all duration-300
+        group-hover:shadow-lg
+        group-hover:scale-105"
                 >
-                  {/* Circle Image */}
-                  <div
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full 
-bg-gradient-to-br from-cyan-500/20 to-teal-500/20 
-flex items-center justify-center shadow-md 
-transition-all duration-300 ease-out
-group-hover:shadow-xl 
-group-hover:scale-110 
-group-hover:-translate-y-1"
-                  >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white dark:bg-slate-900 overflow-hidden flex items-center justify-center">
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  </div>
-
-                  <h4 className="mt-3 text-sm font-bold text-slate-800 dark:text-slate-100">
-                    {service.title}
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {service.subtitle}
-                  </p>
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              ))}
-            </div>
+
+                <h4 className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {service.title}
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {service.subtitle}
+                </p>
+              </div>
+            ))}
           </div>
 
           {/* CTA */}
