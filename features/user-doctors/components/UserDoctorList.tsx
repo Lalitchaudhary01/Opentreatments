@@ -33,12 +33,27 @@ export default function UserDoctorList({
   const [doctors, setDoctors] = useState<UserDoctor[]>([]);
   const [filteredDoctors, setFilteredDoctors] = useState<UserDoctor[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     startTransition(async () => {
-      const data = await getApprovedDoctors();
-      setDoctors(data);
-      setFilteredDoctors(data);
+      try {
+        setError(null);
+        const data = await getApprovedDoctors();
+        if (Array.isArray(data)) {
+          setDoctors(data);
+          setFilteredDoctors(data);
+        } else {
+          setError("Failed to load doctors. Please try again later.");
+          setDoctors([]);
+          setFilteredDoctors([]);
+        }
+      } catch (err) {
+        console.error("Error fetching doctors:", err);
+        setError("Failed to load doctors. Please try again later.");
+        setDoctors([]);
+        setFilteredDoctors([]);
+      }
     });
   }, []);
 
@@ -82,6 +97,44 @@ export default function UserDoctorList({
 
     setFilteredDoctors(filtered);
   }, [searchQuery, selectedLocation, selectedSpecialty, doctors]);
+
+  if (error) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Stethoscope className="h-16 w-16 mx-auto text-muted-foreground/50" />
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-muted-foreground">
+              Error Loading Doctors
+            </h3>
+            <p className="text-muted-foreground/70 max-w-md">
+              {error}
+            </p>
+            <Button
+              onClick={() => {
+                setError(null);
+                startTransition(async () => {
+                  try {
+                    const data = await getApprovedDoctors();
+                    if (Array.isArray(data)) {
+                      setDoctors(data);
+                      setFilteredDoctors(data);
+                    }
+                  } catch (err) {
+                    console.error("Error fetching doctors:", err);
+                    setError("Failed to load doctors. Please try again later.");
+                  }
+                });
+              }}
+              className="mt-4"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isPending && doctors.length === 0) {
     return (
