@@ -36,12 +36,12 @@ const services = [
     image: "https://ik.imagekit.io/gpo2lkfh1/image/bills.png",
     slug: "hospital-bills",
   },
-  {
-    title: "Insurance",
-    subtitle: "Claim clarity",
-    image: "https://ik.imagekit.io/gpo2lkfh1/image/insurance%20(2).png",
-    slug: "insurance-claims",
-  },
+  //   {
+  //     title: "Insurance",
+  //     subtitle: "Claim clarity",
+  //     image: "https://ik.imagekit.io/gpo2lkfh1/image/insurance%20(2).png",
+  //     slug: "insurance-claims",
+  //   },
 ];
 
 export default function ServicesCarousel() {
@@ -73,21 +73,21 @@ export default function ServicesCarousel() {
 
           {/* Carousel */}
           {/* Carousel */}
-          <div className="flex gap-10 overflow-x-auto scrollbar-hide pb-4">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 justify-center">
             {services.map((service, index) => (
               <div
                 key={index}
                 onClick={() => router.push(`/services/${service.slug}`)}
-                className="min-w-[120px] sm:min-w-[140px] cursor-pointer text-center group"
+                className="min-w-[120px] sm:min-w-[140px] cursor-pointer text-center group flex-shrink-0"
               >
                 {/* Circle */}
                 <div
-                  className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full overflow-hidden 
-        bg-gradient-to-br from-cyan-500/20 to-teal-500/20 
-        shadow-sm 
-        transition-all duration-300
-        group-hover:shadow-lg
-        group-hover:scale-105"
+                  className="w-36 h-36 sm:w-32 sm:h-32 mx-auto rounded-full overflow-hidden 
+          bg-gradient-to-br from-cyan-500/20 to-teal-500/20 
+          shadow-sm 
+          transition-all duration-300
+          group-hover:shadow-lg
+          group-hover:scale-105"
                 >
                   <img
                     src={service.image}
