@@ -7,17 +7,17 @@ const CONCERNS = [
   {
     title: "Cough & Cold?",
     price: "₹399",
-    image: "https://images.unsplash.com/photo-1582719478185-2f9f2b1a43a8",
+    image: "https://ik.imagekit.io/gpo2lkfh1/coldand%20cough.jpg",
   },
   {
     title: "Period problems?",
     price: "₹499",
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d",
+    image: "https://ik.imagekit.io/gpo2lkfh1/period.jpg",
   },
   {
     title: "Performance issues in bed?",
     price: "₹499",
-    image: "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
+    image: "https://ik.imagekit.io/gpo2lkfh1/low.jpg",
   },
   {
     title: "Skin problems?",
