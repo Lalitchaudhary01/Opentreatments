@@ -15,6 +15,7 @@ import {
 import UserDoctorList from "@/features/user-doctors/components/UserDoctorList";
 import Header from "@/components/layout/Header";
 import DoctorSpecialties from "./DoctorSpecialties";
+import CommonHealthConcerns from "./CommonHealthConcerns";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
@@ -192,7 +193,7 @@ export default function UserDoctorsPage() {
 
         {/*doctor specilities */}
         <DoctorSpecialties />
-
+        <CommonHealthConcerns />
         {/* DOCTOR LIST */}
         <div className="container mx-auto max-w-6xl px-6 pb-12">
           <UserDoctorList

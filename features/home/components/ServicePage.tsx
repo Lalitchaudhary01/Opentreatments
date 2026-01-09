@@ -73,7 +73,7 @@ export default function ServicesCarousel() {
 
           {/* Carousel */}
           {/* Carousel */}
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 justify-center">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
             {services.map((service, index) => (
               <div
                 key={index}
