@@ -9,10 +9,17 @@ declare global {
 const prisma =
   globalThis.prisma ||
   new PrismaClient({
-    log: ["error", "warn"],
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
   });
 
-// ✅ only assign in dev to avoid multiple instances
-if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
+// ✅ Cache prisma instance in both dev and production to avoid multiple instances
+if (!globalThis.prisma) {
+  globalThis.prisma = prisma;
+}
 
 export default prisma;

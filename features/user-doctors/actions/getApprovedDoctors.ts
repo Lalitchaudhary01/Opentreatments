@@ -6,7 +6,9 @@ import { GetApprovedDoctorsResponse } from "../types/userDoctor";
 export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> {
   try {
     const doctors = await prisma.independentDoctor.findMany({
-      where: { status: "APPROVED" },
+      where: { 
+        status: "APPROVED"
+      },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -30,23 +32,40 @@ export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> 
       },
     });
 
-    return doctors.map((doc) => ({
+    // Map doctors and handle missing user relations gracefully
+    const mappedDoctors = doctors.map((doc) => ({
       id: doc.id,
-      name: doc.name,
+      name: doc.name || "Unknown Doctor",
       email: doc.user?.email ?? "",
       phone: doc.user?.phone ?? "",
-      specialization: doc.specialization,
-      specialties: doc.specialties ?? [],
+      specialization: doc.specialization || "",
+      specialties: Array.isArray(doc.specialties) ? doc.specialties : [],
       experience: doc.experience ?? undefined,
       city: doc.city ?? undefined,
       profilePic: doc.profilePic ?? null,
       fees: doc.fees ?? null,
       rating: doc.rating ?? null,
       totalReviews: doc.totalReviews ?? null,
-      languages: doc.languages ?? [],
+      languages: Array.isArray(doc.languages) ? doc.languages : [],
     }));
-  } catch (error) {
-    console.error("Error in getApprovedDoctors:", error);
+
+    return mappedDoctors;
+  } catch (error: any) {
+    // More detailed error logging for debugging
+    const errorDetails = {
+      message: error?.message || "Unknown error",
+      code: error?.code,
+      meta: error?.meta,
+      name: error?.name,
+    };
+    
+    console.error("Error in getApprovedDoctors:", errorDetails);
+    
+    // In development, log full stack trace
+    if (process.env.NODE_ENV === "development") {
+      console.error("Full error:", error);
+    }
+    
     // Return empty array instead of throwing to prevent client-side crashes
     return [];
   }

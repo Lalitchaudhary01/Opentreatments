@@ -83,7 +83,7 @@ export default function UserDoctorsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               {/* IMAGE PANEL */}
               <motion.div
-                className="hidden lg:flex justify-center items-center"
+                className="flex justify-center items-center order-1 lg:order-none"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -95,6 +95,7 @@ export default function UserDoctorsPage() {
           h-[420px]
           xl:w-[560px]
           xl:h-[460px]
+          lg:w-[520px] lg:h-[420px]
           rounded-3xl
           bg-gradient-to-br from-cyan-100 via-teal-50 to-green-50
           flex items-end justify-center

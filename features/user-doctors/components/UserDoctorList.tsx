@@ -36,11 +36,16 @@ export default function UserDoctorList({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    startTransition(async () => {
+    let isMounted = true;
+    
+    const fetchDoctors = async () => {
       try {
         setError(null);
         const data = await getApprovedDoctors();
-        if (Array.isArray(data)) {
+        
+        if (!isMounted) return;
+        
+        if (Array.isArray(data) && data.length >= 0) {
           setDoctors(data);
           setFilteredDoctors(data);
         } else {
@@ -48,13 +53,21 @@ export default function UserDoctorList({
           setDoctors([]);
           setFilteredDoctors([]);
         }
-      } catch (err) {
+      } catch (err: any) {
+        if (!isMounted) return;
+        
         console.error("Error fetching doctors:", err);
         setError("Failed to load doctors. Please try again later.");
         setDoctors([]);
         setFilteredDoctors([]);
       }
-    });
+    };
+    
+    startTransition(fetchDoctors);
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Filter doctors based on search query, location, and specialty
@@ -116,19 +129,26 @@ export default function UserDoctorList({
                 startTransition(async () => {
                   try {
                     const data = await getApprovedDoctors();
-                    if (Array.isArray(data)) {
+                    if (Array.isArray(data) && data.length >= 0) {
                       setDoctors(data);
                       setFilteredDoctors(data);
+                    } else {
+                      setError("Failed to load doctors. Please try again later.");
+                      setDoctors([]);
+                      setFilteredDoctors([]);
                     }
                   } catch (err) {
                     console.error("Error fetching doctors:", err);
                     setError("Failed to load doctors. Please try again later.");
+                    setDoctors([]);
+                    setFilteredDoctors([]);
                   }
                 });
               }}
-              className="mt-4"
+              className="mt-4 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600"
+              disabled={isPending}
             >
-              Try Again
+              {isPending ? "Loading..." : "Try Again"}
             </Button>
           </div>
         </div>
