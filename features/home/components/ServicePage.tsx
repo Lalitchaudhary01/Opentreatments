@@ -2,8 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle } from "lucide-react";
-import ConsultConcerns from "./ConsultConcerns";
+import { CheckCircle } from "lucide-react";
 
 const services = [
   {
@@ -36,12 +35,6 @@ const services = [
     image: "https://ik.imagekit.io/gpo2lkfh1/image/bills.png",
     slug: "hospital-bills",
   },
-  //   {
-  //     title: "Insurance",
-  //     subtitle: "Claim clarity",
-  //     image: "https://ik.imagekit.io/gpo2lkfh1/image/insurance%20(2).png",
-  //     slug: "insurance-claims",
-  //   },
 ];
 
 export default function ServicesCarousel() {
@@ -53,74 +46,83 @@ export default function ServicesCarousel() {
       <section className="py-16 px-4 bg-gradient-to-b from-white via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-2 px-4 py-2 border rounded-full text-xs font-semibold mb-5 bg-white dark:bg-slate-800">
               <CheckCircle className="w-4 h-4 text-cyan-500" />
-              Our Services
+              Price Transparency Platform
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-black mb-5 bg-gradient-to-r from-slate-800 via-teal-700 to-cyan-700 dark:from-slate-100 dark:via-teal-300 dark:to-cyan-300 bg-clip-text text-transparent">
-              Transparent Healthcare Services
-              {/* <span className="block">No Hidden Costs</span> */}
+            <h2 className="text-3xl md:text-4xl font-black mb-4 bg-gradient-to-r from-slate-800 via-teal-700 to-cyan-700 dark:from-slate-100 dark:via-teal-300 dark:to-cyan-300 bg-clip-text text-transparent">
+              One Platform for All Healthcare Prices
             </h2>
 
-            {/* <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Make confident healthcare decisions with complete price
-              transparency
-            </p> */}
+            <p className="text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+              Compare costs for{" "}
+              <span className="font-semibold text-slate-800 dark:text-white">
+                Doctors
+              </span>
+              ,{" "}
+              <span className="font-semibold text-slate-800 dark:text-white">
+                Hospitals
+              </span>
+              ,{" "}
+              <span className="font-semibold text-slate-800 dark:text-white">
+                Medicines
+              </span>{" "}
+              &{" "}
+              <span className="font-semibold text-slate-800 dark:text-white">
+                Lab Tests
+              </span>{" "}
+              — before you decide.
+            </p>
+
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              No hidden charges. No surprises. Just clear healthcare pricing.
+            </p>
           </div>
 
           {/* Carousel */}
-          {/* Carousel */}
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-6 px-6 snap-x snap-mandatory">
             {services.map((service, index) => (
               <div
                 key={index}
                 onClick={() => router.push(`/services/${service.slug}`)}
-                className="min-w-[120px] sm:min-w-[140px] cursor-pointer text-center group flex-shrink-0"
+                className="min-w-[160px] cursor-pointer group flex-shrink-0 snap-center"
               >
-                {/* Circle */}
                 <div
-                  className="w-36 h-36 sm:w-32 sm:h-32 mx-auto rounded-full overflow-hidden 
-          bg-gradient-to-br from-cyan-500/20 to-teal-500/20 
-          shadow-sm 
-          transition-all duration-300
-          group-hover:shadow-lg
-          group-hover:scale-105"
+                  className="w-36 h-60 sm:w-40 sm:h-64 lg:w-44 lg:h-72 mx-auto rounded-2xl overflow-hidden 
+        bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800
+        border border-slate-200/60 dark:border-slate-700/60
+        shadow-sm 
+        transition-all duration-300
+        group-hover:shadow-lg
+        group-hover:-translate-y-1
+        flex flex-col items-center justify-between p-4"
                 >
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                  {/* Image */}
+                  <div className="w-full h-36 sm:h-40 lg:h-44 rounded-xl overflow-hidden bg-cyan-500/10">
+                    <img
+                      src={service.image}
+                      alt={service.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
 
-                <h4 className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {service.title}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {service.subtitle}
-                </p>
+                  {/* Text */}
+                  <div className="text-center mt-2">
+                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                      {service.title}
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {service.subtitle}
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-
-          {/* CTA */}
-          {/* <div className="mt-8">
-            <button
-              onClick={() => router.push("/services")}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-600 dark:text-cyan-400 hover:underline"
-            >
-              View all services
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div> */}
         </div>
       </section>
-
-      {/* ================= CONSULT CONCERNS SECTION ================= */}
-      <ConsultConcerns />
     </>
   );
 }
