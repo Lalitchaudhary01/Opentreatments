@@ -42,7 +42,7 @@ import Header from "@/components/layout/Header";
 import { StatsSection } from "./StatsSection";
 import { BlogSection } from "./BlogSection";
 import Footer from "@/components/layout/Footer";
-import { HowItWorksSection } from "./HowItWorksSection";
+import HowItWorksSection from "./HowItWorksSection";
 import { CTASection } from "./CTASection";
 import GallerySection from "./GallerySection";
 import FeaturesSection from "./FeaturesSection";
