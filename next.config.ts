@@ -8,7 +8,17 @@ const nextConfig: NextConfig = {
         hostname: "ik.imagekit.io",
         pathname: "**", // allow all image paths
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "**",
+      },
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
   },
 };
 

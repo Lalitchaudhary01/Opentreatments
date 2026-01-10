@@ -6,14 +6,6 @@ import { GetApprovedDoctorsResponse } from "../types/userDoctor";
 
 export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> {
   try {
-    // Check total doctors and approved doctors count for debugging
-    const totalCount = await prisma.independentDoctor.count();
-    const approvedCount = await prisma.independentDoctor.count({
-      where: { status: DoctorStatus.APPROVED }
-    });
-    
-    console.log(`[getApprovedDoctors] Total doctors: ${totalCount}, Approved: ${approvedCount}`);
-    
     // Use enum from Prisma client instead of string
     const doctors = await prisma.independentDoctor.findMany({
       where: { 
@@ -43,17 +35,9 @@ export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> 
       },
     });
 
-    console.log(`[getApprovedDoctors] Found ${doctors.length} approved doctors`);
-
     // Map doctors and handle missing user relations gracefully
     const mappedDoctors = doctors
-      .filter((doc) => {
-        if (!doc.user) {
-          console.warn(`[getApprovedDoctors] Doctor ${doc.id} (${doc.name}) has no user relation`);
-          return false;
-        }
-        return true;
-      })
+      .filter((doc) => doc.user !== null) // Filter out doctors without user relation
       .map((doc) => ({
         id: doc.id,
         name: doc.name || "Unknown Doctor",
@@ -70,7 +54,6 @@ export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> 
         languages: Array.isArray(doc.languages) ? doc.languages : [],
       }));
 
-    console.log(`[getApprovedDoctors] Returning ${mappedDoctors.length} mapped doctors`);
     return mappedDoctors;
   } catch (error: any) {
     // More detailed error logging for debugging

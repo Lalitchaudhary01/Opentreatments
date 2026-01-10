@@ -41,18 +41,14 @@ export default function UserDoctorList({
     const fetchDoctors = async () => {
       try {
         setError(null);
-        console.log("Fetching approved doctors...");
         const data = await getApprovedDoctors();
-        console.log("Received doctors data:", data?.length || 0, "doctors");
         
         if (!isMounted) return;
         
         if (Array.isArray(data)) {
-          console.log("Setting doctors:", data.length);
           setDoctors(data);
           setFilteredDoctors(data);
         } else {
-          console.error("Invalid data received:", data);
           setError("Failed to load doctors. Please try again later.");
           setDoctors([]);
           setFilteredDoctors([]);
