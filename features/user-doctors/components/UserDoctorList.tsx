@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { getApprovedDoctors } from "../actions/getApprovedDoctors";
 import { UserDoctor } from "../types/userDoctor";
 import Link from "next/link";
 import {
@@ -41,7 +40,21 @@ export default function UserDoctorList({
     const fetchDoctors = async () => {
       try {
         setError(null);
-        const data = await getApprovedDoctors();
+        
+        // Use API route instead of server action for better production reliability
+        const response = await fetch("/api/doctors/approved", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`);
+        }
+        
+        const data: UserDoctor[] = await response.json();
         
         if (!isMounted) return;
         
@@ -128,7 +141,19 @@ export default function UserDoctorList({
                 setError(null);
                 startTransition(async () => {
                   try {
-                    const data = await getApprovedDoctors();
+                    const response = await fetch("/api/doctors/approved", {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      cache: "no-store",
+                    });
+                    
+                    if (!response.ok) {
+                      throw new Error(`Failed to fetch: ${response.statusText}`);
+                    }
+                    
+                    const data: UserDoctor[] = await response.json();
                     if (Array.isArray(data)) {
                       setDoctors(data);
                       setFilteredDoctors(data);
