@@ -21,7 +21,7 @@ const services = [
     title: "Medicines",
     subtitle: "Save on meds",
     image: "https://ik.imagekit.io/gpo2lkfh1/image/medicnies.png",
-    slug: "medicine-pricing",
+    slug: "pharmacy",
   },
   {
     title: "Surgeries",
@@ -33,7 +33,7 @@ const services = [
     title: "Hospital Bills",
     subtitle: "Bill clarity",
     image: "https://ik.imagekit.io/gpo2lkfh1/image/bills.png",
-    slug: "hospital-bills",
+    slug: "hospitals",
   },
 ];
 
@@ -86,7 +86,7 @@ export default function ServicesCarousel() {
             {services.map((service, index) => (
               <div
                 key={index}
-                onClick={() => router.push(`/services/${service.slug}`)}
+                onClick={() => router.push(`/user/${service.slug}`)}
                 className="min-w-[160px] cursor-pointer group flex-shrink-0 snap-center"
               >
                 <div
