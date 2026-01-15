@@ -1,0 +1,113 @@
+// features/doctor/constants/doctorConstants.ts
+export const WEEK_DAYS = [
+  { id: "monday", label: "Monday", short: "Mon" },
+  { id: "tuesday", label: "Tuesday", short: "Tue" },
+  { id: "wednesday", label: "Wednesday", short: "Wed" },
+  { id: "thursday", label: "Thursday", short: "Thu" },
+  { id: "friday", label: "Friday", short: "Fri" },
+  { id: "saturday", label: "Saturday", short: "Sat" },
+  { id: "sunday", label: "Sunday", short: "Sun" },
+];
+
+export const TIME_SLOTS = {
+  START: [
+    "6:00 AM",
+    "6:30 AM",
+    "7:00 AM",
+    "7:30 AM",
+    "8:00 AM",
+    "8:30 AM",
+    "9:00 AM",
+    "9:30 AM",
+    "10:00 AM",
+    "10:30 AM",
+    "11:00 AM",
+    "11:30 AM",
+    "12:00 PM",
+    "12:30 PM",
+    "1:00 PM",
+    "1:30 PM",
+    "2:00 PM",
+    "2:30 PM",
+    "3:00 PM",
+    "3:30 PM",
+    "4:00 PM",
+    "4:30 PM",
+  ],
+  END: [
+    "10:00 AM",
+    "10:30 AM",
+    "11:00 AM",
+    "11:30 AM",
+    "12:00 PM",
+    "12:30 PM",
+    "1:00 PM",
+    "1:30 PM",
+    "2:00 PM",
+    "2:30 PM",
+    "3:00 PM",
+    "3:30 PM",
+    "4:00 PM",
+    "4:30 PM",
+    "5:00 PM",
+    "5:30 PM",
+    "6:00 PM",
+    "6:30 PM",
+    "7:00 PM",
+    "7:30 PM",
+    "8:00 PM",
+    "8:30 PM",
+    "9:00 PM",
+    "9:30 PM",
+    "10:00 PM",
+    "10:30 PM",
+    "11:00 PM",
+  ],
+};
+
+export const DEFAULT_TIME_RANGES = [
+  { label: "Morning (9 AM - 12 PM)", start: "9:00 AM", end: "12:00 PM" },
+  { label: "Afternoon (12 PM - 4 PM)", start: "12:00 PM", end: "4:00 PM" },
+  { label: "Evening (4 PM - 8 PM)", start: "4:00 PM", end: "8:00 PM" },
+  { label: "Full Day (9 AM - 5 PM)", start: "9:00 AM", end: "5:00 PM" },
+];
+
+export const SPECIALIZATIONS = [
+  "Cardiologist",
+  "Dermatologist",
+  "Endocrinologist",
+  "Gastroenterologist",
+  "General Physician",
+  "Gynecologist",
+  "Neurologist",
+  "Oncologist",
+  "Orthopedist",
+  "Pediatrician",
+  "Psychiatrist",
+  "Pulmonologist",
+  "Radiologist",
+  "Surgeon",
+  "Urologist",
+];
+
+export const LANGUAGES = [
+  "Hindi",
+  "English",
+  "Bengali",
+  "Telugu",
+  "Marathi",
+  "Tamil",
+  "Urdu",
+  "Gujarati",
+  "Kannada",
+  "Malayalam",
+  "Odia",
+  "Punjabi",
+  "Assamese",
+  "Maithili",
+  "Sanskrit",
+];
+
+export const GENDERS = ["Male", "Female", "Other"];
+
+export const EXPERIENCE_YEARS = Array.from({ length: 51 }, (_, i) => i);
