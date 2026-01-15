@@ -1,10 +1,12 @@
 "use client";
 
+type Step = string | { label: string };
+
 export default function ProgressStepper({
   steps,
   current,
 }: {
-  steps: string[];
+  steps: Step[];
   current: number;
 }) {
   return (
