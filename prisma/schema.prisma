@@ -573,6 +573,7 @@ enum DoctorStatus {
   PENDING
   APPROVED
   REJECTED
+  
 }
 
 enum ConsultationStatus {
