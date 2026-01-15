@@ -1,27 +1,46 @@
 "use client";
 
 import { useState } from "react";
+import { submitDoctorProfile } from "../actions/submitDoctorProfile";
 
-export function useOnboarding(totalSteps: number) {
-  const [currentStep, setCurrentStep] = useState(0);
+export function useOnboarding() {
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState<any>({});
+  const [loading, setLoading] = useState(false);
 
-  const next = () => setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));
+  const totalSteps = 5;
 
-  const prev = () => setCurrentStep((s) => Math.max(s - 1, 0));
+  const next = async () => {
+    if (step < totalSteps - 1) {
+      setStep((s) => s + 1);
+      return;
+    }
 
-  const goTo = (index: number) =>
-    setCurrentStep(() => Math.max(0, Math.min(index, totalSteps - 1)));
+    // Last step → submit
+    setLoading(true);
+    try {
+      await submitDoctorProfile(data);
+      window.location.href = "/doctor/profile";
+    } catch (e) {
+      console.error(e);
+      alert("Failed to submit profile");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const isFirst = currentStep === 0;
-  const isLast = currentStep === totalSteps - 1;
+  const back = () => {
+    if (step > 0) setStep((s) => s - 1);
+  };
 
   return {
-    currentStep,
+    step,
+    data,
+    setData,
     next,
-    prev,
-    goTo,
-    isFirst,
-    isLast,
-    progress: Math.round(((currentStep + 1) / totalSteps) * 100),
+    back,
+    loading,
+    isFirst: step === 0,
+    isLast: step === totalSteps - 1,
   };
 }
