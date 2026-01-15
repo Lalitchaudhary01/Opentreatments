@@ -1,5 +1,6 @@
 "use client";
 
+import { DoctorShell } from "@/features/panel/doctor";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";
@@ -21,5 +22,5 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
     return <p>Redirecting...</p>; // optional loading
   }
 
-  return <>{children}</>; // only DOCTOR can see children
+  return <DoctorShell>{children}</DoctorShell>;
 }

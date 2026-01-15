@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import { useOnboarding } from "@/features/panel/doctor/hooks/useOnboarding";
 import { ProgressStepper } from "../../components/ui/shared";
 import { onboardingSteps } from "@/features/panel/doctor/constants";
@@ -20,9 +21,24 @@ const stepsMap = [
   StepVerification,
 ];
 
-export default function DoctorProfileForm() {
+type Mode = "create" | "edit";
+
+export default function DoctorProfileForm({
+  mode = "create",
+  initialData,
+}: {
+  mode?: Mode;
+  initialData?: any;
+}) {
   const { step, data, setData, next, back, isLast, isFirst, loading } =
-    useOnboarding();
+    useOnboarding(mode);
+
+  // edit mode me existing data hydrate karo
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setData(initialData);
+    }
+  }, [mode, initialData, setData]);
 
   const StepComponent = stepsMap[step];
 

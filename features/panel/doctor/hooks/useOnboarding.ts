@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { submitDoctorProfile } from "../actions/submitDoctorProfile";
+import { updateDoctorProfile } from "../actions/updateDoctorProfile";
 
-export function useOnboarding() {
+type Mode = "create" | "edit";
+
+export function useOnboarding(mode: Mode = "create") {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(false);
@@ -16,14 +19,19 @@ export function useOnboarding() {
       return;
     }
 
-    // Last step → submit
+    // Last step → submit / update
     setLoading(true);
     try {
-      await submitDoctorProfile(data);
-      window.location.href = "/doctor/profile";
-    } catch (e) {
+      if (mode === "edit") {
+        await updateDoctorProfile(data);
+        window.location.href = "/doctor/profile";
+      } else {
+        await submitDoctorProfile(data);
+        window.location.href = "/doctor/status";
+      }
+    } catch (e: any) {
       console.error(e);
-      alert("Failed to submit profile");
+      alert(e?.message || "Failed to save profile");
     } finally {
       setLoading(false);
     }

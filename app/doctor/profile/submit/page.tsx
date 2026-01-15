@@ -1,19 +1,27 @@
-
+// app/doctor/profile/create/page.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import DoctorProfileForm from "@/features/panel/doctors/components/DoctorProfileForm";
+import prisma from "@/lib/prisma";
+import { DoctorProfileForm } from "@/features/panel/doctor/screens/onboarding";
 
-export default async function SubmitDoctorProfilePage() {
+export default async function CreateDoctorProfilePage() {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return null;
 
-  if (!session || session.user.role !== "DOCTOR") {
-    return <p className="text-red-600">Unauthorized: Doctors only</p>;
+  const existing = await prisma.independentDoctor.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  // Agar pehle se profile hai, create mat dikhao
+  if (existing) {
+    return (
+      <div className="p-6">
+        <p className="text-yellow-600">
+          Profile already exists. You can edit it instead.
+        </p>
+      </div>
+    );
   }
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Submit Your Profile</h1>
-      <DoctorProfileForm />
-    </div>
-  );
+  return <DoctorProfileForm mode="create" />;
 }

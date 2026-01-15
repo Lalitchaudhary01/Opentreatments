@@ -1,7 +1,5 @@
-// features/doctor/components/index.ts
-// Export all component categories
-export * from "./ui";
-export * from "./layout";
+// features/panel/doctor/components/index.ts
 export * from "./sections";
 export * from "./cards";
-export * from "./screens";
+export * from "./layout";
+export * from "./ui";
