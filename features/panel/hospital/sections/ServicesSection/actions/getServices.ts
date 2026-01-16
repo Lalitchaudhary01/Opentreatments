@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-export async function getFacilities() {
+export async function getServices() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -13,7 +13,7 @@ export async function getFacilities() {
   });
   if (!hospital) throw new Error("Hospital not found");
 
-  return prisma.facility.findMany({
+  return prisma.service.findMany({
     where: { hospitalId: hospital.id },
     orderBy: { createdAt: "desc" },
   });
