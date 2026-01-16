@@ -1,16 +1,15 @@
+// features/panel/hospital/components/layout/HospitalSidebar.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hospitalSidebarItems } from "../../constants/sidebarItems";
 
-export function HospitalSidebar() {
+export default function HospitalSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r p-4 space-y-2">
-      <div className="text-xl font-bold mb-4">Hospital Panel</div>
-
+    <aside className="w-64 border-r min-h-screen p-4" suppressHydrationWarning>
       {hospitalSidebarItems.map((item) => {
         const active = pathname === item.href;
         return (
@@ -18,7 +17,7 @@ export function HospitalSidebar() {
             key={item.href}
             href={item.href}
             className={`block rounded px-3 py-2 text-sm ${
-              active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+              active ? "bg-muted font-medium" : "hover:bg-muted"
             }`}
           >
             {item.label}

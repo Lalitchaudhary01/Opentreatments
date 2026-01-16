@@ -1,12 +1,10 @@
-"use client";
+import { HospitalShell } from "@/features/panel/hospital/components/layout";
+import ServicesSection from "@/features/panel/hospital/sections/ServicesSection";
 
-import HospitalServiceList from "@/features/panel/hospitals/hospital-services/components/HospitalServiceList";
-
-export default function HospitalServicesPage() {
+export default function ServicesPage() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Manage Hospital Services</h1>
-      <HospitalServiceList />
-    </div>
+    <HospitalShell>
+      <ServicesSection />
+    </HospitalShell>
   );
 }

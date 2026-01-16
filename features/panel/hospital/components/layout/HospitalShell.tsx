@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { HospitalSidebar } from "./HospitalSidebar";
+import HospitalSidebar from "./HospitalSidebar";
 import { HospitalHeader } from "./HospitalHeader";
 
 export default function HospitalShell({ children }: { children: ReactNode }) {

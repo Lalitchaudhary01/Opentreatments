@@ -196,6 +196,7 @@ model Service {
   description String?
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 }
 
 model Facility {
@@ -204,6 +205,7 @@ model Facility {
   description String?
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 }
 
 model Insurance {
@@ -234,6 +236,7 @@ model Procedure {
   hospitalId  String
   estimates   Estimate[]
   hospital    Hospital   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
 }
 
 model Policy {
@@ -573,7 +576,6 @@ enum DoctorStatus {
   PENDING
   APPROVED
   REJECTED
-  
 }
 
 enum ConsultationStatus {
