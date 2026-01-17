@@ -15,6 +15,6 @@ export async function getProcedures() {
 
   return prisma.procedure.findMany({
     where: { hospitalId: hospital.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: { id: "desc" },
   });
 }
