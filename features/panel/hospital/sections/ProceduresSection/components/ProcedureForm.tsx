@@ -1,44 +1,50 @@
 "use client";
 
-import { Procedure } from "../types";
+import { useState } from "react";
+import { Procedure, UpsertProcedureInput } from "../types";
+import { upsertProcedure } from "../actions";
 
-export default function ProcedureCard({
-  procedure,
-  onEdit,
+export default function ProcedureForm({
+  initial,
+  onDone,
 }: {
-  procedure: Procedure;
-  onEdit?: (p: Procedure) => void;
+  initial?: Procedure | null;
+  onDone?: () => void;
 }) {
+  const [name, setName] = useState(initial?.name || "");
+  const [description, setDescription] = useState(initial?.description || "");
+  const [cost, setCost] = useState<number | undefined>(initial?.cost);
+  const [loading, setLoading] = useState(false);
+
+  const submit = async () => {
+    setLoading(true);
+    try {
+      const payload: UpsertProcedureInput = { name, description, cost };
+      await upsertProcedure(initial?.id ?? null, payload);
+      onDone?.();
+      setName("");
+      setDescription("");
+      setCost(undefined);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="border rounded-xl p-4 bg-white">
-      <div className="flex justify-between items-start gap-3">
-        <div>
-          <h3 className="font-semibold">{procedure.name}</h3>
-          {procedure.description && (
-            <p className="text-sm text-muted-foreground mt-1">
-              {procedure.description}
-            </p>
-          )}
-          {procedure.duration && (
-            <p className="text-xs text-muted-foreground mt-1">
-              Duration: {procedure.duration}
-            </p>
-          )}
-        </div>
-
-        {procedure.cost != null && (
-          <span className="text-sm font-medium">₹{procedure.cost}</span>
-        )}
-      </div>
-
-      {onEdit && (
-        <button
-          onClick={() => onEdit(procedure)}
-          className="mt-3 text-sm text-cyan-600 hover:underline"
-        >
-          Edit
-        </button>
-      )}
+    <div className="space-y-3">
+      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <input
+        type="number"
+        value={cost ?? ""}
+        onChange={(e) =>
+          setCost(e.target.value ? Number(e.target.value) : undefined)
+        }
+      />
+      <button onClick={submit}>{initial ? "Update" : "Add"} Procedure</button>
     </div>
   );
 }
