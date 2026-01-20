@@ -1,13 +1,10 @@
 "use server";
 
-import  prisma  from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { StockType } from "@prisma/client";
-import { StockEntryInput } from "../../types/pharmactInventory";
+import { StockEntryInput } from "../../types/pharmacyInventory";
 
-export async function addStockEntry(
-  pharmacyId: string,
-  data: StockEntryInput
-) {
+export async function addStockEntry(pharmacyId: string, data: StockEntryInput) {
   return prisma.$transaction(async (tx) => {
     const entry = await tx.stockEntry.create({
       data: {

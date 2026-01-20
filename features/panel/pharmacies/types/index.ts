@@ -1,3 +1,3 @@
 export * from "./pharmacyProfile";
-export * from "./pharmactInventory";
+export * from "./pharmacyInventory";
 export * from "./pharmacyMedicine";
