@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Procedure, UpsertProcedureInput } from "../types";
 import { upsertProcedure } from "../actions";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 export default function ProcedureForm({
   initial,
@@ -32,12 +34,12 @@ export default function ProcedureForm({
 
   return (
     <div className="space-y-3">
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      <textarea
+      <Input value={name} onChange={(e) => setName(e.target.value)} />
+      <Textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <input
+      <Input
         type="number"
         value={cost ?? ""}
         onChange={(e) =>
