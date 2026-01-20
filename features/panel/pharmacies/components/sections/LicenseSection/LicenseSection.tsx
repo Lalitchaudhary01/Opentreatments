@@ -1,4 +1,5 @@
-import { PharmacyProfile } from "@/features/panel/pharmacy/types";
+// import { PharmacyProfile } from "@/features/panel/pharmacy/types";
+import { PharmacyProfile } from "../../../types";
 import { BaseCard } from "../../cards";
 
 interface Props {
@@ -26,13 +27,7 @@ export function LicenseSection({ profile }: Props) {
   );
 }
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | null;
-}) {
+function InfoRow({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs text-muted-foreground">{label}</span>

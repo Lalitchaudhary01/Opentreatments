@@ -1,4 +1,5 @@
-import { PharmacyProfile } from "@/features/panel/pharmacy/types";
+// import { PharmacyProfile } from "@/features/panel/pharmacy/types";
+import { PharmacyProfile } from "../../../types";
 import { PharmacyStatusBadge } from "../../ui/badges";
 import { ActionButtons } from "./ActionButtons";
 

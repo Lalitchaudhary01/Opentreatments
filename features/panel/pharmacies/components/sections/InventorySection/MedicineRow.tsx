@@ -1,4 +1,6 @@
-import { isExpired, stockStatus } from "@/features/panel/pharmacy/utils";
+// import { isExpired, stockStatus } from "@/features/panel/pharmacy/utils";
+
+import { isExpired, stockStatus } from "../../../utils";
 
 interface Props {
   name: string;

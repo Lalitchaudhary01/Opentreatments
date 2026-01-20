@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getInventory,
-  addStockEntry,
-  deleteStockEntry,
-  reduceStockOnSale,
-} from "@/features/panel/pharmacy/actions";
+// import {
+//   getInventory,
+//   addStockEntry,
+//   deleteStockEntry,
+//   reduceStockOnSale,
+// } from "@/features/panel/pharmacy/actions";
 import { StockEntryInput } from "../types";
+import { addStockEntry, deleteStockEntry, getInventory, reduceStockOnSale } from "../actions";
 
 export function useInventory(pharmacyId: string) {
   const [items, setItems] = useState<any[]>([]);

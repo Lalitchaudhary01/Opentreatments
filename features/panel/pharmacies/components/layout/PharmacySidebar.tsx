@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { pharmacySidebarItems } from "@/features/panel/pharmacy/constants";
+import { pharmacySidebarItems } from "../../constants";
+// import { pharmacySidebarItems } from "@/features/panel/pharmacy/constants";
 
 export function PharmacySidebar() {
   const pathname = usePathname();
@@ -20,9 +21,7 @@ export function PharmacySidebar() {
               key={item.key}
               href={item.href}
               className={`block px-3 py-2 rounded-lg text-sm ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
+                active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
               }`}
             >
               {item.label}

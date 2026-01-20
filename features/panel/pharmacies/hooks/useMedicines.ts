@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getMedicines,
-  addMedicine,
-  updateMedicine,
-  deleteMedicine,
-  searchMedicines,
-} from "@/features/panel/pharmacy/actions";
+// import {
+//   getMedicines,
+//   addMedicine,
+//   updateMedicine,
+//   deleteMedicine,
+//   searchMedicines,
+// } from "@/features/panel/pharmacy/actions";
 import { MedicineInput } from "../types";
+import {searchMedicines, 
+  addMedicine,
+  deleteMedicine,
+  getMedicines,
+  updateMedicine,
+} from "../actions";
 
 export function useMedicines(pharmacyId: string) {
   const [medicines, setMedicines] = useState<any[]>([]);

@@ -1,35 +1,21 @@
-"use client";
+import { ReactNode } from "react";
+import { AvatarWithFallback } from "../ui/shared";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { pharmacySidebarItems } from "@/features/panel/pharmacy/constants";
+interface Props {
+  title?: string;
+  right?: ReactNode;
+  userName?: string;
+}
 
-export function PharmacySidebar() {
-  const pathname = usePathname();
-
+export function PharmacyHeader({ title, right, userName }: Props) {
   return (
-    <aside className="w-64 border-r min-h-screen p-4">
-      <h2 className="text-lg font-semibold mb-6">Pharmacy Panel</h2>
+    <header className="h-14 border-b px-6 flex items-center justify-between">
+      <h1 className="text-base font-semibold">{title}</h1>
 
-      <nav className="space-y-2">
-        {pharmacySidebarItems.map((item) => {
-          const active = pathname === item.href;
-
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`block px-3 py-2 rounded-lg text-sm ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted"
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+      <div className="flex items-center gap-3">
+        {right}
+        <AvatarWithFallback name={userName} />
+      </div>
+    </header>
   );
 }

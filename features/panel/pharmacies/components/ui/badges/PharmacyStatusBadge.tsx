@@ -1,5 +1,6 @@
 import { PharmacyStatus } from "@prisma/client";
-import { pharmacyStatusConfig } from "@/features/panel/pharmacy/utils";
+import { pharmacyStatusConfig } from "../../../utils";
+// import { pharmacyStatusConfig } from "@/features/panel/pharmacy/utils";
 
 interface Props {
   status: PharmacyStatus;
