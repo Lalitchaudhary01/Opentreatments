@@ -22,6 +22,7 @@ import ServicesPage from "./ServicePage";
 import WhyOpenTreatment from "./WhyOpentreatment";
 import HowItWorksSection from "./HowItWorksSection";
 import FAQSection from "./FAQ";
+import WhoIsThisPlatform from "./ServicePage";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
@@ -284,13 +285,13 @@ export default function HeroSection() {
         </div>
       </motion.section>
       {/* Rest of your sections */}
-      <ServicesPage />
+      <WhoIsThisPlatform />
       <WhyOpenTreatment />
       {/* <GallerySection />
       <FeaturesSection /> */}
       {/* <StatsSection /> */}
       <HowItWorksSection />
-      <FAQSection/>
+      <FAQSection />
       <TestimonialsSection />
       <BlogSection />
       <CTASection />
