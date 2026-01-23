@@ -1,14 +1,14 @@
 "use client";
 
-import { useOnboarding } from "@/features/panel/pharmacy/hooks";
-import { onboardingSteps } from "@/features/panel/pharmacy/constants";
-import { ProgressStepper } from "@/features/panel/pharmacy/components/ui/shared";
+import { ProgressStepper } from "../../components/ui/shared";
+import { onboardingSteps } from "../../constants";
+import { useOnboarding } from "../../hooks";
 
-export function PharmacyProfileForm({
-  steps,
-}: {
-  steps: React.ReactNode[];
-}) {
+// import { useOnboarding } from "@/features/panel/pharmacy/hooks";
+// import { onboardingSteps } from "@/features/panel/pharmacy/constants";
+// import { ProgressStepper } from "@/features/panel/pharmacy/components/ui/shared";
+
+export function PharmacyProfileForm({ steps }: { steps: React.ReactNode[] }) {
   const { step, next, prev, isFirst, isLast } = useOnboarding(steps.length);
 
   return (

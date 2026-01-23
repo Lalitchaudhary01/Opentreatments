@@ -7,7 +7,8 @@ import {
   PharmacyShell,
   PharmacyHeader,
 } from "@/features/panel/pharmacies/components/layout";
-import { InventoryClientView } from "@/features/panel/pharmacies/components/client/InventoryClientView";
+import { InventoryClientView } from "@/features/panel/pharmacies/components/clients/InventoryClientView";
+// import { InventoryClientView } from "@/features/panel/pharmacies/components/client/InventoryClientView";
 
 export default async function InventoryPage() {
   const session = await getServerSession(authOptions);
