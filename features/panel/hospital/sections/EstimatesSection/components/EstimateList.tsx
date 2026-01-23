@@ -19,8 +19,8 @@ export default function EstimateList() {
     <div className="space-y-6">
       {editing && (
         <EstimateForm
-          initial={editing}
-          onDone={() => {
+          estimate={editing}
+          onEdit={() => {
             setEditing(null);
             load();
           }}
