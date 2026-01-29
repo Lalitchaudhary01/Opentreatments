@@ -4,116 +4,104 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-muted/40 border-t border-border px-6">
-      <div className="container mx-auto max-w-6xl py-14">
-        {/* Top */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
-          {/* Brand */}
-          <div className="md:col-span-2 space-y-4">
-            <Link href="/" className="inline-block">
-              <Image
-                src="/logos.png"
-                alt="OpenTreatment"
-                width={120}
-                height={120}
-                className="w-24 h-24"
-                priority
+    <footer className="relative overflow-hidden bg-[rgba(0,22,26,1)] h-[520px] w-full text-white">
+      {/* Main Content */}
+      <div className="w-[1280px] h-[448px] pt-[48px] pb-[32px] flex flex-col gap-[24px] opacity-100 mx-auto">
+        {/* Content Row */}
+        <div className="flex justify-between px-[72px]">
+          {/* Left */}
+          <div className="w-[452px]">
+            <div className="flex items-start gap-[12px] mb-4">
+              <img
+                src="/logo.png"
+                className="w-[51px] h-[72px] object-contain"
               />
-            </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-              OpenTreatment helps patients compare doctors, hospitals,
-              pharmacies, and labs with full price transparency — so you can
-              choose the right care, before you start.
+
+              <span
+                className='
+      font-["Plus_Jakarta_Sans"]
+      font-[700]
+      text-[24px]
+      leading-[32px]
+      text-white
+      mt-[18px]
+    '
+              >
+                OpenTreatment
+              </span>
+            </div>
+
+            <p className='w-[414px] text-[18px] leading-[28px] font-["Plus_Jakarta_Sans"] text-[rgba(199,210,216,1)]'>
+              Your trusted healthcare marketplace for transparent pricing and
+              verified providers.
             </p>
 
-            <Link
-              href="/search"
-              className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Search & Compare Now
-            </Link>
+            <div className="flex gap-3 mt-6">
+              <div className="w-8 h-8 rounded-full border border-white/30" />
+              <div className="w-8 h-8 rounded-full border border-white/30" />
+              <div className="w-8 h-8 rounded-full border border-white/30" />
+              <div className="w-8 h-8 rounded-full border border-white/30" />
+            </div>
           </div>
 
-          {/* Product */}
-          <div>
-            <h4 className="text-sm font-semibold mb-4 text-foreground">
-              Product
-            </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Compare Costs
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Find Nearby Care
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Book Appointments
-                </a>
-              </li>
-            </ul>
-          </div>
+          {/* Right Columns */}
+          <div className="flex gap-[96px] text-[rgba(199,210,216,1)]">
+            <div>
+              <h4 className="text-white mb-4">Product</h4>
+              <p>How it Works</p>
+              <p>For Providers</p>
+              <p>Pricing</p>
+              <p>Mobile App</p>
+            </div>
 
-          {/* Company */}
-          <div>
-            <h4 className="text-sm font-semibold mb-4 text-foreground">
-              Company
-            </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Contact
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Careers
-                </a>
-              </li>
-            </ul>
-          </div>
+            <div>
+              <h4 className="text-white mb-4">Marketplace</h4>
+              <p>Find Doctors</p>
+              <p>Find Hospitals</p>
+              <p>Find Labs</p>
+              <p>Compare Prices</p>
+            </div>
 
-          {/* Legal */}
-          <div>
-            <h4 className="text-sm font-semibold mb-4 text-foreground">Legal</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Terms of Service
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Data Protection
-                </a>
-              </li>
-            </ul>
+            <div>
+              <h4 className="text-white mb-4">Support</h4>
+              <p>Help Center</p>
+              <p>Contact US</p>
+              <p>Terms of Service</p>
+              <p>Privacy Policy</p>
+              <p className="mt-4">📞 99123-45678</p>
+              <p>✉️ support@opentreatment.com</p>
+            </div>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-12 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} OpenTreatment. All rights reserved.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Built for transparency in healthcare.
-          </p>
+        {/* Divider Wrapper (Separate Div) */}
+        <div className="px-[72px] mt-[12px]">
+          <div className="h-px bg-white/20 mb-3" />
+          <div className="flex justify-between text-sm text-[rgba(199,210,216,1)]">
+            <span>© 2026 OpenTreatment. All rights reserved.</span>
+            <span>📍 Serving 50+ cities across India</span>
+          </div>
         </div>
+      </div>
+
+      {/* Big Gradient Text */}
+      {/* Big Gradient Text Wrapper */}
+      <div className="absolute bottom-[30px] left-[70px] w-[1294px] h-[194px] flex items-center overflow-hidden">
+        <h1
+          className='
+      w-full
+      font-["Plus_Jakarta_Sans"]
+      font-[800]
+      text-[162px]
+      leading-[120%]
+      bg-gradient-to-r from-[#39A4EC] to-[#55B685]
+      bg-clip-text text-transparent
+      pointer-events-none
+      text-left
+    '
+        >
+          OpenTreatment
+        </h1>
       </div>
     </footer>
   );
