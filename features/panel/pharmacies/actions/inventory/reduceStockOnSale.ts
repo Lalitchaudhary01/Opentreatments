@@ -1,6 +1,7 @@
 "use server";
 
-import  prisma  from "@/lib/prisma";
+import prisma from "@/lib/prisma";
+import { InventoryChangeType } from "@prisma/client";
 
 export async function reduceStockOnSale(
   pharmacyId: string,
@@ -28,7 +29,7 @@ export async function reduceStockOnSale(
         pharmacyId,
         medicineId: entry.medicineId,
         stockEntryId: entry.id,
-        changeType: "OUT",
+        changeType: InventoryChangeType.SALE,
         quantityChanged: quantity,
         note: "Reduced on sale",
       },
