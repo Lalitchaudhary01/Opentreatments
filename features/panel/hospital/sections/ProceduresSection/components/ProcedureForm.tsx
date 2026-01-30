@@ -15,7 +15,9 @@ export default function ProcedureForm({
 }) {
   const [name, setName] = useState(initial?.name || "");
   const [description, setDescription] = useState(initial?.description || "");
-  const [cost, setCost] = useState<number | undefined>(initial?.cost);
+  const [cost, setCost] = useState<number | undefined>(
+    initial?.cost != null ? initial.cost : undefined
+  );
   const [loading, setLoading] = useState(false);
 
   const submit = async () => {
