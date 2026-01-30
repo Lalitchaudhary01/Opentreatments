@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { StockType } from "@prisma/client";
+import { InventoryChangeType, StockType } from "@prisma/client";
 import { StockEntryInput } from "../../types/pharmacyInventory";
 
 export async function addStockEntry(pharmacyId: string, data: StockEntryInput) {
@@ -24,7 +24,7 @@ export async function addStockEntry(pharmacyId: string, data: StockEntryInput) {
         pharmacyId,
         medicineId: data.medicineId,
         stockEntryId: entry.id,
-        changeType: "IN",
+        changeType: InventoryChangeType.MANUAL_ADJUSTMENT,
         quantityChanged: data.quantity,
         note: "Stock added",
       },
