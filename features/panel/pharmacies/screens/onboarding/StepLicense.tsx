@@ -1,6 +1,8 @@
 "use client";
 
-import { PharmacyProfileInput } from "@/features/panel/pharmacy/types";
+import { PharmacyProfileInput } from "../../types";
+
+
 
 interface Props {
   value: Partial<PharmacyProfileInput>;
