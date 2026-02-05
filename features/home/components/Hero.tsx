@@ -24,6 +24,7 @@ import HowItWorksSection from "./HowItWorksSection";
 import FAQSection from "./FAQ";
 import WhoIsThisPlatform from "./ServicePage";
 import FeaturedProviders from "./featured-providers";
+import HowItWorks from "./HowItWorksSection";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
@@ -288,6 +289,7 @@ export default function HeroSection() {
       {/* Rest of your sections */}
       <WhoIsThisPlatform />
       <FeaturedProviders />
+      <HowItWorks />
       <WhyOpenTreatment />
       {/* <GallerySection />
       <FeaturesSection /> */}

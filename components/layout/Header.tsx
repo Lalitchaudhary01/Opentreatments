@@ -247,3 +247,59 @@ const Header = ({ showNav = true }: HeaderProps) => {
 };
 
 export default Header;
+
+// "use client";
+
+// import Image from "next/image";
+// import Link from "next/link";
+// import { ChevronDown, Search } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+
+// export default function Navbar() {
+//   const navLinks = [
+//     "Doctors",
+//     "Hospitals",
+//     "Pharmacies",
+//     "Labs",
+//     "How it works",
+//   ];
+
+//   return (
+//     <header className="w-full border-b bg-white">
+//       <div className="mx-auto max-w-[1287px] h-[72px] flex items-center justify-between px-6">
+//         {/* Logo */}
+//         <Link href="/" className="flex items-center">
+//           <Image
+//             src="/logo.png"
+//             alt="Open Treatment"
+//             width={132}
+//             height={72}
+//             priority
+//           />
+//         </Link>
+
+//         {/* Center Links */}
+//         <nav className="hidden md:flex items-center gap-[40px]">
+//           {navLinks.map((item) => (
+//             <div
+//               key={item}
+//               className="flex items-center gap-1 text-[14px] font-medium text-gray-700 cursor-pointer"
+//             >
+//               {item}
+//               <ChevronDown className="w-4 h-4" />
+//             </div>
+//           ))}
+//         </nav>
+
+//         {/* Right Actions */}
+//         <div className="flex items-center gap-6">
+//           <Search className="w-5 h-5 text-gray-700 cursor-pointer" />
+
+//           <Button className="h-[48px] px-6 rounded-full bg-[#39A4F0] hover:bg-[#2d8fd6] text-white text-sm font-medium">
+//             Sign up
+//           </Button>
+//         </div>
+//       </div>
+//     </header>
+//   );
+// }
