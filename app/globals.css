@@ -180,3 +180,7 @@ body {
 .animate-scroll-left:hover {
   animation-play-state: paused;
 }
+
+/* Tailwind arbitrary values use kiye hain inline style mein */
+background-size: 40px 40px;
+opacity: 0.03; /* bahut light grid */

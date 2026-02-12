@@ -26,6 +26,7 @@ import WhoIsThisPlatform from "./ServicePage";
 import FeaturedProviders from "./featured-providers";
 import HowItWorks from "./HowItWorksSection";
 import SearchSection from "./SearchSection";
+import PriceTransparency from "./PriceTransparency";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
@@ -289,17 +290,18 @@ export default function HeroSection() {
       </motion.section>
       {/* Rest of your sections */}
       <SearchSection/>
-      <WhoIsThisPlatform />
+      {/* <WhoIsThisPlatform /> */}
       <FeaturedProviders />
       <HowItWorks />
-      <WhyOpenTreatment />
+      <PriceTransparency/>
+      {/* <WhyOpenTreatment /> */}
       {/* <GallerySection />
       <FeaturesSection /> */}
       {/* <StatsSection /> */}
       {/* <HowItWorksSection /> */}
       <FAQSection />
       <TestimonialsSection />
-      <BlogSection />
+      {/* <BlogSection /> */}
       <CTASection />
       <Footer />
     </div>
