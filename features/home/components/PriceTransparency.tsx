@@ -1,5 +1,7 @@
 // components/PriceTransparency.tsx
-import { Check, FileText, Stethoscope, CreditCard, IndianRupee } from "lucide-react";
+"use client";
+
+import { Check, FileText, Stethoscope, CreditCard } from "lucide-react";
 
 const features = [
   "All prices displayed upfront before booking",
@@ -17,17 +19,55 @@ const priceItems = [
 export default function PriceTransparency() {
   return (
     <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
-      {/* Grid Background Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, #000 1px, transparent 1px),
-            linear-gradient(to bottom, #000 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px'
-        }}
-      />
+      {/* Isometric Grid Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* 3D Perspective Container */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            perspective: '1000px',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          {/* Grid Container with rotation */}
+          <div 
+            className="absolute inset-0 animate-grid-float"
+            style={{
+              transform: 'rotateX(60deg) rotateZ(-45deg) scale(2)',
+              transformOrigin: 'center center',
+            }}
+          >
+            {/* Vertical Lines */}
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #3b82f6 1px, transparent 1px)',
+                backgroundSize: '60px 100%',
+              }}
+            />
+            {/* Horizontal Lines */}
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: 'linear-gradient(to bottom, #3b82f6 1px, transparent 1px)',
+                backgroundSize: '100% 60px',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Fade masks - Center clear, edges fade */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 60% at 50% 40%, transparent 0%, transparent 40%, white 100%),
+              linear-gradient(to top, white 0%, transparent 30%, transparent 70%, white 100%),
+              linear-gradient(to right, white 0%, transparent 20%, transparent 80%, white 100%)
+            `,
+          }}
+        />
+      </div>
       
       <div className="relative max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -59,7 +99,7 @@ export default function PriceTransparency() {
 
           {/* Right Side - Price Card */}
           <div className="relative">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
               {/* Card Header */}
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">

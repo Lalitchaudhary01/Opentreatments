@@ -181,6 +181,16 @@ body {
   animation-play-state: paused;
 }
 
-/* Tailwind arbitrary values use kiye hain inline style mein */
-background-size: 40px 40px;
-opacity: 0.03; /* bahut light grid */
+/* hero  price*/
+@keyframes grid-float {
+  0%, 100% {
+    transform: rotateX(60deg) rotateZ(-45deg) scale(2) translateY(0);
+  }
+  50% {
+    transform: rotateX(60deg) rotateZ(-45deg) scale(2) translateY(-20px);
+  }
+}
+
+.animate-grid-float {
+  animation: grid-float 8s ease-in-out infinite;
+}
