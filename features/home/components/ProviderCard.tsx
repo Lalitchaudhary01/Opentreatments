@@ -33,27 +33,28 @@ export default function ProviderCard({
 
       {/* 🔥 STACK LAYERS */}
       {stacked && (
-        <>
-          <div className="absolute -top-6 left-0 w-full h-full 
-            rounded-[17px] bg-white border border-[#A4C2D4]
-            shadow-[1px_3px_17px_rgba(81,104,145,0.08)]
-            blur-[1.2px] opacity-60"
-          />
+  <>
+    {/* Layer 1 - deepest */}
+    <div className="absolute -top-6 -right-4 w-full h-full 
+      rounded-[17px] bg-white border border-[#A4C2D4]
+      shadow-[1px_3px_17px_rgba(81,104,145,0.08)]
+      opacity-40"
+    />
 
-          <div className="absolute -top-3 left-0 w-full h-full 
-            rounded-[17px] bg-white border border-[#A4C2D4]
-            shadow-[1px_3px_17px_rgba(81,104,145,0.08)]
-            blur-[0.6px] opacity-80"
-          />
-        </>
-      )}
-
+    {/* Layer 2 - middle */}
+    <div className="absolute -top-3 -right-2 w-full h-full 
+      rounded-[17px] bg-white border border-[#A4C2D4]
+      shadow-[1px_3px_17px_rgba(81,104,145,0.08)]
+      opacity-70"
+    />
+  </>
+)}
       {/* MAIN CARD */}
       <div className="relative z-10 flex gap-4 p-4 rounded-[17px] 
         bg-white border border-[#A4C2D4] 
         shadow-[1px_3px_17px_rgba(81,104,145,0.08)]">
 
-        <div className="w-[146px] h-[152px] bg-gray-200 rounded-xl relative overflow-hidden">
+        <div className="w-[146px] h-[180px] bg-gray-200 rounded-xl relative overflow-hidden">
           <Image
   src={image}
   alt={name}
@@ -108,9 +109,9 @@ export default function ProviderCard({
             <span className="text-[24px] font-extrabold text-[#1961FF]">
               {price}
             </span>
-            <span className="text-[12px] text-[#6B7280]">
+            {/* <span className="text-[12px] text-[#6B7280]">
               Onwards
-            </span>
+            </span> */}
           </div>
         </div>
 

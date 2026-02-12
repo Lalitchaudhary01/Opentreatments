@@ -1,7 +1,8 @@
 "use client"
 
-import { CheckCircle, Search as SearchIcon } from "lucide-react"
+import { CheckCircle, IndianRupee, Search as SearchIcon } from "lucide-react"
 import ProviderCard from "./ProviderCard"
+import Image from "next/image"
 
 export default function SearchSection() {
   return (
@@ -18,15 +19,30 @@ export default function SearchSection() {
 
             <div className="flex items-center gap-6 text-[15px] text-[#6B7280]">
               <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-[#16A34A]" />
+                <Image
+  src="/icons/rupee-waves.svg"
+  alt="rupee"
+  width={20}
+  height={20}
+/>
                 Transparent prices
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-[#16A34A]" />
+                <Image
+  src="/icons/hugeicons_id-verified.svg"
+  alt="rupee"
+  width={20}
+  height={20}
+/>
                 Verified providers
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-[#16A34A]" />
+                <Image
+  src="/icons/uil_calender.svg"
+  alt="rupee"
+  width={20}
+  height={20}
+/>
                 Quick booking
               </div>
             </div>
