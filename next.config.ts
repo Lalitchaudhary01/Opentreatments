@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "ik.imagekit.io",
-        pathname: "**",
+        pathname: "**", // allow all image paths
       },
       {
         protocol: "https",
@@ -15,20 +15,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
     },
-  },
-
-  // 🔥 ADD THIS FOR SVG IMPORT AS COMPONENT
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
-    return config;
   },
 };
 
