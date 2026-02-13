@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Menu, X, Search } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import ThemeToggleButton from "../ui/theme-toggle-button";
+import Link from "next/link";
+import { ChevronDown, Search, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useSession, signOut } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,21 +15,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signOut } from "next-auth/react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface HeaderProps {
-  showNav?: boolean; // 👈 control visibility of nav items
-}
-
-const Header = ({ showNav = true }: HeaderProps) => {
+export default function Navbar() {
+  const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: session } = useSession();
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Same routes as Header component
+  const navLinks = [
+    { name: "Doctors", href: "/user/doctors" },
+    { name: "Hospitals", href: "/user/hospitals" },
+    { name: "Pharmacies", href: "/user/pharmacy" },
+    { name: "Labs", href: "/user/labs" },
+    { name: "How it works", href: "/user/how-it-works" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -56,13 +59,6 @@ const Header = ({ showNav = true }: HeaderProps) => {
 
   const user = session?.user;
 
-  const navItems = [
-    { name: "Doctors", href: "/user/doctors" },
-    { name: "Hospitals", href: "/user/hospitals" },
-    { name: "Medicines", href: "/user/pharmacy" },
-    { name: "Insurance", href: "/user/insurance-companies" },
-  ];
-
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -76,230 +72,224 @@ const Header = ({ showNav = true }: HeaderProps) => {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "bg-background/80 backdrop-blur-md border-b" : ""
+          isScrolled ? "bg-white/80 backdrop-blur-md border-b shadow-md" : "bg-white"
         }`}
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* LOGO */}
-            <Link href="/">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={190}
-                height={190}
-                className="w-32 h-32 md:w-40 md:h-40"
-                priority
-              />
-            </Link>
+        <div className="mx-auto max-w-[1287px] h-[72px] flex items-center justify-between px-6">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Open Treatment"
+              width={132}
+              height={72}
+              priority
+            />
+          </Link>
 
-            {/* DESKTOP NAV */}
-            {showNav && (
-              <nav className="hidden md:flex items-center gap-6">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
-            )}
-
-            {/* DESKTOP MENU */}
-            <nav className="hidden md:flex items-center gap-6">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsSearchOpen(true)}
-                className="relative group bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-100 dark:via-white dark:to-slate-100 text-white dark:text-black border-slate-700 dark:border-slate-300 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 dark:hover:from-slate-200 dark:hover:via-slate-100 dark:hover:to-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          {/* Center Links - Desktop */}
+          <nav className="hidden md:flex items-center gap-[40px]">
+            {navLinks.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex items-center gap-1 text-[14px] font-medium text-gray-700 hover:text-[#39A4F0] transition-colors cursor-pointer"
               >
-                <Search className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                <span className="font-medium">Search</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </Button>
+                {item.name}
+                <ChevronDown className="w-4 h-4" />
+              </Link>
+            ))}
+          </nav>
 
-              <ThemeToggleButton />
+          {/* Right Actions - Desktop */}
+          <div className="hidden md:flex items-center gap-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSearchOpen(true)}
+              className="relative group bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white border-slate-700 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 h-[40px] px-4 rounded-full"
+            >
+              <Search className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              <span className="font-medium text-sm">Search</span>
+            </Button>
 
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer">
-                      <AvatarImage
-                        src={user.image || ""}
-                        alt={user.name || ""}
-                      />
-                      <AvatarFallback>
-                        {user?.name?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{user.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {user.email}
-                        </span>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={`/${session?.user?.id}/user`}
-                        className="w-full cursor-pointer"
-                      >
-                        My Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => signOut({ callbackUrl: "/auth" })}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer w-10 h-10 border-2 border-[#39A4F0]">
+                    <AvatarImage src={user.image || ""} alt={user.name || ""} />
+                    <AvatarFallback className="bg-[#39A4F0] text-white">
+                      {user?.name?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/${user.id}/user`}
+                      className="w-full cursor-pointer"
                     >
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                    onClick={() => signOut({ callbackUrl: "/auth" })}
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                className="h-[48px] px-6 rounded-full bg-[#39A4F0] hover:bg-[#2d8fd6] text-white text-sm font-medium"
+                asChild
+              >
+                <Link href="/auth">Sign up</Link>
+              </Button>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsSearchOpen(true)}
+              className="bg-gradient-to-r from-slate-900 to-slate-800 text-white border-slate-700 hover:scale-105 transition-transform duration-300"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
               ) : (
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="text-lg bg-[#10B981] hover:bg-[#0ea271] text-white"
-                >
-                  <Link href="/auth">Login / Signup</Link>
-                </Button>
+                <Menu className="w-5 h-5" />
               )}
-            </nav>
-
-            {/* MOBILE MENU BUTTON */}
-            <div className="md:hidden flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setIsSearchOpen(true)}
-                className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-100 dark:to-white text-white dark:text-black border-slate-700 dark:border-slate-300 hover:scale-105 transition-transform duration-300"
-              >
-                <Search className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </Button>
-            </div>
+            </Button>
           </div>
         </div>
 
-        {/* MOBILE NAV */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t bg-background"
+              className="md:hidden border-t bg-white"
             >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-                {showNav &&
-                  navItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="text-sm font-medium py-2 transition-colors hover:text-primary"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+              <nav className="px-6 py-4 flex flex-col gap-4">
+                {navLinks.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="text-[14px] font-medium text-gray-700 py-2 hover:text-[#39A4F0] transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
 
                 <div className="border-t pt-4 mt-2">
-                  <ThemeToggleButton />
+                  {user ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={user.image || ""} alt={user.name || ""} />
+                          <AvatarFallback className="bg-[#39A4F0] text-white">
+                            {user?.name?.charAt(0).toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-sm">{user.name}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
+                        </div>
+                      </div>
+                      <Link
+                        href={`/${user.id}/user`}
+                        className="text-sm font-medium text-gray-700 py-2"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        My Profile
+                      </Link>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          signOut({ callbackUrl: "/auth" });
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        Logout
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      className="w-full h-[48px] rounded-full bg-[#39A4F0] hover:bg-[#2d8fd6] text-white text-sm font-medium"
+                      asChild
+                    >
+                      <Link href="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                        Login / Signup
+                      </Link>
+                    </Button>
+                  )}
                 </div>
-
-                {user ? (
-                  <Button
-                    variant="destructive"
-                    onClick={() => signOut({ callbackUrl: "/auth/login" })}
-                  >
-                    Logout
-                  </Button>
-                ) : (
-                  <Button variant="default">
-                    <Link href="/auth">Login / Signup</Link>
-                  </Button>
-                )}
               </nav>
             </motion.div>
           )}
         </AnimatePresence>
       </header>
+
+      {/* Search Modal */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/50 flex items-start justify-center pt-32"
+            onClick={() => setIsSearchOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <form onSubmit={handleSearch} className="flex items-center gap-4">
+                <Search className="w-6 h-6 text-gray-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search doctors, hospitals, medicines..."
+                  className="flex-1 text-lg outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Button type="submit" className="bg-[#39A4F0] hover:bg-[#2d8fd6]">
+                  Search
+                </Button>
+              </form>
+              <p className="text-xs text-gray-500 mt-2">Press ESC to close</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
-};
-
-export default Header;
-
-// "use client";
-
-// import Image from "next/image";
-// import Link from "next/link";
-// import { ChevronDown, Search } from "lucide-react";
-// import { Button } from "@/components/ui/button";
-
-// export default function Navbar() {
-//   const navLinks = [
-//     "Doctors",
-//     "Hospitals",
-//     "Pharmacies",
-//     "Labs",
-//     "How it works",
-//   ];
-
-//   return (
-//     <header className="w-full border-b bg-white">
-//       <div className="mx-auto max-w-[1287px] h-[72px] flex items-center justify-between px-6">
-//         {/* Logo */}
-//         <Link href="/" className="flex items-center">
-//           <Image
-//             src="/logo.png"
-//             alt="Open Treatment"
-//             width={132}
-//             height={72}
-//             priority
-//           />
-//         </Link>
-
-//         {/* Center Links */}
-//         <nav className="hidden md:flex items-center gap-[40px]">
-//           {navLinks.map((item) => (
-//             <div
-//               key={item}
-//               className="flex items-center gap-1 text-[14px] font-medium text-gray-700 cursor-pointer"
-//             >
-//               {item}
-//               <ChevronDown className="w-4 h-4" />
-//             </div>
-//           ))}
-//         </nav>
-
-//         {/* Right Actions */}
-//         <div className="flex items-center gap-6">
-//           <Search className="w-5 h-5 text-gray-700 cursor-pointer" />
-
-//           <Button className="h-[48px] px-6 rounded-full bg-[#39A4F0] hover:bg-[#2d8fd6] text-white text-sm font-medium">
-//             Sign up
-//           </Button>
-//         </div>
-//       </div>
-//     </header>
-//   );
-// }
+}
