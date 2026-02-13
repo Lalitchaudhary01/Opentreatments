@@ -17,7 +17,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+// Add this interface
+interface NavbarProps {
+  showNav?: boolean;
+}
+
+export default function Navbar({ showNav = true }: NavbarProps) {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -25,7 +30,6 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Same routes as Header component
   const navLinks = [
     { name: "Doctors", href: "/user/doctors" },
     { name: "Hospitals", href: "/user/hospitals" },
@@ -79,7 +83,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo.png"
+              src="/logos.png"
               alt="Open Treatment"
               width={132}
               height={72}
@@ -87,19 +91,21 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Center Links - Desktop */}
-          <nav className="hidden md:flex items-center gap-[40px]">
-            {navLinks.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="flex items-center gap-1 text-[14px] font-medium text-gray-700 hover:text-[#39A4F0] transition-colors cursor-pointer"
-              >
-                {item.name}
-                <ChevronDown className="w-4 h-4" />
-              </Link>
-            ))}
-          </nav>
+          {/* Center Links - Desktop (Conditional) */}
+          {showNav && (
+            <nav className="hidden md:flex items-center gap-[40px]">
+              {navLinks.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="flex items-center gap-1 text-[14px] font-medium text-gray-700 hover:text-[#39A4F0] transition-colors cursor-pointer"
+                >
+                  {item.name}
+                  <ChevronDown className="w-4 h-4" />
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Right Actions - Desktop */}
           <div className="hidden md:flex items-center gap-6">
@@ -184,7 +190,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (Conditional nav links) */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -194,7 +200,7 @@ export default function Navbar() {
               className="md:hidden border-t bg-white"
             >
               <nav className="px-6 py-4 flex flex-col gap-4">
-                {navLinks.map((item) => (
+                {showNav && navLinks.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
@@ -205,7 +211,7 @@ export default function Navbar() {
                   </Link>
                 ))}
 
-                <div className="border-t pt-4 mt-2">
+                <div className={`border-t pt-4 mt-2 ${!showNav ? 'border-0' : ''}`}>
                   {user ? (
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center gap-3">

@@ -14,12 +14,12 @@ const Footer = () => {
           <div className="w-full lg:w-[400px] xl:w-[452px] flex flex-col gap-5 lg:gap-[31px]">
             <div className="flex items-center gap-3 sm:gap-[16px]">
               <Image
-                src="/logo.png"
-                alt="Open Treatment"
-                width={51}
-                height={72}
-                className="w-[40px] h-auto sm:w-[45px] lg:w-[51px]"
-              />
+  src="/logo.png"
+  alt="Open Treatment"
+  width={91}
+  height={72}
+  className="w-[60px] h-auto sm:w-[72px] lg:w-[91px]"
+/>
               <span className="text-xl sm:text-[22px] lg:text-[24px] font-bold leading-tight lg:leading-[32px] text-[#ECF5FF]">
                 Open Treatment
               </span>
