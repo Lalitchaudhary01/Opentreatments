@@ -304,7 +304,7 @@ export default function HeroSection() {
       <FAQSection />
       <TestimonialsSection />
       {/* <BlogSection /> */}
-      <CTASection />
+      {/* <CTASection /> */}
       <Footer />
     </div>
   );
