@@ -1,9 +1,8 @@
 "use server";
 
+import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { updateDoctorProfileService } 
-  from "../services/updateDoctorProfile.service";
 import { SubmitDoctorProfileInput } from "../types";
 
 export async function updateDoctorProfile(
@@ -11,9 +10,28 @@ export async function updateDoctorProfile(
 ) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
+  if (!session || !session.user?.id) {
     throw new Error("Unauthorized");
   }
 
-  return updateDoctorProfileService(session.user.id, data);
+  const doctor = await prisma.independentDoctor.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  if (!doctor) {
+    throw new Error("Profile not found.");
+  }
+
+  if (doctor.status !== "APPROVED") {
+    throw new Error("Only APPROVED doctors can edit their profile.");
+  }
+
+  const updated = await prisma.independentDoctor.update({
+    where: { userId: session.user.id },
+    data: {
+      ...data,
+    },
+  });
+
+  return updated;
 }
