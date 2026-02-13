@@ -194,3 +194,18 @@ body {
 .animate-grid-float {
   animation: grid-float 8s ease-in-out infinite;
 }
+
+/* compare price */
+/* globals.css mein animation add kar */
+@keyframes grid-float {
+  0%, 100% {
+    transform: rotateX(55deg) rotateZ(-45deg) translateY(0);
+  }
+  50% {
+    transform: rotateX(55deg) rotateZ(-45deg) translateY(-15px);
+  }
+}
+
+.animate-grid-float {
+  animation: grid-float 6s ease-in-out infinite;
+}

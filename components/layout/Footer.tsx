@@ -5,11 +5,11 @@ const Footer = () => {
   return (
     <footer className="relative bg-[#00161A] overflow-hidden text-white">
 
-      {/* Responsive Height */}
-      <div className="relative min-h-[560px] h-auto md:h-[560px]">
+      {/* Responsive Height - Increased for more space */}
+      <div className="relative min-h-[600px] h-auto md:h-[650px]">
 
         {/* Main Content */}
-        <div className="relative z-10 max-w-[1280px] mx-auto px-4 sm:px-6 md:px-[72px] py-8 md:pt-[48px] md:pb-[80px] flex flex-col gap-6 md:gap-[32px]">
+        <div className="relative z-10 max-w-[1280px] mx-auto px-4 sm:px-6 md:px-[72px] py-8 md:pt-[48px] md:pb-[40px] flex flex-col gap-6 md:gap-[32px]">
 
           {/* Top Row - Stack on mobile */}
           <div className="flex flex-col lg:flex-row justify-between gap-8 lg:gap-[113px]">
@@ -97,18 +97,20 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-[#32505D] pt-5 md:pt-[24px] flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 text-sm md:text-[18px] text-[#9FB0B9]">
+        </div>
+
+        {/* Bottom Section - Copyright pushed down */}
+        <div className="absolute bottom-[120px] md:bottom-[140px] left-0 right-0 z-10 px-4 sm:px-6 md:px-[72px]">
+          <div className="max-w-[1280px] mx-auto border-t border-[#32505D] pt-5 md:pt-[24px] flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 text-sm md:text-[18px] text-[#9FB0B9]">
             <span>© 2026 OpenTreatment. All rights reserved.</span>
             <span className="text-[#C7D2D8]">
               Serving 50+ cities across India
             </span>
           </div>
-
         </div>
 
-        {/* Big Background Text - Responsive */}
-        <div className="absolute left-4 sm:left-[72px] bottom-[-5px] pointer-events-none select-none opacity-30 md:opacity-100">
+        {/* Big Background Text - Moved further down */}
+        <div className="absolute left-4 sm:left-[72px] bottom-[-20px] md:bottom-[-40px] pointer-events-none select-none">
           <h1 className="
             text-4xl sm:text-6xl md:text-7xl lg:text-[162px]
             font-extrabold
@@ -120,6 +122,7 @@ const Footer = () => {
             bg-clip-text
             text-transparent
             whitespace-nowrap
+            opacity-90
           ">
             Open Treatment
           </h1>
