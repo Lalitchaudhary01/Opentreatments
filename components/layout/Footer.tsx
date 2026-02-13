@@ -2,6 +2,13 @@ import Image from "next/image";
 import React from "react";
 
 const Footer = () => {
+  const socialLinks = [
+    { name: "Instagram", icon: "/insta.svg", href: "#" },
+    { name: "Twitter", icon: "/x.svg", href: "#" },
+    { name: "LinkedIn", icon: "/linkedin.svg", href: "#" },
+    { name: "Facebook", icon: "/facebook.svg", href: "#" },
+  ];
+
   return (
     <footer className="relative bg-[#00161A] overflow-hidden text-white">
       {/* Main Container - No fixed heights, natural flow */}
@@ -14,12 +21,12 @@ const Footer = () => {
           <div className="w-full lg:w-[400px] xl:w-[452px] flex flex-col gap-5 lg:gap-[31px]">
             <div className="flex items-center gap-3 sm:gap-[16px]">
               <Image
-  src="/logo.png"
-  alt="Open Treatment"
-  width={91}
-  height={72}
-  className="w-[60px] h-auto sm:w-[72px] lg:w-[91px]"
-/>
+                src="/logo.png"
+                alt="Open Treatment"
+                width={51}
+                height={72}
+                className="w-[40px] h-auto sm:w-[45px] lg:w-[51px]"
+              />
               <span className="text-xl sm:text-[22px] lg:text-[24px] font-bold leading-tight lg:leading-[32px] text-[#ECF5FF]">
                 Open Treatment
               </span>
@@ -31,11 +38,23 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-3 sm:gap-[16px]">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="w-10 h-10 sm:w-[44px] sm:h-[44px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#18323A] hover:bg-[#39A4EC] transition-colors duration-200 cursor-pointer"
-                />
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="w-10 h-10 sm:w-[44px] sm:h-[44px] lg:w-[48px] lg:h-[48px] rounded-full bg-[#18323A] hover:bg-[#39A4EC] transition-colors duration-200 cursor-pointer flex items-center justify-center overflow-hidden"
+                >
+                  <Image
+                    src={social.icon}
+                    alt={social.name}
+                    width={24}
+                    height={24}
+                    className="w-5 h-5 sm:w-6 sm:h-6 object-contain filter brightness-0 invert"
+                  />
+                </a>
               ))}
             </div>
           </div>
