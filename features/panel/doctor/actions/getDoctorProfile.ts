@@ -1,19 +1,15 @@
 "use server";
 
-import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { getDoctorProfileService } from "../services/getDoctorProfile.service";
 
 export async function getDoctorProfile() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user?.id) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
-  const doctor = await prisma.independentDoctor.findUnique({
-    where: { userId: session.user.id },
-  });
-
-  return doctor;
+  return getDoctorProfileService(session.user.id);
 }

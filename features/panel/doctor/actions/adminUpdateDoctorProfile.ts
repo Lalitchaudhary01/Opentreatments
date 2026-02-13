@@ -1,8 +1,12 @@
 "use server";
 
-import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import {
+  adminUpdateDoctorService,
+  adminDeleteDoctorService,
+  adminUpdateDoctorStatusService
+} from "../services/adminUpdateDoctorProfile.service";
 import { DoctorStatus, AdminUpdateDoctorInput } from "../types";
 
 async function ensureAdmin() {
@@ -15,27 +19,17 @@ async function ensureAdmin() {
   return session;
 }
 
-export async function adminUpdateDoctor(data: AdminUpdateDoctorInput) {
+export async function adminUpdateDoctor(
+  data: AdminUpdateDoctorInput
+) {
   await ensureAdmin();
-
   const { doctorId, ...rest } = data;
-
-  const updated = await prisma.independentDoctor.update({
-    where: { id: doctorId },
-    data: {
-      ...rest,
-    },
-  });
-
-  return updated;
+  return adminUpdateDoctorService(doctorId, rest);
 }
 
 export async function adminDeleteDoctor(doctorId: string) {
   await ensureAdmin();
-
-  return prisma.independentDoctor.delete({
-    where: { id: doctorId },
-  });
+  return adminDeleteDoctorService(doctorId);
 }
 
 export async function adminUpdateDoctorStatus(
@@ -43,9 +37,5 @@ export async function adminUpdateDoctorStatus(
   status: DoctorStatus
 ) {
   await ensureAdmin();
-
-  return prisma.independentDoctor.update({
-    where: { id: doctorId },
-    data: { status },
-  });
+  return adminUpdateDoctorStatusService(doctorId, status);
 }
