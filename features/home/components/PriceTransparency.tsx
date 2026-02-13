@@ -1,4 +1,3 @@
-// components/PriceTransparency.tsx
 "use client";
 
 import { Check, FileText, Stethoscope, CreditCard } from "lucide-react";
@@ -18,61 +17,53 @@ const priceItems = [
 
 export default function PriceTransparency() {
   return (
-    <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
-      {/* Isometric Grid Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* 3D Perspective Container */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            perspective: '1000px',
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          {/* Grid Container with rotation */}
-          <div 
-            className="absolute inset-0 animate-grid-float"
-            style={{
-              transform: 'rotateX(60deg) rotateZ(-45deg) scale(2)',
-              transformOrigin: 'center center',
-            }}
-          >
-            {/* Vertical Lines */}
-            <div 
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage: 'linear-gradient(to right, #3b82f6 1px, transparent 1px)',
-                backgroundSize: '60px 100%',
-              }}
-            />
-            {/* Horizontal Lines */}
-            <div 
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage: 'linear-gradient(to bottom, #3b82f6 1px, transparent 1px)',
-                backgroundSize: '100% 60px',
-              }}
-            />
-          </div>
-        </div>
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gray-50">
 
-        {/* Fade masks - Center clear, edges fade */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: `
-              radial-gradient(ellipse 80% 60% at 50% 40%, transparent 0%, transparent 40%, white 100%),
-              linear-gradient(to top, white 0%, transparent 30%, transparent 70%, white 100%),
-              linear-gradient(to right, white 0%, transparent 20%, transparent 80%, white 100%)
-            `,
-          }}
-        />
+      {/* Healthcare Pattern */}
+      <div className="absolute inset-0 pointer-events-none">
+        <svg
+          className="w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <pattern
+              id="healthcarePattern"
+              width="140"
+              height="140"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="
+                  M35 0 V35 H0 V70 H35 V105 H70 V70 H105 V35 H70 V0 Z
+                  M105 70 V105 H140 V140 H105 V175 H70 V140 H35 V105 H70 V70 Z
+                "
+                fill="none"
+                stroke="#bfdbfe"
+                strokeWidth="1.8"
+              />
+            </pattern>
+
+            {/* Top Fade Mask */}
+            <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="white" stopOpacity="1" />
+              <stop offset="40%" stopColor="white" stopOpacity="0.8" />
+              <stop offset="70%" stopColor="white" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="white" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {/* Pattern */}
+          <rect width="100%" height="100%" fill="url(#healthcarePattern)" />
+
+          {/* Fade Overlay */}
+          <rect width="100%" height="100%" fill="url(#fadeTop)" />
+        </svg>
       </div>
-      
+
       <div className="relative max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
-          {/* Left Side - Content */}
+
+          {/* Left Side */}
           <div className="space-y-8">
             <div className="space-y-4">
               <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
@@ -84,7 +75,6 @@ export default function PriceTransparency() {
               </p>
             </div>
 
-            {/* Features List */}
             <div className="space-y-4">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3">
@@ -97,21 +87,21 @@ export default function PriceTransparency() {
             </div>
           </div>
 
-          {/* Right Side - Price Card */}
+          {/* Right Side Card */}
           <div className="relative">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
-              {/* Card Header */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
+
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
                   <FileText className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Price Breakdown</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  Price Breakdown
+                </h3>
               </div>
 
-              {/* Divider */}
               <div className="h-px bg-gray-100 mb-6" />
 
-              {/* Price Items */}
               <div className="space-y-4 mb-6">
                 {priceItems.map((item, index) => (
                   <div key={index} className="flex items-center justify-between">
@@ -124,16 +114,17 @@ export default function PriceTransparency() {
                 ))}
               </div>
 
-              {/* Divider */}
               <div className="h-px bg-gray-100 mb-6" />
 
-              {/* Total */}
               <div className="flex items-center justify-between mb-6">
-                <span className="text-lg font-bold text-gray-900">Total Payable</span>
-                <span className="text-2xl font-bold text-blue-600">₹1,350</span>
+                <span className="text-lg font-bold text-gray-900">
+                  Total Payable
+                </span>
+                <span className="text-2xl font-bold text-blue-600">
+                  ₹1,350
+                </span>
               </div>
 
-              {/* Bottom Message */}
               <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
                 <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                   <Check className="w-5 h-5 text-green-600" strokeWidth={3} />
@@ -144,8 +135,7 @@ export default function PriceTransparency() {
               </div>
             </div>
 
-            {/* Decorative blur effect behind card */}
-            <div className="absolute -inset-4 bg-blue-100 rounded-3xl blur-3xl opacity-20 -z-10" />
+            <div className="absolute -inset-6 bg-blue-100 rounded-3xl blur-3xl opacity-20 -z-10" />
           </div>
 
         </div>
