@@ -1,48 +1,18 @@
 "use server";
 
-import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { SubmitDoctorProfileInput, DoctorStatus } from "../types";
+import { SubmitDoctorProfileInput } from "../types";
+import { submitDoctorProfileService } from "../services/submitDoctorProfile.service";
 
 export async function submitDoctorProfile(
   data: Partial<SubmitDoctorProfileInput>
 ) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user?.id) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
-  if (!data.name || !data.specialization) {
-    throw new Error("Name and specialization are required");
-  }
-
-  const existing = await prisma.independentDoctor.findUnique({
-    where: { userId: session.user.id },
-  });
-
-  if (existing) {
-    throw new Error("Profile already exists.");
-  }
-
-  const doctor = await prisma.independentDoctor.create({
-    data: {
-      userId: session.user.id,
-      name: data.name,
-      specialties: data.specialties || [],
-      specialization: data.specialization,
-      experience: data.experience,
-      gender: data.gender,
-      profilePic: data.profilePic,
-      fees: data.fees,
-      languages: data.languages || [],
-      availability: data.availability,
-      badges: data.badges || [],
-      city: data.city,
-      status: DoctorStatus.PENDING,
-    },
-  });
-
-  return doctor;
+  return submitDoctorProfileService(session.user.id, data);
 }
