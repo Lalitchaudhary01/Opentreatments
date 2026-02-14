@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/avatar";
 
 const testimonials = [
-  // ✅ same data as yours (unchanged)
   {
     id: 1,
     name: "Meera Jain",
@@ -67,22 +66,22 @@ function TestimonialCard({
   testimonial: typeof testimonials[0];
 }) {
   return (
-    <Card className="flex-shrink-0 w-[400px] rounded-2xl mx-3 shadow-sm hover:shadow-md transition-shadow duration-300">
+    <Card className="flex-shrink-0 w-[600px] rounded-2xl mx-3 bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
               <AvatarImage src={testimonial.avatar} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-gray-100 text-gray-600">
                 {testimonial.name.charAt(0)}
               </AvatarFallback>
             </Avatar>
 
             <div>
-              <h4 className="font-semibold text-sm">
+              <h4 className="font-semibold text-sm text-gray-900">
                 {testimonial.name}
               </h4>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-gray-500 text-xs">
                 {testimonial.location}
               </p>
             </div>
@@ -98,7 +97,7 @@ function TestimonialCard({
           </div>
         </div>
 
-        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
           {testimonial.text}
         </p>
       </CardContent>
@@ -124,12 +123,12 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="py-20 bg-gray-50 overflow-hidden">
+    <section className="py-20 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 text-center">
-        <h2 className="text-4xl font-bold mb-4">
+        <h2 className="text-4xl font-bold mb-4 text-gray-900">
           What our users say
         </h2>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-gray-500 text-lg">
           Join thousands of satisfied patients making better healthcare choices
         </p>
       </div>

@@ -34,20 +34,20 @@ export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="px-4 py-20 bg-slate-50 dark:bg-slate-950">
+    <section className="px-4 py-20 bg-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-2 border rounded-full text-xs font-semibold mb-5 bg-white dark:bg-slate-800">
+          <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-full text-xs font-semibold mb-5 bg-white text-gray-700">
             <HelpCircle className="w-4 h-4 text-cyan-500" />
             FAQs
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-black mb-4 bg-gradient-to-r from-slate-800 via-teal-700 to-cyan-700 dark:from-slate-100 dark:via-teal-300 dark:to-cyan-300 bg-clip-text text-transparent">
+          <h2 className="text-3xl md:text-4xl font-black mb-4 text-gray-900">
             Frequently Asked Questions
           </h2>
 
-          <p className="text-base md:text-lg text-slate-600 dark:text-slate-300">
+          <p className="text-base md:text-lg text-gray-600">
             Everything you need to know about OpenTreatment and how it works.
           </p>
         </div>
@@ -60,24 +60,24 @@ export default function FAQSection() {
             return (
               <div
                 key={index}
-                className="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-900 overflow-hidden"
+                className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="w-full flex items-center justify-between gap-4 p-5 text-left"
+                  className="w-full flex items-center justify-between gap-4 p-5 text-left hover:bg-gray-50 transition-colors"
                 >
-                  <span className="text-sm md:text-base font-semibold text-slate-800 dark:text-slate-100">
+                  <span className="text-sm md:text-base font-semibold text-gray-900">
                     {item.q}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-slate-500 transition-transform ${
+                    className={`w-5 h-5 text-gray-500 transition-transform ${
                       isOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed">
                     {item.a}
                   </div>
                 )}

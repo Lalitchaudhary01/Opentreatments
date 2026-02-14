@@ -79,7 +79,7 @@ export default function ProviderCard({
   {tags.map((tag, index) => (
     <span
       key={index}
-      className="px-3 py-[2px] rounded-full bg-[#DDE8FF] border border-[#A7BFF2] text-[13px]"
+      className="px-3 py-[2px] rounded-full bg-[#DDE8FF] border border-[#A7BFF2] text-[13px] text-gray-800"
     >
       {tag}
     </span>
