@@ -64,7 +64,7 @@ function ProviderCard({
       </div>
 
       {/* Image — bottom TOUCH */}
-      <div className="absolute inset-x-0 bottom-0 flex justify-center">
+      <div className="absolute inset-x-0 bottom-[-4] flex justify-center">
         <Image
           src={image}
           alt={title}
