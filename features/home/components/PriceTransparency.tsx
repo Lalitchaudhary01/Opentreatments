@@ -15,50 +15,20 @@ const priceItems = [
   { icon: CreditCard, label: "Platform Fee", price: "₹50" },
 ];
 
+// 👉 PUBLIC FOLDER SE IMAGE KA PATH (root se start hoga)
+const BACKGROUND_IMAGE_PATH = "/pattern.png";
+
 export default function PriceTransparency() {
   return (
     <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gray-50">
 
-      {/* Healthcare Pattern */}
-      <div className="absolute inset-0 pointer-events-none">
-        <svg
-          className="w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="healthcarePattern"
-              width="140"
-              height="140"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="
-                  M35 0 V35 H0 V70 H35 V105 H70 V70 H105 V35 H70 V0 Z
-                  M105 70 V105 H140 V140 H105 V175 H70 V140 H35 V105 H70 V70 Z
-                "
-                fill="none"
-                stroke="#bfdbfe"
-                strokeWidth="1.8"
-              />
-            </pattern>
-
-            {/* Top Fade Mask */}
-            <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="white" stopOpacity="1" />
-              <stop offset="40%" stopColor="white" stopOpacity="0.8" />
-              <stop offset="70%" stopColor="white" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="white" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-
-          {/* Pattern */}
-          <rect width="100%" height="100%" fill="url(#healthcarePattern)" />
-
-          {/* Fade Overlay */}
-          <rect width="100%" height="100%" fill="url(#fadeTop)" />
-        </svg>
-      </div>
+      {/* Background Image from Public Folder */}
+      <div 
+        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-10"
+        style={{ 
+          backgroundImage: `url(${BACKGROUND_IMAGE_PATH})`,
+        }}
+      />
 
       <div className="relative max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
