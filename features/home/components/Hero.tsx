@@ -28,6 +28,7 @@ import HowItWorks from "./HowItWorksSection";
 import SearchSection from "./SearchSection";
 import PriceTransparency from "./PriceTransparency";
 import CompareSection from "./CompareSection";
+import HeroSectio from "./HeroSection";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
@@ -290,6 +291,7 @@ export default function HeroSection() {
         </div>
       </motion.section>
       {/* Rest of your sections */}
+      <HeroSectio/>
       <SearchSection/>
       {/* <WhoIsThisPlatform /> */}
       <FeaturedProviders />
