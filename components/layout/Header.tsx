@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Search, Menu, X } from "lucide-react";
+import { ChevronDown, Search, Menu, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -28,6 +28,8 @@ export default function Navbar({ showNav = true }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("Mumbai");
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const navLinks = [
@@ -36,6 +38,17 @@ export default function Navbar({ showNav = true }: NavbarProps) {
     { name: "Pharmacies", href: "/user/pharmacy" },
     { name: "Labs", href: "/user/labs" },
     { name: "How it works", href: "/user/how-it-works" },
+  ];
+
+  const locations = [
+    "Mumbai",
+    "Delhi",
+    "Bangalore",
+    "Hyderabad",
+    "Chennai",
+    "Kolkata",
+    "Pune",
+    "Ahmedabad",
   ];
 
   useEffect(() => {
@@ -61,12 +74,24 @@ export default function Navbar({ showNav = true }: NavbarProps) {
     return () => document.removeEventListener("keydown", handleEscape);
   }, [isSearchOpen]);
 
+  // Close location dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".location-dropdown")) {
+        setIsLocationOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const user = session?.user;
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      console.log("Searching for:", searchQuery);
+      console.log("Searching for:", searchQuery, "in location:", selectedLocation);
       setIsSearchOpen(false);
       setSearchQuery("");
     }
@@ -75,9 +100,8 @@ export default function Navbar({ showNav = true }: NavbarProps) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "bg-white/80 backdrop-blur-md border-b shadow-md" : "bg-white"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/80 backdrop-blur-md border-b shadow-md" : "bg-white"
+          }`}
       >
         <div className="mx-auto max-w-[1287px] h-[72px] flex items-center justify-between px-6">
           {/* Logo */}
@@ -108,15 +132,68 @@ export default function Navbar({ showNav = true }: NavbarProps) {
           )}
 
           {/* Right Actions - Desktop */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4">
+            {/* Location Selector */}
+            <div className="relative location-dropdown">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsLocationOpen(!isLocationOpen)}
+                className="flex items-center gap-2 bg-white border-gray-200 hover:bg-gray-50 hover:border-[#39A4F0] transition-all duration-300 h-[40px] px-3 rounded-full"
+              >
+                <MapPin className="w-4 h-4 text-[#39A4F0]" />
+                <span className="font-medium text-sm text-gray-700 max-w-[100px] truncate">
+                  {selectedLocation}
+                </span>
+                <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-300 ${isLocationOpen ? 'rotate-180' : ''}`} />
+              </Button>
+
+              <AnimatePresence>
+                {isLocationOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
+                  >
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Select City</p>
+                    </div>
+                    {locations.map((location) => (
+                      <button
+                        key={location}
+                        onClick={() => {
+                          setSelectedLocation(location);
+                          setIsLocationOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors duration-200 flex items-center justify-between ${selectedLocation === location
+                            ? "bg-[#39A4F0]/10 text-[#39A4F0] font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                      >
+                        {location}
+                        {selectedLocation === location && (
+                          <motion.div
+                            layoutId="selectedLocation"
+                            className="w-1.5 h-1.5 rounded-full bg-[#39A4F0]"
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Search Button - Icon Only */}
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => setIsSearchOpen(true)}
-              className="relative group bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white border-slate-700 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 h-[40px] px-4 rounded-full"
+              className="relative group bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white border-slate-700 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 h-[40px] w-[40px] rounded-full"
             >
-              <Search className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              <span className="font-medium text-sm">Search</span>
+              <Search className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
             </Button>
 
             {user ? (
@@ -156,7 +233,7 @@ export default function Navbar({ showNav = true }: NavbarProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
+              <Button
                 className="h-[48px] px-6 rounded-full bg-[#39A4F0] hover:bg-[#2d8fd6] text-white text-sm font-medium"
                 asChild
               >
@@ -200,6 +277,22 @@ export default function Navbar({ showNav = true }: NavbarProps) {
               className="md:hidden border-t bg-white"
             >
               <nav className="px-6 py-4 flex flex-col gap-4">
+                {/* Mobile Location Selector */}
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                  <MapPin className="w-5 h-5 text-[#39A4F0]" />
+                  <select
+                    value={selectedLocation}
+                    onChange={(e) => setSelectedLocation(e.target.value)}
+                    className="flex-1 bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer"
+                  >
+                    {locations.map((location) => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {showNav && navLinks.map((item) => (
                   <Link
                     key={item.name}
@@ -244,7 +337,7 @@ export default function Navbar({ showNav = true }: NavbarProps) {
                       </Button>
                     </div>
                   ) : (
-                    <Button 
+                    <Button
                       className="w-full h-[48px] rounded-full bg-[#39A4F0] hover:bg-[#2d8fd6] text-white text-sm font-medium"
                       asChild
                     >
@@ -278,6 +371,21 @@ export default function Navbar({ showNav = true }: NavbarProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <form onSubmit={handleSearch} className="flex items-center gap-4">
+                <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+                  <MapPin className="w-5 h-5 text-[#39A4F0]" />
+                  <select
+                    value={selectedLocation}
+                    onChange={(e) => setSelectedLocation(e.target.value)}
+                    className="bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer"
+                  >
+                    {locations.map((location) => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="w-px h-8 bg-gray-200" />
                 <Search className="w-6 h-6 text-gray-400" />
                 <input
                   ref={searchInputRef}
@@ -291,7 +399,10 @@ export default function Navbar({ showNav = true }: NavbarProps) {
                   Search
                 </Button>
               </form>
-              <p className="text-xs text-gray-500 mt-2">Press ESC to close</p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-gray-500">Press ESC to close</p>
+                <p className="text-xs text-gray-400">Searching in {selectedLocation}</p>
+              </div>
             </motion.div>
           </motion.div>
         )}
