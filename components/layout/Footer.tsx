@@ -126,25 +126,26 @@ const Footer = () => {
 
       </div>
 
-      {/* Background Text - Fixed responsive scaling */}
+      {/* Background Text - CENTERED with same padding as container */}
       <div className="w-full overflow-hidden pb-2 lg:pb-4 pointer-events-none select-none">
-        <h1 className="
-          text-[40px] sm:text-[60px] md:text-[80px] lg:text-[120px] xl:text-[140px]
-          font-extrabold
-          leading-none
-          font-['Plus_Jakarta_Sans']
-          bg-gradient-to-r
-          from-[#39A4EC]
-          to-[#55B685]
-          bg-clip-text
-          text-transparent
-          whitespace-nowrap
-          opacity-90
-          px-4 sm:px-6 lg:px-8 xl:px-12
-          transform translate-y-2 lg:translate-y-0
-        ">
-          Open Treatment
-        </h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+          <h1 className="
+            text-[40px] sm:text-[60px] md:text-[80px] lg:text-[120px] xl:text-[140px]
+            font-extrabold
+            leading-none
+            font-['Plus_Jakarta_Sans']
+            bg-gradient-to-r
+            from-[#39A4EC]
+            to-[#55B685]
+            bg-clip-text
+            text-transparent
+            whitespace-nowrap
+            opacity-90
+            text-center
+          ">
+            Open Treatment
+          </h1>
+        </div>
       </div>
     </footer>
   );
