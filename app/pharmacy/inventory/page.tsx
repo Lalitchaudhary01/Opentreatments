@@ -1,27 +1,64 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+"use client";
 
-import { getPharmacyProfile } from "@/features/panel/pharmacies/actions";
-import {
-  PharmacyShell,
-  PharmacyHeader,
-} from "@/features/panel/pharmacies/components/layout";
-import { InventoryClientView } from "@/features/panel/pharmacies/components/clients/InventoryClientView";
-// import { InventoryClientView } from "@/features/panel/pharmacies/components/client/InventoryClientView";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StockEntry } from "@/features/panel/pharmacy/pharmacy-inventory/types/pharmacyInventory";
 
-export default async function InventoryPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+import PharmacyInventoryForm from "@/features/panel/pharmacy/pharmacy-inventory/components/PharmacyInventoryForm";
+import PharmacyInventoryTable from "@/features/panel/pharmacy/pharmacy-inventory/components/PharmacyInventoryTable";
+import { getInventory } from "@/features/panel/pharmacy/pharmacy-inventory/actions/getInventory";
 
-  const profile = await getPharmacyProfile(session.user.id);
-  if (!profile) redirect("/panel/pharmacy/onboarding");
-  if (profile.status !== "APPROVED") redirect("/panel/pharmacy");
+export default function PharmacyInventoryPage() {
+  const [inventory, setInventory] = useState<StockEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] = useState<string | null>(null);
+
+  const fetchInventory = async () => {
+    setLoading(true);
+    try {
+      const data = await getInventory();
+      setInventory(data);
+    } catch (err: any) {
+      alert(err.message || "Failed to fetch inventory");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
   return (
-    <PharmacyShell>
-      <PharmacyHeader title="Inventory" userName={profile.ownerName} />
-      <InventoryClientView pharmacyId={profile.id} />
-    </PharmacyShell>
+    <div className="space-y-8 p-4">
+      {/* Stock Entry Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Add Stock Entry</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {selectedMedicine ? (
+            <PharmacyInventoryForm medicineId={selectedMedicine} />
+          ) : (
+            <p className="text-sm text-gray-500">
+              Select a medicine first to add stock
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Inventory Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Inventory</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PharmacyInventoryTable
+            inventory={inventory}
+            refresh={fetchInventory}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

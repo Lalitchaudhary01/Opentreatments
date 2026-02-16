@@ -15,7 +15,7 @@ export default withAuth(
     }
 
     // Hospital route protection
-    if (path.startsWith("/hospitals")) {
+    if (path.startsWith("/Hospitals")) {
       if (!token || token.role !== Role.HOSPITAL) {
         return Response.redirect(new URL("/auth", req.url));
       }

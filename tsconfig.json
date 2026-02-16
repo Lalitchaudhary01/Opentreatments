@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/Hospitals/compare",
+    "app/hospital/compare",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
