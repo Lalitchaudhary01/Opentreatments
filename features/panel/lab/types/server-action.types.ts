@@ -31,3 +31,20 @@ export interface PaginationParams {
   sortDirection?: SortDirection
   filters?: Record<string, any>
 }
+
+export async function createServerAction<T>(
+  action: () => Promise<T> | T
+): Promise<ServerActionResponse<T>> {
+  try {
+    const data = await action()
+    return {
+      success: true,
+      data,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Something went wrong",
+    }
+  }
+}
