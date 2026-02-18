@@ -1,6 +1,7 @@
-import { AuthFormWrapper } from "@/features/auth/components/auth";
+export const dynamic = "force-dynamic";
 
+import AuthShell from "@/features/auth/components/auth/shell/AuthShell";
 
-export default function AuthPage() {
-  return <AuthFormWrapper />;
+export default function LoginPage() {
+  return <AuthShell />;
 }
