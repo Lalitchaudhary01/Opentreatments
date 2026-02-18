@@ -22,11 +22,14 @@ export default function PriceTransparency() {
   return (
     <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gray-50">
 
-      {/* Background Image from Public Folder */}
+      {/* Background Image - Ultra Extreme Zoom */}
       <div 
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-10"
+        className="absolute inset-0 pointer-events-none bg-center bg-no-repeat"
         style={{ 
           backgroundImage: `url(${BACKGROUND_IMAGE_PATH})`,
+          backgroundSize: '3000px 3000px', // Ultra bada zoom!
+          backgroundRepeat: 'repeat',
+          opacity: 0.25 // Aur visible
         }}
       />
 

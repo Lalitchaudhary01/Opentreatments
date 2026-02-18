@@ -25,34 +25,48 @@ const HeroSectio: NextPage = () => {
             background: `
               radial-gradient(ellipse at center, 
                 rgba(255,255,255,0) 0%, 
-                rgba(255,255,255,0.05) 15%,
-                rgba(255,255,255,0.3) 35%,
-                rgba(255,255,255,0.7) 60%, 
-                rgba(255,255,255,0.95) 80%,
+                rgba(255,255,255,0.05) 20%,
+                rgba(255,255,255,0.2) 40%,
+                rgba(255,255,255,0.5) 60%, 
+                rgba(255,255,255,0.8) 80%,
                 rgba(255,255,255,1) 100%
               )
             `
           }}
         />
 
-        {/* Extra Edge Fade Overlay - Top/Bottom/Left/Right */}
+        {/* Extra Edge Fade Overlay - Softer Borders */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `
               linear-gradient(to right, 
                 rgba(255,255,255,1) 0%, 
-                rgba(255,255,255,0) 5%,
-                rgba(255,255,255,0) 95%,
+                rgba(255,255,255,0) 10%,
+                rgba(255,255,255,0) 90%,
                 rgba(255,255,255,1) 100%
               ),
               linear-gradient(to bottom, 
                 rgba(255,255,255,1) 0%, 
-                rgba(255,255,255,0) 5%,
-                rgba(255,255,255,0) 95%,
+                rgba(255,255,255,0) 10%,
+                rgba(255,255,255,0) 90%,
                 rgba(255,255,255,1) 100%
               )
             `
+          }}
+        />
+
+        {/* Additional Soft Edge Overlay for Corners */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(circle at 0% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 20%),
+              radial-gradient(circle at 100% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 20%),
+              radial-gradient(circle at 0% 100%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 20%),
+              radial-gradient(circle at 100% 100%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 20%)
+            `,
+            backgroundBlendMode: 'overlay'
           }}
         />
       </div>
@@ -75,4 +89,4 @@ const HeroSectio: NextPage = () => {
   );
 };
 
-export default HeroSectio;
+export default HeroSectio; 
