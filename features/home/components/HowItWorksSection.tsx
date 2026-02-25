@@ -23,11 +23,20 @@ export default function HowItWorks() {
   ];
 
   const [progress, setProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const progressRef = useRef(0);
   const animFrameRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const animParamsRef = useRef({ from: 0, to: 0 });
   const DURATION = 5000;
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const animateTo = (target: number) => {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -41,7 +50,7 @@ export default function HowItWorks() {
       const dist = Math.abs(to - from);
       const dur = DURATION * (dist / 100);
       const t = Math.min(elapsed / Math.max(dur, 1), 1);
-      const eased = 1 - Math.pow(1 - t, 2); // softer ease-out
+      const eased = 1 - Math.pow(1 - t, 2);
       const val = from + (to - from) * eased;
       progressRef.current = val;
       setProgress(val);
@@ -54,55 +63,70 @@ export default function HowItWorks() {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
   }, []);
 
-  const isActive = (i: number) => progress >= 12.5 + i * 25;
+  const isActive = (i: number) => isMobile || progress >= 12.5 + i * 25;
   const hasStarted = progress > 1;
 
   return (
     <section
-      className="w-full bg-[#EFF7F4] py-[96px]"
-      onMouseEnter={() => animateTo(100)}
-      onMouseLeave={() => animateTo(0)}
+      className="w-full bg-[#EFF7F4] py-[64px] md:py-[96px]"
+      onMouseEnter={() => !isMobile && animateTo(100)}
+      onMouseLeave={() => !isMobile && animateTo(0)}
     >
-      <div className="mx-auto max-w-[1440px] px-6">
+      <div className="mx-auto max-w-[1440px] px-4 md:px-6">
 
         {/* Heading */}
-        <div className="text-center mb-[64px]">
-          <h2 className="text-[56px] font-bold text-[#0F2D1E]">How it works</h2>
-          <p className="text-[20px] text-[#5F7A6B] mt-3">
+        <div className="text-center mb-[40px] md:mb-[64px]">
+          <h2 className="text-[32px] md:text-[56px] font-bold text-[#0F2D1E]">How it works</h2>
+          <p className="text-[16px] md:text-[20px] text-[#5F7A6B] mt-3">
             Four simple steps to better healthcare decisions
           </p>
         </div>
 
-        {/* 
-          ONE grid for all 4 columns.
-          Each column has: box → number circle → title/desc
-          The green line is absolutely positioned across the row of number circles.
-        */}
-        <div className="relative grid grid-cols-4 gap-[32px]">
+        {/* ── MOBILE layout: vertical stack ── */}
+        <div className="flex flex-col gap-6 md:hidden">
+          {steps.map((step, i) => (
+            <div key={i} className="flex items-start gap-4">
+              {/* Left: number + vertical line */}
+              <div className="flex flex-col items-center">
+                <div className="w-[40px] h-[40px] rounded-full bg-[#1DBF73] text-white flex items-center justify-center text-base font-bold shadow-md flex-shrink-0">
+                  {i + 1}
+                </div>
+                {i < steps.length - 1 && (
+                  <div className="w-[2px] flex-1 min-h-[60px] bg-[#1DBF73] mt-2" />
+                )}
+              </div>
 
-          {/* ── Green line sits in the number-circle row ── */}
-          {/* We position it using a full-width absolute div at the vertical midpoint of the circles */}
-          {/* The circles row starts after the 140px box + 40px margin-bottom */}
+              {/* Right: box + title + desc */}
+              <div className="flex-1 pb-4">
+                <div className="w-full h-[120px] rounded-[12px] border border-[#1DBF73] bg-white shadow-md mb-3" />
+                <h4 className="text-[20px] font-semibold text-[#0F2D1E]">{step.title}</h4>
+                <p className="text-[13px] text-[#5F7A6B] mt-1">{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── DESKTOP/TABLET layout: horizontal with animation ── */}
+        <div className="relative hidden md:grid grid-cols-4 gap-[32px]">
+
+          {/* Green line */}
           <div
             className="absolute left-0 right-0 h-[2px]"
             style={{
-              top: "calc(140px + 40px + 24px)", // box height + mb + half circle (48/2)
+              top: "calc(140px + 40px + 24px)",
               zIndex: 0,
             }}
           >
-            {/* gray track */}
             <div
               className="absolute inset-0 bg-gray-200 transition-opacity duration-300"
               style={{ opacity: hasStarted ? 1 : 0 }}
             />
-            {/* green fill */}
             <div
               className="absolute top-0 left-0 h-full bg-[#1DBF73]"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          {/* ── 4 Columns ── */}
           {steps.map((step, i) => {
             const active = isActive(i);
             return (
