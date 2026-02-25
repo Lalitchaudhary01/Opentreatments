@@ -32,7 +32,7 @@ export default function HowItWorks() {
 
   // Detect mobile
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -83,7 +83,7 @@ export default function HowItWorks() {
         </div>
 
         {/* ── MOBILE layout: vertical stack ── */}
-        <div className="flex flex-col gap-6 md:hidden">
+        <div className="flex flex-col gap-6 lg:hidden">
           {steps.map((step, i) => (
             <div key={i} className="flex items-start gap-4">
               {/* Left: number + vertical line */}
@@ -107,7 +107,7 @@ export default function HowItWorks() {
         </div>
 
         {/* ── DESKTOP/TABLET layout: horizontal with animation ── */}
-        <div className="relative hidden md:grid grid-cols-4 gap-[32px]">
+        <div className="relative hidden lg:grid grid-cols-4 gap-[32px]">
 
           {/* Green line */}
           <div
