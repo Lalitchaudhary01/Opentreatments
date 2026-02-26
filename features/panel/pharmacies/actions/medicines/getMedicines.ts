@@ -6,20 +6,17 @@ import { authOptions } from "@/lib/auth-options";
 
 export async function getMedicines() {
   const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "PHARMACY") {
-    throw new Error("Unauthorized");
-  }
+  if (!session?.user) throw new Error("Unauthorized");
+  if (session.user.role !== "PHARMACY") throw new Error("Forbidden");
 
   const pharmacy = await prisma.pharmacy.findUnique({
     where: { userId: session.user.id },
   });
-
-  if (!pharmacy) {
-    throw new Error("Pharmacy not found");
-  }
+  if (!pharmacy) throw new Error("Pharmacy not found");
 
   return prisma.medicine.findMany({
     where: { pharmacyId: pharmacy.id },
+    include: { stock: true },
     orderBy: { createdAt: "desc" },
   });
 }

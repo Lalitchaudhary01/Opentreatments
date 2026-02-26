@@ -15,6 +15,7 @@ export async function deleteStockEntry(stockEntryId: string) {
   });
   if (!stock) throw new Error("Stock entry not found");
 
+  // Optional: delete logs also if needed
   await prisma.inventoryLog.deleteMany({
     where: { stockEntryId },
   });

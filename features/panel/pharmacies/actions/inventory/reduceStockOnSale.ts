@@ -8,7 +8,7 @@ import { InventoryChangeType, StockType } from "@prisma/client";
 export async function reduceStockOnSale(data: {
   stockEntryId: string;
   quantity: number;
-  reason: InventoryChangeType;
+  reason: InventoryChangeType; // SALE, DAMAGE, EXPIRE, MANUAL_ADJUSTMENT
   note?: string;
 }) {
   const session = await getServerSession(authOptions);
@@ -30,6 +30,7 @@ export async function reduceStockOnSale(data: {
     },
   });
 
+  // Log this change
   await prisma.inventoryLog.create({
     data: {
       stockEntryId: stock.id,
