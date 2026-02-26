@@ -1,28 +1,24 @@
-export type StockType = "INCOMING" | "OUTGOING"
-
 export interface StockEntry {
-  id: string
-  medicineId: string
-  pharmacyId: string
-
-  batchNumber: string
-  quantity: number
-  expiryDate: string
-
-  purchasePrice?: number | null
-  sellingPrice?: number | null
-
-  type: StockType
-
-  createdAt: string
-  updatedAt: string
+  id: string;
+  pharmacyId: string;
+  medicineId: string;
+  batchNumber: string;
+  quantity: number;
+  expiryDate: Date;
+  purchasePrice?: number | null;
+  sellingPrice?: number | null;
+  type: "INCOMING" | "OUTGOING";
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface AddStockEntryInput {
-  medicineId: string
-  batchNumber: string
-  quantity: number
-  expiryDate: string
-  purchasePrice?: number
-  sellingPrice?: number
+export interface InventoryLog {
+  id: string;
+  stockEntryId: string;
+  medicineId: string;
+  pharmacyId: string;
+  changeType: string;
+  quantityChanged: number;
+  note?: string | null;
+  createdAt: Date;
 }

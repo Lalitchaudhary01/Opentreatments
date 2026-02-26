@@ -1,3 +1,3 @@
-export * from "./pharmacyProfile"
-export * from "./pharmacyInventory"
-export * from "./pharmacyMedicine"
+export * from "./pharmacyProfile";
+export * from "./pharmacyInventory";
+export * from "./pharmacyMedicine";
