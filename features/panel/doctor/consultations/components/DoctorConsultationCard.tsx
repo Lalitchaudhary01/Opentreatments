@@ -1,244 +1,202 @@
+// app/doctor/components/DoctorConsultationCard.tsx
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { updateConsultationStatus } from "../actions";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Mail,
-  Stethoscope,
-  AlertCircle,
-} from "lucide-react";
+import { useState } from "react";
 import { DoctorConsultation } from "../types";
-import { ConsultationStatus } from "@prisma/client";
+import { CheckCircle, XCircle, Eye } from "lucide-react";
 
 interface DoctorConsultationCardProps {
   consultation: DoctorConsultation;
 }
 
-export default function DoctorConsultationCard({
-  consultation,
-}: DoctorConsultationCardProps) {
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+// Status configuration exactly like screenshot
+const statusConfig = {
+  "In Progress": {
+    label: "In Progress",
+    bgColor: "bg-blue-100 dark:bg-blue-500/20",
+    textColor: "text-blue-700 dark:text-blue-400",
+    borderColor: "border-blue-200 dark:border-blue-800",
+    dotColor: "bg-blue-500",
+  },
+  Confirmed: {
+    label: "Confirmed",
+    bgColor: "bg-teal-100 dark:bg-teal-500/20",
+    textColor: "text-teal-700 dark:text-teal-400",
+    borderColor: "border-teal-200 dark:border-teal-800",
+    dotColor: "bg-teal-500",
+  },
+  Waiting: {
+    label: "Waiting",
+    bgColor: "bg-orange-100 dark:bg-orange-500/20",
+    textColor: "text-orange-700 dark:text-orange-400",
+    borderColor: "border-orange-200 dark:border-orange-800",
+    dotColor: "bg-orange-500",
+  },
+  Completed: {
+    label: "Completed",
+    bgColor: "bg-purple-100 dark:bg-purple-500/20",
+    textColor: "text-purple-700 dark:text-purple-400",
+    borderColor: "border-purple-200 dark:border-purple-800",
+    dotColor: "bg-purple-500",
+  },
+  Cancelled: {
+    label: "Cancelled",
+    bgColor: "bg-red-100 dark:bg-red-500/20",
+    textColor: "text-red-700 dark:text-red-400",
+    borderColor: "border-red-200 dark:border-red-800",
+    dotColor: "bg-red-500",
+  },
+};
 
-  const handleAction = (status: "APPROVED" | "REJECTED") => {
-    startTransition(async () => {
-      await updateConsultationStatus(consultation.id, status);
+export default function DoctorConsultationCard({ consultation }: DoctorConsultationCardProps) {
+  const [isPending, setIsPending] = useState(false);
+  
+  // Map API status to display status
+  const displayStatus = 
+    consultation.status === "APPROVED" ? "Confirmed" :
+    consultation.status === "PENDING" ? "Waiting" :
+    consultation.status === "IN_PROGRESS" ? "In Progress" :
+    consultation.status === "COMPLETED" ? "Completed" :
+    consultation.status === "CANCELLED" || consultation.status === "REJECTED" ? "Cancelled" :
+    "Waiting";
 
-      if (status === "APPROVED") {
-        const consultationDate = new Date(consultation.slot);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+  const config = statusConfig[displayStatus as keyof typeof statusConfig] || statusConfig.Waiting;
 
-        const isToday =
-          consultationDate >= today &&
-          consultationDate < new Date(today.getTime() + 24 * 60 * 60 * 1000);
-
-        router.push(
-          isToday
-            ? "/doctor/consultations/today"
-            : "/doctor/consultations/approved"
-        );
-      } else {
-        router.push("/doctor/consultations/rejected");
-      }
-
-      router.refresh();
-    });
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
-  const statusConfig: Record<
-    ConsultationStatus,
-    {
-      icon: any;
-      color: string;
-      bgGradient: string;
-      iconBg: string;
-      iconColor: string;
+  const getPatientId = () => {
+    // Generate PT-XXXX format ID
+    const num = consultation.id?.slice(-4) || Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `#PT-${num}`;
+  };
+
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return "9:00AM";
+    try {
+      const date = new Date(timeStr);
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch {
+      return "9:00AM";
     }
-  > = {
-    PENDING: {
-      icon: Clock,
-      color: "bg-orange-100 text-orange-700 border-orange-200",
-      bgGradient: "from-orange-50 to-amber-50",
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-600",
-    },
-    APPROVED: {
-      icon: CheckCircle,
-      color: "bg-teal-100 text-teal-700 border-teal-200",
-      bgGradient: "from-teal-50 to-cyan-50",
-      iconBg: "bg-teal-100",
-      iconColor: "text-teal-600",
-    },
-    REJECTED: {
-      icon: XCircle,
-      color: "bg-red-100 text-red-700 border-red-200",
-      bgGradient: "from-red-50 to-pink-50",
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-    },
-
-    // Extra statuses handled safely
-    COMPLETED: {
-      icon: CheckCircle,
-      color: "bg-blue-100 text-blue-700 border-blue-200",
-      bgGradient: "from-blue-50 to-indigo-50",
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    CANCELLED: {
-      icon: XCircle,
-      color: "bg-gray-100 text-gray-700 border-gray-200",
-      bgGradient: "from-gray-50 to-slate-50",
-      iconBg: "bg-gray-100",
-      iconColor: "text-gray-600",
-    },
   };
 
-  const config = statusConfig[consultation.status];
-  const StatusIcon = config.icon;
+  const handleDone = () => {
+    setIsPending(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsPending(false);
+      console.log("Marked as done:", consultation.id);
+    }, 500);
+  };
+
+  const handleView = () => {
+    console.log("View details:", consultation.id);
+  };
 
   return (
-    <Card className="border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-cyan-300">
-      <CardContent className="p-6">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-4">
-            <div
-              className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${config.iconBg}`}
+    <div className="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+      {/* Patient Column */}
+      <div className="col-span-3">
+        <div className="flex items-center gap-3">
+          {/* Avatar with initials */}
+          <div className="relative">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${config.bgColor} border ${config.borderColor}`}>
+              <span className={`text-sm font-bold ${config.textColor}`}>
+                {getInitials(consultation.userName || consultation.patientName || "Anonymous")}
+              </span>
+            </div>
+            {/* Status dot */}
+            <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-gray-800 ${config.dotColor}`} />
+          </div>
+          
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              {consultation.userName || consultation.patientName || "Anonymous User"}
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {getPatientId()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Time Column */}
+      <div className="col-span-2">
+        <div className="flex items-center gap-2">
+          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" strokeWidth={2}/>
+            <path strokeLinecap="round" strokeWidth={2} d="M12 6v6l4 2" />
+          </svg>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {formatTime(consultation.slot || consultation.time)}
+          </span>
+        </div>
+      </div>
+
+      {/* Service Column */}
+      <div className="col-span-2">
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {consultation.type || "Consultation"}
+        </span>
+      </div>
+
+      {/* Status Column */}
+      <div className="col-span-2">
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor} border ${config.borderColor}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${config.dotColor} mr-1.5`} />
+          {config.label}
+        </span>
+      </div>
+
+      {/* Action Column */}
+      <div className="col-span-3">
+        <div className="flex items-center gap-2">
+          {/* Done button - only show if not completed/cancelled */}
+          {displayStatus !== "Completed" && displayStatus !== "Cancelled" && (
+            <button
+              onClick={handleDone}
+              disabled={isPending}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                ${isPending 
+                  ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20'
+                }`}
             >
-              <StatusIcon className={`w-7 h-7 ${config.iconColor}`} />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-slate-900 mb-1">
-                {consultation.userName || "Anonymous User"}
-              </h3>
-              <a
-                href={`mailto:${consultation.userEmail}`}
-                className="flex items-center gap-1 text-cyan-600 hover:text-cyan-700 font-medium"
-              >
-                <Mail className="w-4 h-4" />
-                {consultation.userEmail}
-              </a>
-            </div>
-          </div>
-          <Badge className={`${config.color} border font-semibold px-3 py-1`}>
-            {consultation.status}
-          </Badge>
-        </div>
-
-        {/* Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div
-            className={`p-4 rounded-xl bg-gradient-to-r ${config.bgGradient} border-2`}
+              <CheckCircle className="w-3.5 h-3.5" />
+              {isPending ? "..." : "Done"}
+            </button>
+          )}
+          
+          {/* View button */}
+          <button
+            onClick={handleView}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
-            <div className="flex items-start gap-3">
-              <Calendar className={`w-5 h-5 mt-0.5 ${config.iconColor}`} />
-              <div>
-                <p className="text-xs font-semibold text-slate-600 mb-1">
-                  Scheduled Slot
-                </p>
-                <p className="text-slate-800 font-medium">
-                  {new Date(consultation.slot).toLocaleDateString("en-IN", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </p>
-                <p className="text-sm text-slate-600">
-                  {new Date(consultation.slot).toLocaleTimeString("en-IN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
+            <Eye className="w-3.5 h-3.5" />
+            View
+          </button>
 
-          <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200">
-            <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 mt-0.5 text-slate-600" />
-              <div>
-                <p className="text-xs font-semibold text-slate-600 mb-1">
-                  Request Date
-                </p>
-                <p className="text-slate-800 font-medium">
-                  {new Date(consultation.createdAt).toLocaleDateString(
-                    "en-IN",
-                    {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    }
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* More options menu (optional) */}
+          <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="1" fill="currentColor" />
+              <circle cx="12" cy="5" r="1" fill="currentColor" />
+              <circle cx="12" cy="19" r="1" fill="currentColor" />
+            </svg>
+          </button>
         </div>
-
-        {/* Actions */}
-        {consultation.status === "PENDING" && (
-          <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-            <div className="flex items-start gap-3 mb-4">
-              <AlertCircle className="w-5 h-5 mt-0.5 text-orange-600" />
-              <div>
-                <p className="text-sm font-semibold text-orange-900">
-                  Action Required
-                </p>
-                <p className="text-sm text-orange-700">
-                  Please review and respond to this consultation request
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={() => handleAction("APPROVED")}
-                disabled={isPending}
-                className="flex items-center gap-2 font-semibold bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-              >
-                <CheckCircle className="w-4 h-4" />
-                {isPending ? "Processing..." : "Accept"}
-              </Button>
-              <Button
-                onClick={() => handleAction("REJECTED")}
-                disabled={isPending}
-                className="flex items-center gap-2 font-semibold bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
-              >
-                <XCircle className="w-4 h-4" />
-                {isPending ? "Processing..." : "Reject"}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {consultation.status !== "PENDING" && (
-          <div className={`p-4 rounded-xl border-2 ${config.color}`}>
-            <div className="flex items-center gap-3">
-              <Stethoscope className={`w-5 h-5 ${config.iconColor}`} />
-              <div>
-                <p className="text-sm font-semibold text-slate-700">
-                  Consultation {consultation.status.toLowerCase()}
-                </p>
-                <p className="text-sm text-slate-600">
-                  {consultation.status === "APPROVED"
-                    ? "This consultation has been approved and scheduled."
-                    : "This consultation request has been rejected."}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

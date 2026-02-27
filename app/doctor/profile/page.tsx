@@ -2,7 +2,6 @@ import { DoctorProfileView } from "@/features/panel/doctor/screens/dashboard";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
 
 export default async function DoctorProfilePage() {
   const session = await getServerSession(authOptions);
@@ -13,7 +12,14 @@ export default async function DoctorProfilePage() {
   });
 
   if (!doctor) {
-    redirect("/doctor/overview");
+    return (
+      <div className="p-8">
+        <h2 className="text-2xl font-bold">Profile not found</h2>
+        <p className="text-muted-foreground">
+          Please complete your onboarding first.
+        </p>
+      </div>
+    );
   }
 
   return <DoctorProfileView profile={doctor as any} />;

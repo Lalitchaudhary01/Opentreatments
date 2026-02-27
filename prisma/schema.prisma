@@ -457,7 +457,7 @@ model OfflineConsultation {
   createdAt      DateTime @default(now())
 }
 
-// 2. DOCTOR PROFILE MEIN RELATION (OPTIONAL)
+
 
 
 model IndependentReview {
