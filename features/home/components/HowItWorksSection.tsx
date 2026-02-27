@@ -135,7 +135,7 @@ export default function HowItWorks() {
                 {/* Box */}
                 <div
                   className={`
-                    w-full h-[140px] rounded-[12px] border bg-white mb-[40px]
+                    w-[250px] h-[140px] rounded-[12px] border bg-white mb-[40px]
                     transition-all duration-500 ease-out
                     ${active
                       ? "opacity-100 translate-y-0 scale-100 border-[#1DBF73] shadow-lg"
