@@ -21,7 +21,10 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { getConsultationsForDoctor } from "@/features/panel/doctor/consultations/actions";
+import {
+  getConsultationsForDoctor,
+  getPatientCountsForDoctor,
+} from "@/features/panel/doctor/consultations/actions";
 import { filterToday } from "@/features/panel/doctor/consultations/filterConsultations";
 
 // Stats Cards Data - Dono cards dynamic honge
@@ -250,14 +253,17 @@ export default function DoctorDashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const all = await getConsultationsForDoctor(); // Saara data fetch karo
+        const [all, patientCounts] = await Promise.all([
+          getConsultationsForDoctor(), // Saara data fetch karo
+          getPatientCountsForDoctor(), // Approved online + offline patients
+        ]);
         
         // Today's appointments count
         const todayConsultations = filterToday(all);
         setTodayCount(todayConsultations.length.toString());
         
-        // 👇 ADDED: Total patients count (total consultations)
-        setTotalPatients(all.length.toString());
+        // 👇 Total patients = approved online + offline
+        setTotalPatients(patientCounts.totalPatients.toString());
         
       } catch (error) {
         console.error("Error fetching data:", error);
