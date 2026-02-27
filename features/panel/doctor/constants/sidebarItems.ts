@@ -1,40 +1,55 @@
 import {
-  User,
-  MessageCircle,
+  LayoutDashboard,
+  Calendar,
   Users,
-  ClipboardCheck,
-  Settings,
+  CreditCard,
+  DollarSign,
+  TrendingUp,
 } from "lucide-react";
 
 export const doctorSidebarItems = [
   {
-    label: "Dashboard",
-    href: "/doctor",
-    icon: User,
+    section: "MAIN",
+    items: [
+      {
+        label: "Overview",
+        href: "/doctor",
+        icon: LayoutDashboard,
+      },
+      {
+        label: "Appointments",
+        href: "/doctor/appointments",
+        icon: Calendar,
+        badge: 12,
+        badgeColor: "blue",
+      },
+      {
+        label: "Patients",
+        href: "/doctor/patients",
+        icon: Users,
+      },
+    ],
   },
   {
-    label: "Profile",
-    href: "/doctor/profile",
-    icon: User,
-  },
-  {
-    label: "Consultations",
-    href: "/doctor/consultations",
-    icon: MessageCircle,
-  },
-  {
-    label: "Patients",
-    href: "/doctor/patients",
-    icon: Users,
-  },
-  {
-    label: "Approvals",
-    href: "/doctor/approvals",
-    icon: ClipboardCheck,
-  },
-  {
-    label: "Settings",
-    href: "/doctor/settings",
-    icon: Settings,
+    section: "FINANCE",
+    items: [
+      {
+        label: "Billing",
+        href: "/doctor/billing",
+        icon: CreditCard,
+        badge: 3,
+        badgeColor: "orange",
+      },
+      {
+        label: "Revenue",
+        href: "/doctor/revenue",
+        icon: DollarSign,
+      },
+      {
+        label: "Analytics",
+        href: "/doctor/analytics",
+        icon: TrendingUp,
+      },
+    ],
   },
 ];
