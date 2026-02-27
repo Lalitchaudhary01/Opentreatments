@@ -4,9 +4,12 @@ import {
   LayoutDashboard,
   CalendarDays,
   Users,
+  CheckSquare,
+  Clock3,
   Receipt,
   LineChart,
   Wallet,
+  Star,
 } from "lucide-react";
 
 export const doctorSidebarItems = [
@@ -29,6 +32,16 @@ export const doctorSidebarItems = [
         href: "/doctor/patients", 
         icon: Users 
       },
+      {
+        label: "Services",
+        href: "/doctor/services",
+        icon: CheckSquare,
+      },
+      {
+        label: "Availability",
+        href: "/doctor/availability",
+        icon: Clock3,
+      },
     ]
   },
   {
@@ -45,11 +58,21 @@ export const doctorSidebarItems = [
         href: "/doctor/revenue", 
         icon: Wallet 
       },
-      { 
-        label: "Analytics", 
-        href: "/doctor/analytics", 
-        icon: LineChart 
-      },
     ]
-  }
+  },
+  {
+    section: "PERFORMANCE",
+    items: [
+      {
+        label: "Analytics",
+        href: "/doctor/analytics",
+        icon: LineChart,
+      },
+      {
+        label: "Reviews",
+        href: "/doctor/reviews",
+        icon: Star,
+      },
+    ],
+  },
 ];
