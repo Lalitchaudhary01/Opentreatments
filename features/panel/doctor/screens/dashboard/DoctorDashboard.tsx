@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { 
   ArrowUpRight, 
@@ -21,8 +21,10 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { getConsultationsForDoctor } from "@/features/panel/doctor/consultations/actions";
+import { filterToday } from "@/features/panel/doctor/consultations/filterConsultations";
 
-// Stats Cards Data
+// Stats Cards Data - Dono cards dynamic honge
 const statsCards = [
   {
     title: "Today's Appointments",
@@ -58,7 +60,7 @@ const statsCards = [
   }
 ];
 
-// Appointments Data
+// Appointments Data (static rahega)
 const appointmentsData = [
   {
     id: 1,
@@ -117,7 +119,7 @@ const appointmentsData = [
   }
 ];
 
-// Activity Data
+// Activity Data (static)
 const activityData = [
   {
     id: 1,
@@ -151,7 +153,7 @@ const activityData = [
   }
 ];
 
-// Revenue Data
+// Revenue Data (static)
 const revenueData = [
   {
     label: "Consultations",
@@ -173,7 +175,7 @@ const revenueData = [
   }
 ];
 
-// Upcoming Data
+// Upcoming Data (static)
 const upcomingData = [
   {
     id: 1,
@@ -205,15 +207,15 @@ const upcomingData = [
   }
 ];
 
-// Week days for chart - FIXED: Absolute heights in pixels
+// Week days for chart
 const weekDays = [
-  { day: "M", height: 26, isActive: false },  // 26px
-  { day: "T", height: 36, isActive: false },  // 36px
-  { day: "W", height: 31, isActive: false },  // 31px
-  { day: "T", height: 36, isActive: false },  // 36px
-  { day: "F", height: 34, isActive: true },   // 34px
-  { day: "S", height: 13, isActive: false },  // 13px
-  { day: "S", height: 6, isActive: false }    // 6px
+  { day: "M", height: 26, isActive: false },
+  { day: "T", height: 36, isActive: false },
+  { day: "W", height: 31, isActive: false },
+  { day: "T", height: 36, isActive: false },
+  { day: "F", height: 34, isActive: true },
+  { day: "S", height: 13, isActive: false },
+  { day: "S", height: 6, isActive: false }
 ];
 
 // Type and Status configurations
@@ -240,6 +242,49 @@ const dotColors = {
 
 export default function DoctorDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("This Week");
+  const [todayCount, setTodayCount] = useState("12");
+  const [totalPatients, setTotalPatients] = useState("1,284"); // 👈 ADDED: Total patients state
+  const [loading, setLoading] = useState(true);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const all = await getConsultationsForDoctor(); // Saara data fetch karo
+        
+        // Today's appointments count
+        const todayConsultations = filterToday(all);
+        setTodayCount(todayConsultations.length.toString());
+        
+        // 👇 ADDED: Total patients count (total consultations)
+        setTotalPatients(all.length.toString());
+        
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  // 👇 UPDATED: Both cards dynamic
+  const updatedStatsCards = statsCards.map((card, index) => {
+    if (index === 0) { // Today's Appointments card
+      return {
+        ...card,
+        value: loading ? "..." : todayCount
+      };
+    }
+    if (index === 1) { // Total Patients card
+      return {
+        ...card,
+        value: loading ? "..." : totalPatients
+      };
+    }
+    return card;
+  });
 
   return (
     <div className="p-6 bg-[#111827] min-h-screen">
@@ -255,7 +300,7 @@ export default function DoctorDashboard() {
         
         {/* Stats Cards Grid */}
         <div className="grid grid-cols-4 gap-4 mb-4">
-          {statsCards.map((stat, index) => {
+          {updatedStatsCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <div
@@ -286,6 +331,7 @@ export default function DoctorDashboard() {
           })}
         </div>
 
+        {/* Rest of your JSX remains exactly the same */}
         {/* Main Content Grid */}
         <div className="grid grid-cols-12 gap-4">
           
@@ -295,7 +341,9 @@ export default function DoctorDashboard() {
             <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex justify-between items-center">
               <div>
                 <h3 className="text-[12.67px] font-semibold text-white">Today's Appointments</h3>
-                <p className="text-[10.72px] text-[#94A3B8]">Feb 20 · 12 scheduled</p>
+                <p className="text-[10.72px] text-[#94A3B8]">
+                  Feb 20 · {loading ? "..." : todayCount} scheduled
+                </p>
               </div>
               <button className="text-[11.7px] text-[#3B82F6] hover:underline flex items-center gap-1">
                 View all <ChevronRight className="w-3 h-3" />
@@ -367,7 +415,7 @@ export default function DoctorDashboard() {
             </div>
           </div>
 
-          {/* Right Column - This Week Chart - FIXED */}
+          {/* Right Column - This Week Chart */}
           <div className="col-span-5 bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[13.65px] p-4">
             <div className="flex justify-between items-start">
               <div>
@@ -377,13 +425,11 @@ export default function DoctorDashboard() {
               <MoreHorizontal className="w-4 h-4 text-[#475569]" />
             </div>
             
-            {/* Bar Chart - FIXED with fixed height container */}
+            {/* Bar Chart */}
             <div className="relative mt-8">
-              {/* Chart container with fixed height */}
               <div className="flex items-end justify-between h-[120px]">
                 {weekDays.map((day, index) => (
                   <div key={index} className="flex flex-col items-center w-8">
-                    {/* Bar with fixed pixel height */}
                     <div 
                       className={cn(
                         "w-full rounded-t-[3.9px] transition-all",
@@ -403,7 +449,6 @@ export default function DoctorDashboard() {
                 ))}
               </div>
               
-              {/* Y-axis labels (optional) */}
               <div className="absolute -left-6 top-0 h-full flex flex-col justify-between text-[8px] text-[#475569]">
                 <span>40</span>
                 <span>30</span>
@@ -413,7 +458,6 @@ export default function DoctorDashboard() {
               </div>
             </div>
             
-            {/* Chart legend */}
             <div className="flex items-center gap-4 mt-6 text-[9px] text-[#475569]">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-[#3B82F6]" />
