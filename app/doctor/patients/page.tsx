@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { AddOfflinePatientModal } from "@/features/panel/doctor/consultations/components/AddOfflinePatientModal";
-import { Download, Search, Eye } from "lucide-react";
+import { Download, Search } from "lucide-react";
+import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
 
 // Helper functions
 function getInitials(name: string): string {
@@ -248,134 +249,7 @@ export default async function DashboardPage({
           {patients.length} shown
         </div>
 
-        {/* Table Headers */}
-        <div className="grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-100 dark:bg-gray-800 rounded-t-xl border-b border-gray-200 dark:border-gray-700">
-          <div className="col-span-3">PATIENT</div>
-          <div className="col-span-2">PHONE</div>
-          <div className="col-span-1">CITY</div>
-          <div className="col-span-1">LAST VISIT</div>
-          <div className="col-span-1">VISITS</div>
-          <div className="col-span-1">BLOOD</div>
-          <div className="col-span-1">STATUS</div>
-          <div className="col-span-2">ACTION</div>
-        </div>
-
-        {/* Patients List */}
-        <div className="bg-white dark:bg-gray-800 rounded-b-xl border border-t-0 border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:border-gray-700">
-          {patients.length === 0 ? (
-            <div className="p-12 text-center">
-              <p className="text-gray-500 dark:text-gray-400">No patients found</p>
-            </div>
-          ) : (
-            patients.map((p: any, index: number) => {
-              const statusColors = {
-                Active: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400",
-                New: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
-              };
-              
-              const bloodColors: Record<string, string> = {
-                "O+": "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400",
-                "O-": "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400",
-                "A+": "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
-                "A-": "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
-                "B+": "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400",
-                "B-": "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400",
-                "AB+": "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
-                "AB-": "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
-              };
-
-              return (
-                <div
-                  key={p.id}
-                  className="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  {/* Patient Column */}
-                  <div className="col-span-3">
-                    <div className="flex items-center gap-3">
-                      {/* Avatar with initials */}
-                      <div className="relative">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                          p.type === "online" 
-                            ? "bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400" 
-                            : "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400"
-                        }`}>
-                          <span className="text-sm font-bold">{p.avatar}</span>
-                        </div>
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${
-                          p.type === "online" ? "bg-blue-500" : "bg-green-500"
-                        }`} />
-                      </div>
-                      
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {p.displayName}
-                        </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {p.patientId}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Phone Column */}
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-mono">
-                      {p.phoneNumber || "+91 98765 43210"}
-                    </span>
-                  </div>
-
-                  {/* City Column */}
-                  <div className="col-span-1">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {p.city}
-                    </span>
-                  </div>
-
-                  {/* Last Visit Column */}
-                  <div className="col-span-1">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {p.lastVisit}
-                    </span>
-                  </div>
-
-                  {/* Visits Column */}
-                  <div className="col-span-1">
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {p.visits}
-                    </span>
-                  </div>
-
-                  {/* Blood Group Column */}
-                  <div className="col-span-1">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${bloodColors[p.bloodGroup] || bloodColors["O+"]}`}>
-                      {p.bloodGroup}
-                    </span>
-                  </div>
-
-                  {/* Status Column */}
-                  <div className="col-span-1">
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${
-                      p.status === "New" ? statusColors.New : statusColors.Active
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${
-                        p.status === "New" ? "bg-blue-500" : "bg-green-500"
-                      }`} />
-                      {p.status}
-                    </span>
-                  </div>
-
-                  {/* Action Column */}
-                  <div className="col-span-2">
-                    <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors">
-                      <Eye className="w-3.5 h-3.5" />
-                      View
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+        <PatientDirectoryTable patients={patients as any} />
       </div>
     </div>
   );

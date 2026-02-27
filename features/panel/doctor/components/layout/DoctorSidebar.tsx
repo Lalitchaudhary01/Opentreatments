@@ -11,8 +11,8 @@ export default function DoctorSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-[220px] h-screen bg-[#111827] border-r border-[rgba(255,255,255,0.07)] flex flex-col">
-      <div className="h-[90px] border-b border-[rgba(255,255,255,0.07)] flex items-center px-5">
+    <aside className="w-[220px] h-screen bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex flex-col">
+      <div className="h-[90px] border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center px-5">
         <div className="flex items-center gap-4">
           <Image
             src="/Subtract.svg"
@@ -26,7 +26,9 @@ export default function DoctorSidebar() {
               Open
             </span>
             <br />
-            <span className="text-[#D2E2F8] text-2xl font-bold">Treatment</span>
+            <span className="text-slate-700 dark:text-[#D2E2F8] text-2xl font-bold">
+              Treatment
+            </span>
           </div>
         </div>
       </div>
@@ -35,7 +37,7 @@ export default function DoctorSidebar() {
         {doctorSidebarItems.length > 0 ? (
           doctorSidebarItems.map((group, index) => (
             <div key={group.section || index} className="mb-3">
-              <p className="text-[9px] font-semibold tracking-[0.1em] uppercase text-[#475569] px-2 pt-[10px] pb-1">
+              <p className="text-[9px] font-semibold tracking-[0.1em] uppercase text-slate-500 dark:text-[#475569] px-2 pt-[10px] pb-1">
                 {group.section}
               </p>
 
@@ -54,7 +56,7 @@ export default function DoctorSidebar() {
                           "relative flex items-center gap-[9px] px-[10px] py-2 rounded-lg transition-all text-[12.5px]",
                           isActive
                             ? "bg-[rgba(59,130,246,0.14)] text-[#3B82F6] font-medium"
-                            : "text-[#94A3B8] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#F1F5F9]"
+                            : "text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[rgba(255,255,255,0.05)] hover:text-slate-900 dark:hover:text-[#F1F5F9]"
                         )}
                       >
                         {isActive && (
@@ -78,26 +80,32 @@ export default function DoctorSidebar() {
                     );
                   })
                 ) : (
-                  <p className="text-[#94A3B8] px-3 py-2 text-xs">No items</p>
+                  <p className="text-slate-500 dark:text-[#94A3B8] px-3 py-2 text-xs">
+                    No items
+                  </p>
                 )}
               </div>
             </div>
           ))
         ) : (
-          <div className="text-[#94A3B8] p-4 text-sm">Loading sidebar...</div>
+          <div className="text-slate-500 dark:text-[#94A3B8] p-4 text-sm">
+            Loading sidebar...
+          </div>
         )}
       </div>
 
-      <div className="px-[10px] py-3 border-t border-[rgba(255,255,255,0.07)]">
-        <div className="flex items-center gap-[9px] px-2 py-[7px] rounded-lg hover:bg-[rgba(255,255,255,0.05)] transition-colors cursor-pointer">
+      <div className="px-[10px] py-3 border-t border-slate-200 dark:border-[rgba(255,255,255,0.07)]">
+        <div className="flex items-center gap-[9px] px-2 py-[7px] rounded-lg hover:bg-slate-100 dark:hover:bg-[rgba(255,255,255,0.05)] transition-colors cursor-pointer">
           <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
             DR
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-medium text-[#F1F5F9] truncate">
+            <p className="text-xs font-medium text-slate-900 dark:text-[#F1F5F9] truncate">
               Doctor Panel
             </p>
-            <p className="text-[10px] text-[#475569] truncate">Online</p>
+            <p className="text-[10px] text-slate-500 dark:text-[#475569] truncate">
+              Online
+            </p>
           </div>
         </div>
       </div>

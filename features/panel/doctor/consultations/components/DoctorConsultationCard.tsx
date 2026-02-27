@@ -3,7 +3,9 @@
 
 import { useState } from "react";
 import { DoctorConsultation } from "../types";
-import { CheckCircle, XCircle, Eye } from "lucide-react";
+import { CheckCircle, Eye } from "lucide-react";
+import { updateConsultationStatus } from "../actions";
+import { useRouter } from "next/navigation";
 
 interface DoctorConsultationCardProps {
   consultation: DoctorConsultation;
@@ -50,14 +52,17 @@ const statusConfig = {
 
 export default function DoctorConsultationCard({ consultation }: DoctorConsultationCardProps) {
   const [isPending, setIsPending] = useState(false);
+  const [localStatus, setLocalStatus] = useState<string | null>(null);
+  const router = useRouter();
   
   // Map API status to display status
+  const effectiveStatus = localStatus || consultation.status;
   const displayStatus = 
-    consultation.status === "APPROVED" ? "Confirmed" :
-    consultation.status === "PENDING" ? "Waiting" :
-    consultation.status === "IN_PROGRESS" ? "In Progress" :
-    consultation.status === "COMPLETED" ? "Completed" :
-    consultation.status === "CANCELLED" || consultation.status === "REJECTED" ? "Cancelled" :
+    effectiveStatus === "APPROVED" ? "Confirmed" :
+    effectiveStatus === "PENDING" ? "Waiting" :
+    effectiveStatus === "IN_PROGRESS" ? "In Progress" :
+    effectiveStatus === "COMPLETED" ? "Completed" :
+    effectiveStatus === "CANCELLED" || effectiveStatus === "REJECTED" ? "Cancelled" :
     "Waiting";
 
   const config = statusConfig[displayStatus as keyof typeof statusConfig] || statusConfig.Waiting;
@@ -91,13 +96,17 @@ export default function DoctorConsultationCard({ consultation }: DoctorConsultat
     }
   };
 
-  const handleDone = () => {
-    setIsPending(true);
-    // Simulate API call
-    setTimeout(() => {
+  const handleDone = async () => {
+    try {
+      setIsPending(true);
+      await updateConsultationStatus(consultation.id, "APPROVED");
+      setLocalStatus("APPROVED");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to mark consultation as approved:", error);
+    } finally {
       setIsPending(false);
-      console.log("Marked as done:", consultation.id);
-    }, 500);
+    }
   };
 
   const handleView = () => {
@@ -163,7 +172,9 @@ export default function DoctorConsultationCard({ consultation }: DoctorConsultat
       <div className="col-span-3">
         <div className="flex items-center gap-2">
           {/* Done button - only show if not completed/cancelled */}
-          {displayStatus !== "Completed" && displayStatus !== "Cancelled" && (
+          {displayStatus !== "Completed" &&
+            displayStatus !== "Cancelled" &&
+            displayStatus !== "Confirmed" && (
             <button
               onClick={handleDone}
               disabled={isPending}

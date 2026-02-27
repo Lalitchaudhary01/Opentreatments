@@ -303,14 +303,14 @@ export default function DoctorDashboard() {
   });
 
   return (
-    <div className="p-6 bg-[#111827] min-h-screen">
+    <div className="p-6 bg-slate-50 dark:bg-[#111827] min-h-screen">
       <div className="max-w-[1164px] mx-auto">
         
         {/* Header with Notification */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-          <button className="p-2 rounded-lg bg-[#161F30] border border-[rgba(255,255,255,0.07)]">
-            <Bell className="w-5 h-5 text-[#94A3B8]" />
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
+          <button className="p-2 rounded-lg bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)]">
+            <Bell className="w-5 h-5 text-slate-500 dark:text-[#94A3B8]" />
           </button>
         </div>
         
@@ -321,7 +321,7 @@ export default function DoctorDashboard() {
             return (
               <div
                 key={index}
-                className="bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[12.67px] p-4"
+                className="bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-[12.67px] p-4"
               >
                 <div className="flex justify-between items-start">
                   <Icon className="w-[33.1px] h-[33.1px] text-[#3B82F6]" />
@@ -335,10 +335,10 @@ export default function DoctorDashboard() {
                   </div>
                 </div>
                 <div className="mt-3">
-                  <div className="text-[23.4px] font-bold text-white tracking-[-0.7px] leading-none">
+                  <div className="text-[23.4px] font-bold text-slate-900 dark:text-white tracking-[-0.7px] leading-none">
                     {stat.value}
                   </div>
-                  <div className="text-[10.72px] text-[#94A3B8] mt-1">
+                  <div className="text-[10.72px] text-slate-500 dark:text-[#94A3B8] mt-1">
                     {stat.title}
                   </div>
                 </div>
@@ -352,12 +352,12 @@ export default function DoctorDashboard() {
         <div className="grid grid-cols-12 gap-4">
           
           {/* Today's Appointments - Left Column */}
-          <div className="col-span-7 bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
+          <div className="col-span-7 bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
             {/* Header */}
-            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex justify-between items-center">
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex justify-between items-center">
               <div>
-                <h3 className="text-[12.67px] font-semibold text-white">Today's Appointments</h3>
-                <p className="text-[10.72px] text-[#94A3B8]">
+                <h3 className="text-[12.67px] font-semibold text-slate-900 dark:text-white">Today's Appointments</h3>
+                <p className="text-[10.72px] text-slate-500 dark:text-[#94A3B8]">
                   Feb 20 · {loading ? "..." : todayCount} scheduled
                 </p>
               </div>
@@ -367,7 +367,7 @@ export default function DoctorDashboard() {
             </div>
 
             {/* Table Header */}
-            <div className="grid grid-cols-12 px-4 py-2 border-b border-[rgba(255,255,255,0.07)] text-[9.75px] font-semibold tracking-[0.68px] uppercase text-[#475569]">
+            <div className="grid grid-cols-12 px-4 py-2 border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] text-[9.75px] font-semibold tracking-[0.68px] uppercase text-slate-500 dark:text-[#475569]">
               <div className="col-span-5">Patient</div>
               <div className="col-span-2">Time</div>
               <div className="col-span-3">Type</div>
@@ -375,7 +375,7 @@ export default function DoctorDashboard() {
             </div>
 
             {/* Appointments List */}
-            <div className="divide-y divide-[rgba(255,255,255,0.07)]">
+            <div className="divide-y divide-slate-200 dark:divide-[rgba(255,255,255,0.07)]">
               {appointmentsData.map((appointment) => (
                 <div key={appointment.id} className="grid grid-cols-12 px-4 py-3 text-[10.72px]">
                   {/* Patient */}
@@ -388,13 +388,13 @@ export default function DoctorDashboard() {
                       {appointment.initials}
                     </div>
                     <div>
-                      <p className="text-[12.19px] text-[#F1F5F9]">{appointment.name}</p>
+                      <p className="text-[12.19px] text-slate-900 dark:text-[#F1F5F9]">{appointment.name}</p>
                       <p className="text-[#475569]">{appointment.patientId}</p>
                     </div>
                   </div>
 
                   {/* Time */}
-                  <div className="col-span-2 flex items-center text-[12.19px] text-[#94A3B8]">
+                  <div className="col-span-2 flex items-center text-[12.19px] text-slate-500 dark:text-[#94A3B8]">
                     <Clock className="w-3 h-3 mr-1 opacity-70" />
                     {appointment.time}
                   </div>
@@ -432,11 +432,11 @@ export default function DoctorDashboard() {
           </div>
 
           {/* Right Column - This Week Chart */}
-          <div className="col-span-5 bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[13.65px] p-4">
+          <div className="col-span-5 bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-[13.65px] p-4">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-[12.67px] font-semibold text-white">This Week</h3>
-                <p className="text-[10.72px] text-[#94A3B8] mt-1">Appointments Mon–Sun</p>
+                <h3 className="text-[12.67px] font-semibold text-slate-900 dark:text-white">This Week</h3>
+                <p className="text-[10.72px] text-slate-500 dark:text-[#94A3B8] mt-1">Appointments Mon–Sun</p>
               </div>
               <MoreHorizontal className="w-4 h-4 text-[#475569]" />
             </div>
@@ -487,20 +487,20 @@ export default function DoctorDashboard() {
           </div>
 
           {/* Activity Feed */}
-          <div className="col-span-5 bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex justify-between items-center">
-              <h3 className="text-[12.67px] font-semibold text-white flex items-center gap-2">
+          <div className="col-span-5 bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex justify-between items-center">
+              <h3 className="text-[12.67px] font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[#3B82F6]" />
                 Activity
               </h3>
             </div>
-            <div className="divide-y divide-[rgba(255,255,255,0.07)]">
+            <div className="divide-y divide-slate-200 dark:divide-[rgba(255,255,255,0.07)]">
               {activityData.map((activity) => (
-                <div key={activity.id} className="px-4 py-3 hover:bg-[#1E293B] transition-colors">
+                <div key={activity.id} className="px-4 py-3 hover:bg-slate-100 dark:hover:bg-[#1E293B] transition-colors">
                   <div className="flex items-start gap-3">
                     <span className={cn("w-[6.8px] h-[6.8px] rounded-full mt-1.5", activity.dotColor)} />
                     <div className="flex-1">
-                      <p className="text-[11.7px] text-[#F1F5F9] leading-[17.55px]">
+                      <p className="text-[11.7px] text-slate-900 dark:text-[#F1F5F9] leading-[17.55px]">
                         {activity.text}
                       </p>
                       <p className="text-[10.24px] text-[#475569] mt-0.5">{activity.time}</p>
@@ -512,20 +512,20 @@ export default function DoctorDashboard() {
           </div>
 
           {/* Revenue Breakdown */}
-          <div className="col-span-3 bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.07)]">
-              <h3 className="text-[12.67px] font-semibold text-white flex items-center gap-2">
+          <div className="col-span-3 bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)]">
+              <h3 className="text-[12.67px] font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-[#3B82F6]" />
                 Revenue Breakdown
               </h3>
-              <p className="text-[10.72px] text-[#94A3B8]">February 2026</p>
+              <p className="text-[10.72px] text-slate-500 dark:text-[#94A3B8]">February 2026</p>
             </div>
             <div className="p-4 space-y-4">
               {revenueData.map((item, index) => (
                 <div key={index}>
                   <div className="flex justify-between text-[12.19px] mb-1">
-                    <span className="text-[#94A3B8]">{item.label}</span>
-                    <span className="text-white font-semibold">{item.value}</span>
+                    <span className="text-slate-500 dark:text-[#94A3B8]">{item.label}</span>
+                    <span className="text-slate-900 dark:text-white font-semibold">{item.value}</span>
                   </div>
                   <div className="w-full h-[4.9px] bg-[rgba(255,255,255,0.06)] rounded-[9.75px] overflow-hidden">
                     <div 
@@ -539,22 +539,22 @@ export default function DoctorDashboard() {
           </div>
 
           {/* Upcoming Today */}
-          <div className="col-span-4 bg-[#161F30] border border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.07)]">
-              <h3 className="text-[12.67px] font-semibold text-white flex items-center gap-2">
+          <div className="col-span-4 bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[rgba(255,255,255,0.07)] rounded-[13.65px] overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)]">
+              <h3 className="text-[12.67px] font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#3B82F6]" />
                 Upcoming Today
               </h3>
             </div>
-            <div className="divide-y divide-[rgba(255,255,255,0.07)]">
+            <div className="divide-y divide-slate-200 dark:divide-[rgba(255,255,255,0.07)]">
               {upcomingData.map((item) => (
-                <div key={item.id} className="px-4 py-3 flex items-center gap-3 hover:bg-[#1E293B] transition-colors">
+                <div key={item.id} className="px-4 py-3 flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-[#1E293B] transition-colors">
                   <div className="w-[46.8px] h-[34.6px] bg-[#3B82F6]/12 rounded-[7.8px] flex flex-col items-center justify-center text-[11.2px]">
                     <span className="font-semibold text-[#3B82F6]">{item.time}</span>
                     <span className="text-[8.8px] text-[#60A5FA]">{item.ampm}</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-[12.2px] text-[#F1F5F9]">{item.name}</p>
+                    <p className="text-[12.2px] text-slate-900 dark:text-[#F1F5F9]">{item.name}</p>
                     <p className="text-[10.7px] text-[#475569]">{item.type}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-[#475569]" />

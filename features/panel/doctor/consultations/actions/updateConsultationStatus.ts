@@ -13,9 +13,9 @@ export async function updateConsultationStatus(
   });
 
   // Revalidate all consultation pages
-  revalidatePath("/doctor/consultations");
-  revalidatePath("/doctor/consultations/pending");
-  revalidatePath("/doctor/consultations/approved");
-  revalidatePath("/doctor/consultations/rejected");
-  revalidatePath("/doctor/consultations/today"); // Add today's schedule
+  revalidatePath("/doctor/appointments");
+  revalidatePath("/doctor/appointments/pending");
+  revalidatePath("/doctor/appointments/approved");
+  revalidatePath("/doctor/appointments/rejected");
+  revalidatePath("/doctor/appointments/today");
 }
