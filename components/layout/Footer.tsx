@@ -21,7 +21,7 @@ const Footer = () => {
           <div className="w-full lg:max-w-md flex flex-col gap-5 lg:gap-6">
             <div className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src="/Subtract.svg"
                 alt="Open Treatment"
                 width={51}
                 height={72}

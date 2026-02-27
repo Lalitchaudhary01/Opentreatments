@@ -107,12 +107,18 @@ export default function Navbar({ showNav = true }: NavbarProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="/logos.png"
+              src="/Subtract.svg"
               alt="Open Treatment"
-              width={132}
+              width={60}
               height={72}
               priority
             />
+            <div className="font-['Plus_Jakarta_Sans'] leading-tight">
+            {/* <span className="bg-gradient-to-r from-[#55B685] to-[#39A4EC] bg-clip-text text-transparent text-2xl font-bold">
+              Open Treatment
+            </span> */}
+            
+          </div>
           </Link>
 
           {/* Center Links - Desktop (Conditional) */}
