@@ -414,6 +414,7 @@ model IndependentDoctor {
   consultations     IndependentConsultation[]
   user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   IndependentReview IndependentReview[]
+  offlineConsultations OfflineConsultation[]
 }
 
 model IndependentConsultation {
@@ -437,6 +438,27 @@ model IndependentConsultation {
   IndependentReview IndependentReview?
   Payment           Payment?
 }
+
+// 1. OFFLINE CONSULTATIONS MODEL (ADD KARO)
+model OfflineConsultation {
+  id             String   @id @default(cuid())
+  doctorId       String
+  patientName    String
+  patientAge     Int?
+  patientGender  String?
+  phoneNumber    String?
+  complaint      String
+  prescription   String?   // Medicine/advice diya
+  followUpDate   DateTime? // Next visit
+  visitTime      DateTime @default(now())
+  
+  doctor         IndependentDoctor @relation(fields: [doctorId], references: [id])
+  
+  createdAt      DateTime @default(now())
+}
+
+// 2. DOCTOR PROFILE MEIN RELATION (OPTIONAL)
+
 
 model IndependentReview {
   id             String                  @id @default(cuid())
