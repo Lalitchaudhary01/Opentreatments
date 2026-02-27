@@ -27,7 +27,7 @@ export function useOnboarding(mode: Mode = "create") {
         window.location.href = "/doctor/profile";
       } else {
         await submitDoctorProfile(data);
-        window.location.href = "/doctor/status";
+        window.location.href = "/doctor/overview";
       }
     } catch (e: any) {
       console.error(e);

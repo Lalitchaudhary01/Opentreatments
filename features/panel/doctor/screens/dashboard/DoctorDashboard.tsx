@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { getDoctorProfile } from "@/features/panel/doctor/actions";
 import {
   getConsultationsForDoctor,
   getPatientCountsForDoctor,
@@ -245,14 +246,21 @@ const dotColors = {
 
 export default function DoctorDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("This Week");
-  const [todayCount, setTodayCount] = useState("12");
-  const [totalPatients, setTotalPatients] = useState("1,284"); // 👈 ADDED: Total patients state
+  const [todayCount, setTodayCount] = useState("0");
+  const [totalPatients, setTotalPatients] = useState("0");
   const [loading, setLoading] = useState(true);
 
   // Fetch data on component mount
   useEffect(() => {
     async function fetchData() {
       try {
+        const doctorProfile = await getDoctorProfile();
+        if (!doctorProfile) {
+          setTodayCount("0");
+          setTotalPatients("0");
+          return;
+        }
+
         const [all, patientCounts] = await Promise.all([
           getConsultationsForDoctor(), // Saara data fetch karo
           getPatientCountsForDoctor(), // Approved online + offline patients
@@ -267,6 +275,8 @@ export default function DoctorDashboard() {
         
       } catch (error) {
         console.error("Error fetching data:", error);
+        setTodayCount("0");
+        setTotalPatients("0");
       } finally {
         setLoading(false);
       }
