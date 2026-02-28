@@ -122,7 +122,7 @@ export default function DoctorConsultationCard({ consultation }: DoctorConsultat
           <div className="relative">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${config.bgColor} border ${config.borderColor}`}>
               <span className={`text-sm font-bold ${config.textColor}`}>
-                {getInitials(consultation.userName || consultation.patientName || "Anonymous")}
+                {getInitials(consultation.userName || "Anonymous")}
               </span>
             </div>
             {/* Status dot */}
@@ -131,7 +131,7 @@ export default function DoctorConsultationCard({ consultation }: DoctorConsultat
           
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-              {consultation.userName || consultation.patientName || "Anonymous User"}
+              {consultation.userName || "Anonymous User"}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {getPatientId()}
@@ -148,7 +148,7 @@ export default function DoctorConsultationCard({ consultation }: DoctorConsultat
             <path strokeLinecap="round" strokeWidth={2} d="M12 6v6l4 2" />
           </svg>
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {formatTime(consultation.slot || consultation.time)}
+            {formatTime(consultation.slot)}
           </span>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function DoctorConsultationCard({ consultation }: DoctorConsultat
       {/* Service Column */}
       <div className="col-span-2">
         <span className="text-sm text-gray-700 dark:text-gray-300">
-          {consultation.type || "Consultation"}
+          Consultation
         </span>
       </div>
 

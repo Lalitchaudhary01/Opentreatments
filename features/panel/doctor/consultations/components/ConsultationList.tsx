@@ -6,14 +6,15 @@ import DoctorConsultationCard from "./DoctorConsultationCard";
 
 interface ConsultationListProps {
   consultations: DoctorConsultation[];
+  emptyText?: string;
 }
 
-export default function ConsultationList({ consultations }: ConsultationListProps) {
+export default function ConsultationList({ consultations, emptyText }: ConsultationListProps) {
   if (!consultations || consultations.length === 0) {
     return (
       <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-b-xl border border-gray-200 dark:border-gray-700">
         <div className="text-6xl mb-4">📅</div>
-        <p className="text-gray-500 dark:text-gray-400">No appointments found</p>
+        <p className="text-gray-500 dark:text-gray-400">{emptyText || "No appointments found"}</p>
       </div>
     );
   }

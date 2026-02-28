@@ -5,6 +5,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getConsultationsForDoctor } from "./getConsultationsForDoctor";
 import { getOfflinePatients } from "./getOfflinePatients";
+import type { DoctorConsultation } from "../types/doctorConsultation";
+import type { OfflinePatient } from "../types/offlinePatient";
 
 export async function getDashboardData(filter: "ALL" | "ONLINE" | "OFFLINE" = "ALL") {
   try {
@@ -34,8 +36,8 @@ export async function getDashboardData(filter: "ALL" | "ONLINE" | "OFFLINE" = "A
     ]);
 
     // Get data based on filter
-    let onlinePatients = [];
-    let offlinePatients = [];
+    let onlinePatients: DoctorConsultation[] = [];
+    let offlinePatients: OfflinePatient[] = [];
 
     if (filter === "ALL" || filter === "ONLINE") {
       onlinePatients = await getConsultationsForDoctor();

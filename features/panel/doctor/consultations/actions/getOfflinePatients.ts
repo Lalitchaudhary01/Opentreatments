@@ -29,9 +29,9 @@ export async function getOfflinePatients(): Promise<OfflinePatient[]> {
     phoneNumber: p.phoneNumber ?? undefined,
     complaint: p.complaint,
     prescription: p.prescription ?? undefined,
-    diagnosis: p.diagnosis ?? undefined,
+    diagnosis: undefined,
     followUpDate: p.followUpDate?.toISOString() ?? undefined,
-    vitals: p.vitals as any,
+    vitals: undefined,
     visitTime: p.visitTime.toISOString(),
     createdAt: p.createdAt.toISOString(),
   }));
@@ -65,9 +65,9 @@ export async function getOfflinePatientById(id: string): Promise<OfflinePatient 
     phoneNumber: patient.phoneNumber ?? undefined,
     complaint: patient.complaint,
     prescription: patient.prescription ?? undefined,
-    diagnosis: patient.diagnosis ?? undefined,
+    diagnosis: undefined,
     followUpDate: patient.followUpDate?.toISOString() ?? undefined,
-    vitals: patient.vitals as any,
+    vitals: undefined,
     visitTime: patient.visitTime.toISOString(),
     createdAt: patient.createdAt.toISOString(),
   };

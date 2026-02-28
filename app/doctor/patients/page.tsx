@@ -9,7 +9,8 @@ import { Download, Search } from "lucide-react";
 import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
 
 // Helper functions
-function getInitials(name: string): string {
+function getInitials(name?: string | null): string {
+  if (!name?.trim()) return "PT";
   return name
     .split(' ')
     .map(word => word[0])
@@ -23,9 +24,11 @@ function getRandomBloodGroup(): string {
   return groups[Math.floor(Math.random() * groups.length)];
 }
 
-function formatLastVisit(dateStr?: string): string {
-  if (!dateStr) return "Today";
-  const date = new Date(dateStr);
+function formatLastVisit(dateInput?: string | Date | null): string {
+  if (!dateInput) return "Today";
+  const date = new Date(dateInput);
+  if (Number.isNaN(date.getTime())) return "Today";
+
   const today = new Date();
   const diffTime = today.getTime() - date.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -61,20 +64,24 @@ async function getDashboardData(doctorId: string, filter: "ALL" | "ONLINE" | "OF
       orderBy: { slot: "desc" }
     });
     
-    return online.map((p, index) => ({
-      ...p,
-      id: p.id,
-      type: "online",
-      displayName: p.user.name,
-      phoneNumber: p.user.phone,
-      city: "Pune", // Default city since field doesn't exist
-      lastVisit: formatLastVisit(p.slot),
-      visits: Math.floor(Math.random() * 20) + 1,
-      bloodGroup: getRandomBloodGroup(),
-      status: "Active",
-      avatar: getInitials(p.user.name),
-      patientId: getPatientId(index)
-    }));
+    return online.map((p, index) => {
+      const displayName = p.user.name || "Unknown Patient";
+      return {
+        ...p,
+        id: p.id,
+        type: "online",
+        displayName,
+        phoneNumber: p.user.phone,
+        city: "Pune", // Default city since field doesn't exist
+        lastVisit: formatLastVisit(p.slot),
+        sortTime: new Date(p.slot).getTime(),
+        visits: Math.floor(Math.random() * 20) + 1,
+        bloodGroup: getRandomBloodGroup(),
+        status: "Active",
+        avatar: getInitials(displayName),
+        patientId: getPatientId(index)
+      };
+    });
   }
   
   if (filter === "OFFLINE") {
@@ -89,8 +96,9 @@ async function getDashboardData(doctorId: string, filter: "ALL" | "ONLINE" | "OF
       type: "offline",
       displayName: p.patientName,
       phoneNumber: p.phoneNumber,
-      city: p.city || "Pune",
+      city: "Pune",
       lastVisit: formatLastVisit(p.visitTime),
+      sortTime: new Date(p.visitTime).getTime(),
       visits: Math.floor(Math.random() * 15) + 1,
       bloodGroup: getRandomBloodGroup(),
       status: index === 7 ? "New" : "Active",
@@ -117,20 +125,24 @@ async function getDashboardData(doctorId: string, filter: "ALL" | "ONLINE" | "OF
     })
   ]);
   
-  const onlineFormatted = online.map((p, index) => ({
-    ...p,
-    id: p.id,
-    type: "online",
-    displayName: p.user.name,
-    phoneNumber: p.user.phone,
-    city: "Pune", // Default city
-    lastVisit: formatLastVisit(p.slot),
-    visits: Math.floor(Math.random() * 20) + 1,
-    bloodGroup: getRandomBloodGroup(),
-    status: "Active",
-    avatar: getInitials(p.user.name),
-    patientId: getPatientId(index)
-  }));
+  const onlineFormatted = online.map((p, index) => {
+    const displayName = p.user.name || "Unknown Patient";
+    return {
+      ...p,
+      id: p.id,
+      type: "online",
+      displayName,
+      phoneNumber: p.user.phone,
+      city: "Pune", // Default city
+      lastVisit: formatLastVisit(p.slot),
+      sortTime: new Date(p.slot).getTime(),
+      visits: Math.floor(Math.random() * 20) + 1,
+      bloodGroup: getRandomBloodGroup(),
+      status: "Active",
+      avatar: getInitials(displayName),
+      patientId: getPatientId(index)
+    };
+  });
   
   const offlineFormatted = offline.map((p, index) => ({
     ...p,
@@ -138,8 +150,9 @@ async function getDashboardData(doctorId: string, filter: "ALL" | "ONLINE" | "OF
     type: "offline",
     displayName: p.patientName,
     phoneNumber: p.phoneNumber,
-    city: p.city || "Pune",
+    city: "Pune",
     lastVisit: formatLastVisit(p.visitTime),
+    sortTime: new Date(p.visitTime).getTime(),
     visits: Math.floor(Math.random() * 15) + 1,
     bloodGroup: getRandomBloodGroup(),
     status: "Active",
@@ -148,7 +161,7 @@ async function getDashboardData(doctorId: string, filter: "ALL" | "ONLINE" | "OF
   }));
   
   return [...onlineFormatted, ...offlineFormatted]
-    .sort((a, b) => new Date(b.slot || b.visitTime || "").getTime() - new Date(a.slot || a.visitTime || "").getTime())
+    .sort((a, b) => b.sortTime - a.sortTime)
     .slice(0, 8);
 }
 
