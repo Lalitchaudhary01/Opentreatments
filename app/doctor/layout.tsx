@@ -4,6 +4,12 @@ import { DoctorShell } from "@/features/panel/doctor";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";
+import { Sora } from "next/font/google";
+
+const sora = Sora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export default function DoctorLayout({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
@@ -22,5 +28,5 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
     return <p>Redirecting...</p>; // optional loading
   }
 
-  return <DoctorShell>{children}</DoctorShell>;
+  return <div className={sora.className}><DoctorShell>{children}</DoctorShell></div>;
 }

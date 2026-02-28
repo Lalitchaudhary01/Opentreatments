@@ -22,24 +22,50 @@ export async function addOfflinePatient(formData: FormData) {
       return { success: false, error: "Doctor not found" };
     }
 
-    // 3. Get form data
-    const patientName = formData.get("patientName") as string;
-    const patientAge = formData.get("patientAge") ? parseInt(formData.get("patientAge") as string) : null;
-    const patientGender = formData.get("patientGender") as string || null;
-    const phoneNumber = formData.get("phoneNumber") as string || null;
-    const complaint = formData.get("complaint") as string;
-    const prescription = formData.get("prescription") as string || null;
-    const followUpDate = formData.get("followUpDate") as string || null;
+    // 3. Get form data (supports both old + new modal fields)
+    const firstName = ((formData.get("firstName") as string) || "").trim();
+    const lastName = ((formData.get("lastName") as string) || "").trim();
+    const fallbackPatientName = ((formData.get("patientName") as string) || "").trim();
+    const patientName = `${firstName} ${lastName}`.trim() || fallbackPatientName;
+
+    const dob = ((formData.get("dob") as string) || "").trim();
+    const explicitAge = formData.get("patientAge") ? parseInt(formData.get("patientAge") as string) : null;
+    const patientAge =
+      explicitAge ??
+      (dob
+        ? (() => {
+            const date = new Date(dob);
+            if (Number.isNaN(date.getTime())) return null;
+            const now = new Date();
+            let age = now.getFullYear() - date.getFullYear();
+            const m = now.getMonth() - date.getMonth();
+            if (m < 0 || (m === 0 && now.getDate() < date.getDate())) age -= 1;
+            return age >= 0 ? age : null;
+          })()
+        : null);
+
+    const patientGender = ((formData.get("patientGender") as string) || "").trim() || null;
+    const phoneNumber = ((formData.get("phoneNumber") as string) || "").trim() || null;
+    const city = ((formData.get("city") as string) || "").trim();
+    const bloodGroup = ((formData.get("bloodGroup") as string) || "").trim();
+    const complaintInput = ((formData.get("complaint") as string) || "").trim();
+    const complaint = complaintInput || "Walk-in registration";
+    const followUpDate = ((formData.get("followUpDate") as string) || "").trim() || null;
+
+    const metaBits = [
+      city ? `City: ${city}` : null,
+      bloodGroup ? `Blood: ${bloodGroup}` : null,
+      dob ? `DOB: ${dob}` : null,
+    ].filter(Boolean);
+    const prescription =
+      (((formData.get("prescription") as string) || "").trim() || null) ??
+      (metaBits.length ? metaBits.join(" | ") : null);
 
     // 4. Basic validation
     if (!patientName || patientName.length < 2) {
       return { success: false, error: "Name must be at least 2 characters" };
     }
     
-    if (!complaint || complaint.length < 3) {
-      return { success: false, error: "Complaint must be at least 3 characters" };
-    }
-
     if (phoneNumber && !/^[0-9]{10}$/.test(phoneNumber)) {
       return { success: false, error: "Phone number must be 10 digits" };
     }

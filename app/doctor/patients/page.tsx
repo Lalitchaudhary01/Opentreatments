@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { AddOfflinePatientModal } from "@/features/panel/doctor/consultations/components/AddOfflinePatientModal";
-import { Download, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
 
 type UiFilter = "all" | "recent" | "active" | "new";
@@ -176,7 +176,7 @@ async function getPatientsData(doctorId: string): Promise<UiPatient[]> {
 export default async function DoctorPatientsPage({
   searchParams,
 }: {
-  searchParams: { filter?: string; q?: string };
+  searchParams: Promise<{ filter?: string; q?: string }> | { filter?: string; q?: string };
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -186,8 +186,12 @@ export default async function DoctorPatientsPage({
   });
   if (!doctor) redirect("/register-doctor");
 
-  const filter = (searchParams.filter || "all").toLowerCase() as UiFilter;
-  const query = (searchParams.q || "").trim().toLowerCase();
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();
+  const filter: UiFilter = ["all", "recent", "active", "new"].includes(rawFilter)
+    ? (rawFilter as UiFilter)
+    : "all";
+  const query = (resolvedSearchParams.q || "").trim().toLowerCase();
 
   const allPatients = await getPatientsData(doctor.id);
 
@@ -225,8 +229,8 @@ export default async function DoctorPatientsPage({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#111827]">
-      <div className="max-w-[1164px] mx-auto px-6 py-6 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="w-full px-7 py-[22px] space-y-[18px]">
+        <div className="flex flex-wrap items-center justify-between gap-[10px]">
           <div className="flex items-center gap-2 flex-wrap">
             {chips.map((chip) => {
               const isActive = filter === chip.value;
@@ -234,47 +238,38 @@ export default async function DoctorPatientsPage({
                 <Link
                   key={chip.value}
                   href={`/doctor/patients?filter=${chip.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                  className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
+                  className={`rounded-[20px] border px-3 py-[5px] text-[11.5px] font-medium transition-colors ${
                     isActive
                       ? "bg-blue-500/15 border-blue-500/40 text-blue-400"
-                      : "bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300"
+                      : "bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/[0.07] text-slate-500 dark:text-[#94A3B8] hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-700 dark:hover:text-slate-200"
                   }`}
                 >
                   {chip.name}
-                  {chip.count > 0 ? <span className="ml-1.5">{chip.count}</span> : null}
                 </Link>
               );
             })}
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <form method="GET" action="/doctor/patients" className="relative">
               <input type="hidden" name="filter" value={filter} />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-[11px] top-1/2 -translate-y-1/2 h-[14px] w-[14px] text-slate-400 dark:text-[#475569]" />
               <input
                 name="q"
                 defaultValue={query}
                 placeholder="Search patients..."
-                className="pl-9 pr-3 h-9 text-sm border border-slate-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#161f30] text-slate-900 dark:text-slate-100 w-64"
+                className="h-[33px] w-[180px] rounded-lg border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/5 pl-[34px] pr-3 text-[12px] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-[#475569] outline-none focus:border-slate-300 dark:focus:border-white/20"
               />
             </form>
-            <AddOfflinePatientModal doctorId={doctor.id} />
+            <AddOfflinePatientModal
+              doctorId={doctor.id}
+              triggerLabel="Add Patient"
+              triggerClassName="inline-flex h-[29px] items-center gap-[5px] rounded-lg bg-[#3b82f6] px-3 text-[12px] font-medium text-white hover:bg-[#2563eb]"
+            />
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Patient Directory</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{stats.all} registered</p>
-          </div>
-
-          <button className="inline-flex items-center gap-1.5 text-sm text-blue-500 hover:text-blue-400 font-medium">
-            <Download className="w-4 h-4" />
-            Export CSV →
-          </button>
-        </div>
-
-        <PatientDirectoryTable patients={patients} />
+        <PatientDirectoryTable patients={patients} registeredCount={stats.all} />
       </div>
     </div>
   );

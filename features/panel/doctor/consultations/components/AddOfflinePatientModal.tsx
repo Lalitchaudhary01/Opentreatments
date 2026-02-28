@@ -1,10 +1,19 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Plus } from "lucide-react";
 import { addOfflinePatient } from "../actions/addOfflinePatient";
 import { useRouter } from "next/navigation";
 
-export function AddOfflinePatientModal({ doctorId }: { doctorId: string }) {
+export function AddOfflinePatientModal({
+  doctorId,
+  triggerLabel = "Add Patient",
+  triggerClassName,
+}: {
+  doctorId: string;
+  triggerLabel?: string;
+  triggerClassName?: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -48,24 +57,28 @@ export function AddOfflinePatientModal({ doctorId }: { doctorId: string }) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+        className={
+          triggerClassName ||
+          "inline-flex h-[29px] items-center gap-[5px] rounded-lg bg-[#3b82f6] px-3 text-[12px] font-medium text-white hover:bg-[#2563eb]"
+        }
       >
-        + Add Walk-in Patient
+        <Plus className="h-[13px] w-[13px]" />
+        {triggerLabel}
       </button>
 
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-[2px]"
           onClick={handleBackdropClick}
         >
-          <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold text-gray-900">Add Walk-in Patient</h2>
-              <p className="text-sm text-gray-500 mt-1">Register a new offline patient</p>
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] shadow-2xl">
+            <div className="border-b border-slate-200 dark:border-white/[0.07] px-6 py-5">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Register Patient</h2>
+              <p className="mt-1 text-xs text-slate-500 dark:text-[#94A3B8]">Create a new patient profile</p>
             </div>
 
             {error && (
-              <div className="mx-6 mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+              <div className="mx-6 mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
                 {error}
               </div>
             )}
@@ -77,73 +90,93 @@ export function AddOfflinePatientModal({ doctorId }: { doctorId: string }) {
             >
               <input type="hidden" name="doctorId" value={doctorId} />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Patient Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="patientName"
-                  required
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="Enter patient name"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">
+                    First Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    required
+                    className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                    placeholder="Anika"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                    placeholder="Sharma"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">Phone</label>
                   <input
-                    type="number"
-                    name="patientAge"
-                    min="0"
-                    max="150"
-                    className="w-full p-2 border rounded-lg"
-                    placeholder="Years"
+                    type="tel"
+                    name="phoneNumber"
+                    pattern="[0-9]{10}"
+                    className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                    placeholder="9876543210"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                  <select name="patientGender" className="w-full p-2 border rounded-lg">
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">DOB</label>
+                  <input
+                    type="date"
+                    name="dob"
+                    className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">Gender</label>
+                  <select
+                    name="patientGender"
+                    className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                  >
                     <option value="">Select</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">Blood Group</label>
+                  <select
+                    name="bloodGroup"
+                    className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                  >
+                    <option value="">Select</option>
+                    <option value="O+">O+</option>
+                    <option value="A+">A+</option>
+                    <option value="B+">B+</option>
+                    <option value="AB+">AB+</option>
+                    <option value="O-">O-</option>
+                    <option value="A-">A-</option>
+                    <option value="B-">B-</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-[#94A3B8]">City</label>
                 <input
-                  type="tel"
-                  name="phoneNumber"
-                  pattern="[0-9]{10}"
-                  className="w-full p-2 border rounded-lg"
-                  placeholder="10 digit mobile"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Complaint/Reason <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="complaint"
-                  required
-                  rows={3}
-                  className="w-full p-2 border rounded-lg"
-                  placeholder="What brings the patient today?"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Follow-up Date</label>
-                <input
-                  type="date"
-                  name="followUpDate"
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full p-2 border rounded-lg"
+                  type="text"
+                  name="city"
+                  className="h-10 w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#111827] px-3 text-sm text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+                  placeholder="Pune"
                 />
               </div>
 
@@ -151,9 +184,9 @@ export function AddOfflinePatientModal({ doctorId }: { doctorId: string }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-[#3b82f6] py-2 text-sm font-medium text-white transition hover:bg-[#2563eb] disabled:opacity-50"
                 >
-                  {loading ? "Adding..." : "Add Patient"}
+                  {loading ? "Registering..." : "Register"}
                 </button>
                 <button
                   type="button"
@@ -161,7 +194,7 @@ export function AddOfflinePatientModal({ doctorId }: { doctorId: string }) {
                     setIsOpen(false);
                     setError("");
                   }}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 py-2 rounded-lg font-medium transition"
+                  className="flex-1 rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-200 dark:hover:bg-white/10"
                 >
                   Cancel
                 </button>

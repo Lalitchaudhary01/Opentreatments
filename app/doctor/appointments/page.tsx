@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { updateConsultationStatus } from "@/features/panel/doctor/consultations/actions";
 
 type ChipFilter = "all" | "confirmed" | "in-progress" | "waiting" | "completed";
@@ -115,7 +115,7 @@ function deriveWalkinType(complaint?: string | null) {
 export default async function DoctorAppointmentsPage({
   searchParams,
 }: {
-  searchParams: { filter?: string; q?: string };
+  searchParams: Promise<{ filter?: string }> | { filter?: string };
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -126,8 +126,11 @@ export default async function DoctorAppointmentsPage({
   });
   if (!doctor) redirect("/register-doctor");
 
-  const filter = (searchParams.filter || "all").toLowerCase() as ChipFilter;
-  const query = (searchParams.q || "").trim().toLowerCase();
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();
+  const filter: ChipFilter = ["all", "confirmed", "in-progress", "waiting", "completed"].includes(rawFilter)
+    ? (rawFilter as ChipFilter)
+    : "all";
 
   const [consultations, walkins] = await Promise.all([
     prisma.independentConsultation.findMany({
@@ -208,17 +211,15 @@ export default async function DoctorAppointmentsPage({
       ? allAppointments.filter((a) => a.statusLabel === "Completed")
       : allAppointments;
 
-  const appointments = query
-    ? filteredByChip.filter(
-        (a) =>
-          a.patientName.toLowerCase().includes(query) ||
-          a.patientId.toLowerCase().includes(query) ||
-          (a.phoneNumber || "").toLowerCase().includes(query)
-      )
-    : filteredByChip;
+  const appointments = filteredByChip;
 
   const counts = {
     all: allAppointments.length,
+    today: allAppointments.filter((a) => {
+      const d = new Date(a.sortTime);
+      const n = new Date();
+      return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+    }).length,
     confirmed: allAppointments.filter((a) => a.statusLabel === "Confirmed").length,
     inProgress: allAppointments.filter((a) => a.statusLabel === "In Progress").length,
     waiting: allAppointments.filter((a) => a.statusLabel === "Waiting").length,
@@ -235,110 +236,103 @@ export default async function DoctorAppointmentsPage({
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#111827]">
-      <div className="max-w-[1164px] mx-auto px-6 py-6 space-y-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="w-full px-7 py-[22px] space-y-[18px]">
+        <div className="flex items-center justify-between gap-[10px] flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
             {chips.map((chip) => {
               const isActive = chip.value === filter;
               return (
                 <Link
                   key={chip.value}
-                  href={`/doctor/appointments?filter=${chip.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                  className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
+                  href={`/doctor/appointments?filter=${chip.value}`}
+                  className={`rounded-[20px] border px-3 py-[5px] text-[11.5px] font-medium transition-colors ${
                     isActive
                       ? "bg-blue-500/15 border-blue-500/40 text-blue-400"
-                      : "bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300"
+                      : "bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/[0.07] text-slate-500 dark:text-[#94A3B8] hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-700 dark:hover:text-slate-200"
                   }`}
                 >
                   {chip.name}
-                  {chip.count > 0 ? <span className="ml-1.5">{chip.count}</span> : null}
                 </Link>
               );
             })}
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <form method="GET" action="/doctor/appointments" className="relative">
-              <input type="hidden" name="filter" value={filter} />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                name="q"
-                defaultValue={query}
-                placeholder="Search appointments..."
-                className="pl-9 pr-3 h-9 text-sm border border-slate-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#161f30] text-slate-900 dark:text-slate-100 w-60"
-              />
-            </form>
-
-            <button className="h-9 px-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 inline-flex items-center gap-1.5 text-sm">
-              <Plus className="w-4 h-4" />
-              New
-            </button>
-          </div>
+          <button className="inline-flex h-[29px] items-center gap-[5px] rounded-lg bg-[#3b82f6] px-3 text-[12px] font-medium text-white hover:bg-[#2563eb]">
+            <Plus className="h-[13px] w-[13px]" />
+            New
+          </button>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#161f30] overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
+        <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] transition-colors hover:border-slate-300 dark:hover:border-white/20">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
             <div>
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Appointments</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{counts.all} total</p>
+              <h2 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">Appointments</h2>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94A3B8]">{counts.today} today</p>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-white/10 text-left text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#1b263b]">
-                  <th className="px-4 py-3 font-semibold">Patient</th>
-                  <th className="px-4 py-3 font-semibold">Time</th>
-                  <th className="px-4 py-3 font-semibold">Doctor</th>
-                  <th className="px-4 py-3 font-semibold">Type</th>
-                  <th className="px-4 py-3 font-semibold">Booking</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold" />
+                <tr className="border-b border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#1b263b] text-left text-[10px] font-semibold uppercase tracking-[0.07em] text-slate-500 dark:text-[#94A3B8]">
+                  <th className="px-[18px] py-[9px]">Patient</th>
+                  <th className="px-[18px] py-[9px]">Time</th>
+                  <th className="px-[18px] py-[9px]">Doctor</th>
+                  <th className="px-[18px] py-[9px]">Type</th>
+                  <th className="px-[18px] py-[9px]">Booking</th>
+                  <th className="px-[18px] py-[9px]">Status</th>
+                  <th className="px-[18px] py-[9px]" />
                 </tr>
               </thead>
 
               <tbody>
                 {appointments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-14 text-center text-slate-500 dark:text-slate-400">
+                    <td colSpan={7} className="px-[18px] py-14 text-center text-[12.5px] text-slate-500 dark:text-[#94A3B8]">
                       No appointments found
                     </td>
                   </tr>
                 ) : (
                   appointments.map((item) => (
-                    <tr key={`${item.recordType}-${item.id}`} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-50 dark:hover:bg-white/5">
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-semibold ${item.avatarBg} ${item.avatarText}`}>
+                    <tr key={`${item.recordType}-${item.id}`} className="border-b border-slate-200 dark:border-white/[0.07] last:border-b-0 hover:bg-slate-50/70 dark:hover:bg-white/[0.02]">
+                      <td className="px-[18px] py-[11px] align-middle">
+                        <div className="flex items-center gap-[10px]">
+                          <div className={`h-[30px] w-[30px] rounded-full flex items-center justify-center text-[10.5px] font-bold ${item.avatarBg} ${item.avatarText}`}>
                             {item.avatar}
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-900 dark:text-slate-100">{item.patientName}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">#{item.patientId}</p>
+                            <p className="text-[12.5px] font-medium text-slate-900 dark:text-slate-100">{item.patientName}</p>
+                            <p className="text-[10.5px] text-slate-500 dark:text-[#94A3B8]">#{item.patientId}</p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">{item.time}</td>
-                      <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">Dr. {doctor.name || "R. Iyer"}</td>
-                      <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">{item.type}</td>
+                      <td className="px-[18px] py-[11px] align-middle text-[12.5px] text-slate-600 dark:text-slate-300">{item.time}</td>
+                      <td className="px-[18px] py-[11px] align-middle text-[12.5px] text-slate-600 dark:text-slate-300">Dr. {doctor.name || "R. Iyer"}</td>
+                      <td className="px-[18px] py-[11px] align-middle">
+                        <span className={`inline-flex items-center gap-1 rounded-[20px] px-[9px] py-[3px] text-[11px] font-medium ${item.type === "Follow-up" ? "bg-teal-500/15 text-teal-400" : item.type === "Procedure" ? "bg-amber-500/15 text-amber-400" : "bg-blue-500/15 text-blue-400"}`}>
+                          <span className="inline-block h-[5px] w-[5px] shrink-0 rounded-full bg-current opacity-70" />
+                          {item.type}
+                        </span>
+                      </td>
 
-                      <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${bookingClasses(item.booking)}`}>
+                      <td className="px-[18px] py-[11px] align-middle">
+                        <span className={`inline-flex items-center gap-1 rounded-[20px] px-[9px] py-[3px] text-[11px] font-medium ${bookingClasses(item.booking)}`}>
+                          <span className="inline-block h-[5px] w-[5px] shrink-0 rounded-full bg-current opacity-70" />
                           {item.booking}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusClasses(item.statusLabel)}`}>
+                      <td className="px-[18px] py-[11px] align-middle">
+                        <span className={`inline-flex items-center gap-1 rounded-[20px] px-[9px] py-[3px] text-[11px] font-medium ${statusClasses(item.statusLabel)}`}>
+                          <span className="inline-block h-[5px] w-[5px] shrink-0 rounded-full bg-current opacity-70" />
                           {item.statusLabel}
                         </span>
                       </td>
 
-                      <td className="px-4 py-3.5">
+                      <td className="px-[18px] py-[11px] align-middle">
                         <div className="flex items-center gap-2 justify-end">
-                          {item.recordType === "consultation" && (item.statusLabel === "Waiting" || item.statusLabel === "In Progress") ? (
+                          {item.recordType === "consultation" && item.statusLabel !== "Completed" ? (
                             <form
                               action={async () => {
                                 "use server";
@@ -347,14 +341,14 @@ export default async function DoctorAppointmentsPage({
                             >
                               <button
                                 type="submit"
-                                className="h-7 px-3 rounded-lg text-xs bg-green-500/15 text-green-400 hover:bg-green-500/25"
+                                className="rounded-lg border border-green-500/30 bg-green-500/12 px-[10px] py-1 text-[11px] font-medium text-green-400 hover:bg-green-500/20"
                               >
                                 Done
                               </button>
                             </form>
                           ) : null}
 
-                          <button className="h-7 px-3 rounded-lg text-xs border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10">
+                          <button className="rounded-lg border border-slate-200 dark:border-white/[0.07] px-[9px] py-[3px] text-[11px] text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-white/[0.06]">
                             View
                           </button>
                         </div>

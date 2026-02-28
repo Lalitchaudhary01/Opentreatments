@@ -13,16 +13,16 @@ export default function DoctorSidebar() {
 
   return (
     <aside className="w-[220px] h-screen bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex flex-col">
-      <div className="h-[90px] border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center px-5">
-        <div className="flex items-center gap-4">
+      <div className="border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center gap-[10px] px-[18px] pt-5 pb-4">
+        <div className="flex items-center gap-[10px]">
           <Image
             src="/Subtract.svg"
             alt="Open Treatment"
-            width={45}
-            height={45}
+            width={40}
+            height={40}
             className="object-contain"
           />
-          <div className="font-['Plus_Jakarta_Sans'] leading-tight">
+          <div className="leading-tight">
             <span className="bg-gradient-to-r from-[#55B685] to-[#39A4EC] bg-clip-text text-transparent text-2xl font-bold">
               Open
             </span>
@@ -37,7 +37,7 @@ export default function DoctorSidebar() {
       <div className="flex-1 overflow-y-auto px-[10px] py-3">
         {doctorSidebarItems.length > 0 ? (
           doctorSidebarItems.map((group, index) => (
-            <div key={group.section || index} className="mb-3">
+            <div key={group.section || index}>
               <p className="text-[9px] font-semibold tracking-[0.1em] uppercase text-slate-500 dark:text-[#475569] px-2 pt-[10px] pb-1">
                 {group.section}
               </p>
