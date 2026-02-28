@@ -3,31 +3,45 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Settings, UserCircle2 } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Settings, UserCircle2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { doctorSidebarItems } from "../../constants";
 
-export default function DoctorSidebar() {
+type Props = {
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+};
+
+export default function DoctorSidebar({ collapsed = false, onToggleCollapse }: Props) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-[220px] h-screen bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex flex-col">
-      <div className="border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center gap-[10px] px-[18px] pt-5 pb-4">
-        <div className="flex items-center gap-[10px]">
+    <aside
+      className={cn(
+        "h-screen bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex flex-col transition-all duration-200",
+        collapsed ? "w-[72px]" : "w-[220px]"
+      )}
+    >
+      <div
+        className={cn(
+          "border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center pt-5 pb-4",
+          collapsed ? "justify-center px-2" : "gap-[10px] px-[18px]"
+        )}
+      >
+        <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-[10px]")}>
           <Image
             src="/Subtract.svg"
             alt="Open Treatment"
-            width={40}
-            height={40}
+            width={32}
+            height={32}
             className="object-contain"
           />
-          <div className="leading-tight">
-            <span className="bg-gradient-to-r from-[#55B685] to-[#39A4EC] bg-clip-text text-transparent text-2xl font-bold">
+          <div className={cn("leading-none", collapsed && "hidden")}>
+            <span className="bg-gradient-to-r from-[#55B685] to-[#39A4EC] bg-clip-text text-transparent text-[13px] font-bold">
               Open
             </span>
-            <br />
-            <span className="text-slate-700 dark:text-[#D2E2F8] text-2xl font-bold">
+            <span className="ml-[1px] text-[13px] font-bold text-slate-700 dark:text-[#D2E2F8]">
               Treatment
             </span>
           </div>
@@ -38,7 +52,12 @@ export default function DoctorSidebar() {
         {doctorSidebarItems.length > 0 ? (
           doctorSidebarItems.map((group, index) => (
             <div key={group.section || index}>
-              <p className="text-[9px] font-semibold tracking-[0.1em] uppercase text-slate-500 dark:text-[#475569] px-2 pt-[10px] pb-1">
+              <p
+                className={cn(
+                  "text-[9px] font-semibold tracking-[0.1em] uppercase text-slate-500 dark:text-[#475569] px-2 pt-[10px] pb-1",
+                  collapsed && "hidden"
+                )}
+              >
                 {group.section}
               </p>
 
@@ -54,11 +73,13 @@ export default function DoctorSidebar() {
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "relative flex items-center gap-[9px] px-[10px] py-2 rounded-lg transition-all text-[12.5px]",
+                          "relative flex items-center rounded-lg py-2 text-[12.5px] transition-all",
+                          collapsed ? "justify-center px-2" : "gap-[9px] px-[10px]",
                           isActive
                             ? "bg-[rgba(59,130,246,0.14)] text-[#3B82F6] font-medium"
-                            : "text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[rgba(255,255,255,0.05)] hover:text-slate-900 dark:hover:text-[#F1F5F9]"
+                            : "font-normal text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-[rgba(255,255,255,0.05)] dark:hover:text-[#F1F5F9]"
                         )}
+                        title={collapsed ? item.label : undefined}
                       >
                         {isActive && (
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-[#3B82F6] rounded-r-[3px]" />
@@ -70,10 +91,19 @@ export default function DoctorSidebar() {
                             isActive ? "opacity-100" : "opacity-70"
                           )}
                         />
-                        <span className="truncate">{item.label}</span>
+                        <span className={cn("truncate", collapsed && "hidden")}>{item.label}</span>
 
-                        {item.badge ? (
-                          <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#3B82F6] text-white">
+                        {item.badge && !collapsed ? (
+                          <span
+                            className={cn(
+                              "ml-auto rounded-full px-1.5 py-0.5 text-[9px] font-bold",
+                                  ("badgeTone" in item && item.badgeTone === "amber")
+                                ? "bg-[#f59e0b] text-white"
+                                : ("badgeTone" in item && item.badgeTone === "amber-dark")
+                                  ? "bg-[#f59e0b] text-[#0b1120]"
+                                  : "bg-[#3B82F6] text-white"
+                            )}
+                          >
                             {item.badge}
                           </span>
                         ) : null}
@@ -99,41 +129,42 @@ export default function DoctorSidebar() {
         <Link
           href="/doctor/profile"
           className={cn(
-            "relative flex items-center gap-[9px] px-[10px] py-2 rounded-lg transition-all text-[12.5px]",
+            "relative flex items-center rounded-lg py-2 transition-all text-[12.5px]",
+            collapsed ? "justify-center px-2" : "gap-[9px] px-[10px]",
             pathname === "/doctor/profile" || pathname.startsWith("/doctor/profile/")
               ? "bg-[rgba(59,130,246,0.14)] text-[#3B82F6] font-medium"
               : "text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[rgba(255,255,255,0.05)] hover:text-slate-900 dark:hover:text-[#F1F5F9]"
           )}
+          title={collapsed ? "Profile" : undefined}
         >
           <UserCircle2 className="h-[15px] w-[15px] shrink-0" />
-          <span className="truncate">Profile</span>
+          <span className={cn("truncate", collapsed && "hidden")}>Profile</span>
         </Link>
 
         <Link
           href="/doctor/settings"
           className={cn(
-            "relative flex items-center gap-[9px] px-[10px] py-2 rounded-lg transition-all text-[12.5px]",
+            "relative flex items-center rounded-lg py-2 transition-all text-[12.5px]",
+            collapsed ? "justify-center px-2" : "gap-[9px] px-[10px]",
             pathname === "/doctor/settings" || pathname.startsWith("/doctor/settings/")
               ? "bg-[rgba(59,130,246,0.14)] text-[#3B82F6] font-medium"
               : "text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[rgba(255,255,255,0.05)] hover:text-slate-900 dark:hover:text-[#F1F5F9]"
           )}
+          title={collapsed ? "Settings" : undefined}
         >
           <Settings className="h-[15px] w-[15px] shrink-0" />
-          <span className="truncate">Settings</span>
+          <span className={cn("truncate", collapsed && "hidden")}>Settings</span>
         </Link>
 
-        <div className="flex items-center gap-[9px] px-2 py-[7px] rounded-lg hover:bg-slate-100 dark:hover:bg-[rgba(255,255,255,0.05)] transition-colors cursor-pointer mt-1.5">
-          <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-            DR
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-medium text-slate-900 dark:text-[#F1F5F9] truncate">
-              Doctor Panel
-            </p>
-            <p className="text-[10px] text-slate-500 dark:text-[#475569] truncate">
-              Online
-            </p>
-          </div>
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:border-white/[0.07] dark:bg-white/[0.06] dark:text-[#94A3B8] dark:hover:bg-white/[0.12]"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+          </button>
         </div>
       </div>
     </aside>

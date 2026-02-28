@@ -1,31 +1,29 @@
 "use client";
 
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useRef } from "react";
 import {
   ArrowDown,
   ArrowUp,
-  ArrowUpRight,
   CalendarDays,
   Clock3,
   IndianRupee,
   Landmark,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RevenueByService, RevenueHistoryItem } from "../types";
 
-const weeklyRevenue = [
-  { week: "W1", consultation: 18200, procedure: 6200, followup: 3200 },
-  { week: "W2", consultation: 20500, procedure: 7200, followup: 4100 },
-  { week: "W3", consultation: 18800, procedure: 5900, followup: 3500 },
-  { week: "W4", consultation: 21400, procedure: 7300, followup: 3800 },
-];
-
 const paymentHistory: RevenueHistoryItem[] = [
   { inv: "INV-0188", name: "Arjun Kumar", av: "AK", col: "rgba(20,184,166,0.2)", ac: "#2dd4bf", svc: "Consultation", date: "20 Feb", mode: "UPI", amt: 500, status: "PAID" },
-  { inv: "INV-0187", name: "Priya Menon", av: "PM", col: "rgba(59,130,246,0.2)", ac: "#60a5fa", svc: "Follow-up", date: "20 Feb", mode: "-", amt: 300, status: "PENDING" },
-  { inv: "INV-0186", name: "Sunita Rao", av: "SR", col: "rgba(245,158,11,0.2)", ac: "#fbbf24", svc: "Procedure", date: "20 Feb", mode: "-", amt: 1200, status: "PENDING" },
+  { inv: "INV-0187", name: "Priya Menon", av: "PM", col: "rgba(59,130,246,0.2)", ac: "#60a5fa", svc: "Follow-up", date: "20 Feb", mode: "—", amt: 300, status: "PENDING" },
+  { inv: "INV-0186", name: "Sunita Rao", av: "SR", col: "rgba(245,158,11,0.2)", ac: "#fbbf24", svc: "Procedure", date: "20 Feb", mode: "—", amt: 1200, status: "PENDING" },
   { inv: "INV-0185", name: "Vikram Nair", av: "VN", col: "rgba(139,92,246,0.2)", ac: "#a78bfa", svc: "Consultation", date: "19 Feb", mode: "Cash", amt: 500, status: "PAID" },
-  { inv: "INV-0184", name: "Deepa Sharma", av: "DS", col: "rgba(236,72,153,0.2)", ac: "#f472b6", svc: "Blood Test", date: "18 Feb", mode: "-", amt: 800, status: "PENDING" },
+  { inv: "INV-0184", name: "Deepa Sharma", av: "DS", col: "rgba(236,72,153,0.2)", ac: "#f472b6", svc: "Blood Test", date: "18 Feb", mode: "—", amt: 800, status: "PENDING" },
+  { inv: "INV-0183", name: "Ravi Pillai", av: "RP", col: "rgba(34,197,94,0.2)", ac: "#4ade80", svc: "Consultation", date: "18 Feb", mode: "Card", amt: 500, status: "PAID" },
+  { inv: "INV-0182", name: "Meena Joshi", av: "MJ", col: "rgba(251,191,36,0.2)", ac: "#fbbf24", svc: "Follow-up", date: "15 Feb", mode: "UPI", amt: 300, status: "PAID" },
+  { inv: "INV-0181", name: "Karan Mehta", av: "KM", col: "rgba(59,130,246,0.2)", ac: "#60a5fa", svc: "Consultation", date: "14 Feb", mode: "UPI", amt: 500, status: "PAID" },
+  { inv: "INV-0180", name: "Sanjay Bhat", av: "SB", col: "rgba(20,184,166,0.2)", ac: "#2dd4bf", svc: "Procedure", date: "13 Feb", mode: "Net Banking", amt: 1200, status: "PAID" },
+  { inv: "INV-0179", name: "Anita Desai", av: "AD", col: "rgba(167,139,250,0.2)", ac: "#c4b5fd", svc: "Consultation", date: "12 Feb", mode: "Cash", amt: 500, status: "PAID" },
 ];
 
 const revenueByService: RevenueByService[] = [
@@ -34,193 +32,279 @@ const revenueByService: RevenueByService[] = [
   { svc: "Follow-up", icon: "📋", count: 41, rev: 12300, color: "#f59e0b" },
   { svc: "Blood Test", icon: "🧪", count: 14, rev: 11200, color: "#a78bfa" },
   { svc: "X-Ray", icon: "🔬", count: 9, rev: 5400, color: "#f472b6" },
+  { svc: "ECG", icon: "❤️", count: 6, rev: 3600, color: "#22c55e" },
 ];
 
+function setupCanvas(canvas: HTMLCanvasElement | null) {
+  if (!canvas) return null;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(rect.width * dpr);
+  canvas.height = Math.floor(rect.height * dpr);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: rect.width, h: rect.height };
+}
+
+function drawWeekly(canvas: HTMLCanvasElement | null) {
+  const r = setupCanvas(canvas);
+  if (!r) return;
+  const { ctx, w, h } = r;
+  ctx.clearRect(0, 0, w, h);
+
+  const labels = ["Week 1", "Week 2", "Week 3", "Week 4"];
+  const sub = ["Feb 1–7", "Feb 8–14", "Feb 15–21", "Feb 22–28"];
+  const C = [20700, 25400, 31000, 15000];
+  const P = [8670, 10630, 12990, 6300];
+  const F = [5170, 6350, 7750, 3760];
+  const totals = labels.map((_, i) => C[i] + P[i] + F[i]);
+  const maxV = Math.max(...totals) * 1.2;
+
+  const padL = 52;
+  const padR = 20;
+  const padT = 28;
+  const padB = 52;
+  const cw = w - padL - padR;
+  const ch = h - padT - padB;
+  const gap = cw / 4;
+  const bw = gap * 0.5;
+
+  const layers = [
+    { d: F, c: "rgba(245,158,11,0.85)" },
+    { d: P, c: "rgba(20,184,166,0.85)" },
+    { d: C, c: "rgba(59,130,246,0.92)" },
+  ];
+
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1;
+  [0, 0.25, 0.5, 0.75, 1].forEach((f) => {
+    const y = padT + ch - ch * f;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + cw, y);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(148,163,184,0.5)";
+    ctx.font = "10px Sora";
+    ctx.textAlign = "right";
+    ctx.fillText(`₹${(maxV * f / 1000).toFixed(0)}k`, padL - 8, y + 4);
+  });
+
+  labels.forEach((_, i) => {
+    const x = padL + gap * i + (gap - bw) / 2;
+    const isCur = i === 2;
+    let sy = padT + ch;
+
+    layers.forEach((layer, li) => {
+      const bh = (layer.d[i] / maxV) * ch;
+      ctx.fillStyle = isCur ? layer.c : layer.c.replace(/0\.\d+\)$/, "0.3)");
+      if (li === layers.length - 1) {
+        const rr = 5;
+        ctx.beginPath();
+        ctx.moveTo(x + rr, sy - bh);
+        ctx.lineTo(x + bw - rr, sy - bh);
+        ctx.arcTo(x + bw, sy - bh, x + bw, sy - bh + rr, rr);
+        ctx.lineTo(x + bw, sy);
+        ctx.lineTo(x, sy);
+        ctx.lineTo(x, sy - bh + rr);
+        ctx.arcTo(x, sy - bh, x + rr, sy - bh, rr);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.fillRect(x, sy - bh, bw, bh);
+      }
+      sy -= bh;
+    });
+
+    if (isCur) {
+      const bw2 = 58;
+      const bh2 = 18;
+      const bx = x + bw / 2 - bw2 / 2;
+      const by = sy - 34;
+      ctx.fillStyle = "rgba(59,130,246,0.15)";
+      ctx.strokeStyle = "rgba(59,130,246,0.5)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw2, bh2, 4);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#60a5fa";
+      ctx.font = "bold 9px Sora";
+      ctx.textAlign = "center";
+      ctx.fillText("Current", x + bw / 2, by + 12);
+    }
+
+    ctx.fillStyle = isCur ? "rgba(241,245,249,0.9)" : "rgba(148,163,184,0.4)";
+    ctx.font = isCur ? "bold 10px Sora" : "9.5px Sora";
+    ctx.textAlign = "center";
+    ctx.fillText(`₹${(totals[i] / 1000).toFixed(0)}k`, x + bw / 2, sy - (isCur ? 40 : 8));
+
+    ctx.fillStyle = isCur ? "#60a5fa" : "rgba(148,163,184,0.65)";
+    ctx.font = isCur ? "bold 10px Sora" : "10px Sora";
+    ctx.fillText(labels[i], x + bw / 2, padT + ch + 16);
+
+    ctx.fillStyle = "rgba(148,163,184,0.4)";
+    ctx.font = "9px Sora";
+    ctx.fillText(sub[i], x + bw / 2, padT + ch + 32);
+  });
+}
+
 export default function DoctorRevenueScreen() {
-  const totals = useMemo(() => {
-    const monthTotal = weeklyRevenue.reduce(
-      (sum, row) => sum + row.consultation + row.procedure + row.followup,
-      0
-    );
-    const pendingRevenue = paymentHistory
-      .filter((p) => p.status === "PENDING")
-      .reduce((sum, p) => sum + p.amt, 0);
+  const revCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-    return {
-      totalRevenue: 384200,
-      monthTotal,
-      pendingRevenue,
-      nextPayout: 72851,
-    };
+  useEffect(() => {
+    const render = () => drawWeekly(revCanvasRef.current);
+    render();
+    window.addEventListener("resize", render);
+    return () => window.removeEventListener("resize", render);
   }, []);
 
-  const maxStacked = useMemo(() => {
-    return Math.max(
-      ...weeklyRevenue.map((r) => r.consultation + r.procedure + r.followup)
-    );
-  }, []);
+  const pendingRevenue = useMemo(
+    () => paymentHistory.filter((p) => p.status === "PENDING").reduce((sum, p) => sum + p.amt, 0),
+    []
+  );
 
   const maxServiceRev = revenueByService[0]?.rev || 1;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#111827] p-6">
-      <div className="max-w-[1164px] mx-auto space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <KpiCard title="Total Revenue" value={`Rs ${totals.totalRevenue.toLocaleString()}`} delta="+18%" icon={<IndianRupee className="w-4 h-4" />} />
-          <KpiCard title="This Month" value={`Rs ${totals.monthTotal.toLocaleString()}`} delta="+12%" icon={<CalendarDays className="w-4 h-4" />} />
-          <KpiCard title="Pending Revenue" value={`Rs ${totals.pendingRevenue.toLocaleString()}`} delta="3 inv" icon={<Clock3 className="w-4 h-4" />} trend="down" />
-          <KpiCard title="Next Payout" value={`Rs ${totals.nextPayout.toLocaleString()}`} delta="Mar 1" icon={<Landmark className="w-4 h-4" />} />
+    <div className="min-h-screen bg-[#111827] px-7 py-[22px]">
+      <div className="w-full space-y-4">
+        <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2 xl:grid-cols-4">
+          <KpiCard title="Total Revenue" value="₹3,84,200" delta="+18%" trend="up" tone="blue" icon={<IndianRupee className="h-[17px] w-[17px]" />} />
+          <KpiCard title="This Month" value="₹92,100" delta="+12%" trend="up" tone="teal" icon={<CalendarDays className="h-[17px] w-[17px]" />} />
+          <KpiCard title="Pending Revenue" value={`₹${pendingRevenue.toLocaleString("en-IN")}`} delta="3 inv" trend="down" tone="amber" icon={<Clock3 className="h-[17px] w-[17px]" />} />
+          <KpiCard title="Next Payout" value="₹72,851" delta="Mar 1" trend="up" tone="green" icon={<Landmark className="h-[17px] w-[17px]" />} />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_260px] gap-4">
-          <div className="rounded-2xl border bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 overflow-hidden">
-            <div className="px-5 pt-4 flex items-center justify-between">
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[1fr_260px]">
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30] transition-colors hover:border-white/20">
+            <div className="flex items-center justify-between px-5 pb-0 pt-4">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Weekly Revenue</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Feb 2026 · 4 weeks</p>
+                <div className="text-[13px] font-semibold text-[#F1F5F9]">Weekly Revenue</div>
+                <div className="mt-[2px] text-[11px] text-[#94A3B8]">Feb 2026 · 4 weeks</div>
               </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Rs {totals.monthTotal.toLocaleString()} total</span>
+              <span className="text-[11px] text-[#475569]">₹92,100 total</span>
             </div>
-
-            <div className="p-5 pt-4">
-              <div className="h-[210px] grid grid-cols-4 gap-6 items-end">
-                {weeklyRevenue.map((week) => {
-                  const stacked = week.consultation + week.procedure + week.followup;
-                  const totalPct = (stacked / maxStacked) * 100;
-                  const consultPct = (week.consultation / stacked) * totalPct;
-                  const procPct = (week.procedure / stacked) * totalPct;
-                  const followPct = (week.followup / stacked) * totalPct;
-
-                  return (
-                    <div key={week.week} className="h-full flex flex-col justify-end">
-                      <div className="h-[180px] flex items-end justify-center">
-                        <div className="w-12 rounded-t-md overflow-hidden bg-slate-100 dark:bg-white/10">
-                          <div className="bg-[#f59e0b]" style={{ height: `${followPct}%` }} />
-                          <div className="bg-[#14b8a6]" style={{ height: `${procPct}%` }} />
-                          <div className="bg-[#3b82f6]" style={{ height: `${consultPct}%` }} />
-                        </div>
-                      </div>
-                      <p className="text-center text-xs mt-2 text-slate-500 dark:text-slate-400">{week.week}</p>
-                    </div>
-                  );
-                })}
+            <div className="p-5">
+              <div className="relative h-[200px]">
+                <canvas ref={revCanvasRef} className="h-full w-full" />
               </div>
-
-              <div className="flex items-center gap-4 mt-4 text-xs text-slate-500 dark:text-slate-400">
-                <Legend color="bg-[#3b82f6]" label="Consultation" />
-                <Legend color="bg-[#14b8a6]" label="Procedure" />
-                <Legend color="bg-[#f59e0b]" label="Follow-up" />
+              <div className="mt-[14px] flex flex-wrap gap-[14px]">
+                <Legend label="Consultation" color="#3b82f6" />
+                <Legend label="Procedure" color="#14b8a6" />
+                <Legend label="Follow-up" color="#f59e0b" />
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-white/10">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Current Month Breakdown</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">February 2026</p>
-            </div>
-
-            <div className="text-sm">
-              <BreakdownRow label="Gross Revenue" value="Rs 92,100" />
-              <BreakdownRow label="Platform Commission (10%)" value="-Rs 9,210" danger />
-              <BreakdownRow label="Processing Fees" value="-Rs 2,671" danger />
-              <BreakdownRow label="Taxes (Est.)" value="-Rs 7,368" danger />
-              <div className="px-4 py-3 bg-green-500/10 border-t border-green-500/20 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Net Payout</span>
-                <span className="text-lg font-bold text-green-500">Rs 72,851</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_330px] gap-4">
-          <div className="rounded-2xl border bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Payment History</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Recent transactions</p>
-              </div>
-              <span className="text-xs text-blue-500 font-medium">Export CSV →</span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/10">
-                    <th className="text-left font-semibold px-4 py-2.5">Invoice</th>
-                    <th className="text-left font-semibold px-4 py-2.5">Patient</th>
-                    <th className="text-left font-semibold px-4 py-2.5">Service</th>
-                    <th className="text-left font-semibold px-4 py-2.5">Date</th>
-                    <th className="text-left font-semibold px-4 py-2.5">Mode</th>
-                    <th className="text-left font-semibold px-4 py-2.5">Amount</th>
-                    <th className="text-left font-semibold px-4 py-2.5">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paymentHistory.map((item) => (
-                    <tr key={item.inv} className="border-b last:border-b-0 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300">
-                      <td className="px-4 py-3 text-blue-500 text-xs font-medium">{item.inv}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold"
-                            style={{ background: item.col, color: item.ac }}
-                          >
-                            {item.av}
-                          </div>
-                          <span className="text-xs">{item.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-xs">{item.svc}</td>
-                      <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">{item.date}</td>
-                      <td className="px-4 py-3 text-xs">{item.mode}</td>
-                      <td className="px-4 py-3 text-xs font-semibold">Rs {item.amt}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={cn(
-                            "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium",
-                            item.status === "PAID"
-                              ? "bg-green-500/15 text-green-400"
-                              : "bg-amber-500/15 text-amber-400"
-                          )}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-white/10">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Revenue by Service</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">February 2026</p>
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+            <div className="border-b border-white/[0.07] px-[18px] py-[13px]">
+              <div className="text-[12.5px] font-semibold text-[#F1F5F9]">Current Month Breakdown</div>
+              <div className="mt-[2px] text-[11px] text-[#94A3B8]">February 2026</div>
             </div>
 
             <div>
-              {revenueByService.map((service) => {
-                const pct = Math.round((service.rev / maxServiceRev) * 100);
+              <BreakdownLine label="Gross Revenue" value="₹92,100" />
+              <BreakdownLine label="Platform Commission" sub="(10%)" value="-₹9,210" danger />
+              <BreakdownLine label="Processing Fees" value="-₹2,671" danger />
+              <BreakdownLine label="Taxes" sub="(Est.)" value="-₹7,368" danger />
+              <div className="flex items-center justify-between border-t border-green-500/20 bg-green-500/10 px-[18px] py-3">
+                <span className="text-[13px] font-semibold text-[#F1F5F9]">Net Payout</span>
+                <span className="text-[16px] font-bold text-green-400">₹72,851</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[1fr_330px]">
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
+              <div>
+                <div className="text-[13px] font-semibold text-[#F1F5F9]">Payment History</div>
+                <div className="mt-[2px] text-[11px] text-[#94A3B8]">Recent transactions</div>
+              </div>
+              <span className="cursor-pointer text-[12px] font-medium text-blue-400">Export CSV →</span>
+            </div>
+
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {[
+                    "Invoice",
+                    "Patient",
+                    "Service",
+                    "Date",
+                    "Mode",
+                    "Amount",
+                    "Status",
+                  ].map((h) => (
+                    <th key={h} className="border-b border-white/[0.07] px-[18px] py-[9px] text-left text-[10px] font-semibold uppercase tracking-[.07em] text-[#475569]">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {paymentHistory.map((p) => (
+                  <tr key={p.inv} className="border-b border-white/[0.07] last:border-b-0">
+                    <td className="px-[18px] py-[11px] text-[11.5px] font-medium text-blue-400">{p.inv}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#94A3B8]">
+                      <div className="flex items-center gap-[10px]">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-semibold" style={{ background: p.col, color: p.ac }}>
+                          {p.av}
+                        </div>
+                        <span className="text-[12px] text-[#F1F5F9]">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#94A3B8]">{p.svc}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#475569]">{p.date}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#94A3B8]">{p.mode}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] font-semibold text-[#F1F5F9]">₹{p.amt.toLocaleString("en-IN")}</td>
+                    <td className="px-[18px] py-[11px]">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-[20px] px-[9px] py-[3px] text-[11px] font-medium",
+                          p.status === "PAID" ? "bg-[rgba(34,197,94,.12)] text-[#4ade80]" : "bg-[rgba(245,158,11,.12)] text-[#fbbf24]"
+                        )}
+                      >
+                        <span className={cn("h-[5px] w-[5px] rounded-full", p.status === "PAID" ? "bg-[#4ade80]" : "bg-[#fbbf24]")} />
+                        {p.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+            <div className="border-b border-white/[0.07] px-5 py-[15px]">
+              <div className="text-[13px] font-semibold text-[#F1F5F9]">Revenue by Service</div>
+              <div className="mt-[2px] text-[11px] text-[#94A3B8]">February 2026</div>
+            </div>
+
+            <div>
+              {revenueByService.map((s) => {
+                const pct = Math.round((s.rev / maxServiceRev) * 100);
                 return (
-                  <div key={service.svc} className="px-4 py-3 border-b last:border-b-0 border-slate-200 dark:border-white/10">
-                    <div className="flex items-center justify-between mb-2">
+                  <div key={s.svc} className="border-b border-white/[0.07] px-[18px] py-3 last:border-b-0 hover:bg-white/[0.02]">
+                    <div className="mb-[7px] flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span>{service.icon}</span>
+                        <span className="text-[14px]">{s.icon}</span>
                         <div>
-                          <p className="text-xs text-slate-900 dark:text-slate-100">{service.svc}</p>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{service.count} sessions</p>
+                          <div className="text-[12.5px] font-medium text-[#F1F5F9]">{s.svc}</div>
+                          <div className="text-[10px] text-[#475569]">{s.count} sessions</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">Rs {service.rev.toLocaleString()}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Rs {Math.round(service.rev / service.count)}/session</p>
+                        <div className="text-[13px] font-bold text-[#F1F5F9]">₹{s.rev.toLocaleString("en-IN")}</div>
+                        <div className="text-[10px] text-[#475569]">₹{Math.round(s.rev / s.count).toLocaleString("en-IN")}/session</div>
                       </div>
                     </div>
-
-                    <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: service.color }} />
+                    <div className="h-1 overflow-hidden rounded bg-white/[0.06]">
+                      <div className="h-full rounded" style={{ width: `${pct}%`, background: s.color }} />
                     </div>
                   </div>
                 );
@@ -237,57 +321,65 @@ function KpiCard({
   title,
   value,
   delta,
+  trend,
+  tone,
   icon,
-  trend = "up",
 }: {
   title: string;
   value: string;
   delta: string;
+  trend: "up" | "down";
+  tone: "blue" | "teal" | "amber" | "green";
   icon: ReactNode;
-  trend?: "up" | "down";
 }) {
   return (
-    <div className="rounded-2xl border bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="w-9 h-9 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center">{icon}</div>
+    <div className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-[18px] transition-all hover:-translate-y-[2px] hover:border-white/20">
+      <div className="mb-3 flex items-start justify-between">
         <div
           className={cn(
-            "px-2 py-1 rounded-full text-[10px] inline-flex items-center gap-1",
-            trend === "up" ? "bg-green-500/15 text-green-400" : "bg-amber-500/15 text-amber-400"
+            "flex h-[34px] w-[34px] items-center justify-center rounded-[9px]",
+            tone === "blue" && "bg-blue-500/15 text-blue-400",
+            tone === "teal" && "bg-teal-500/15 text-teal-400",
+            tone === "amber" && "bg-amber-500/15 text-amber-400",
+            tone === "green" && "bg-green-500/15 text-green-400"
           )}
         >
-          {trend === "up" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-          {delta}
+          {icon}
         </div>
+
+        <span
+          className={cn(
+            "inline-flex items-center gap-[3px] rounded-[20px] px-[7px] py-[2px] text-[10px] font-medium",
+            trend === "up" ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"
+          )}
+        >
+          {trend === "up" ? <ArrowUp className="h-[10px] w-[10px]" /> : <ArrowDown className="h-[10px] w-[10px]" />}
+          {delta}
+        </span>
       </div>
-      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{value}</p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{title}</p>
+
+      <div className="mb-[3px] text-[24px] font-bold leading-none tracking-[-0.03em] text-[#F1F5F9]">{value}</div>
+      <div className="text-[11px] text-[#94A3B8]">{title}</div>
     </div>
   );
 }
 
-function BreakdownRow({
-  label,
-  value,
-  danger,
-}: {
-  label: string;
-  value: string;
-  danger?: boolean;
-}) {
+function BreakdownLine({ label, sub, value, danger }: { label: string; sub?: string; value: string; danger?: boolean }) {
   return (
-    <div className="px-4 py-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
-      <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
-      <span className={cn("text-sm", danger ? "text-red-400" : "text-slate-900 dark:text-slate-100 font-semibold")}>{value}</span>
+    <div className="flex items-center justify-between border-b border-white/[0.07] px-[18px] py-3">
+      <span className="text-[12px] text-[#94A3B8]">
+        {label} {sub ? <span className="text-[10px] text-[#475569]">{sub}</span> : null}
+      </span>
+      <span className={cn("text-[12.5px] font-medium", danger ? "text-red-400" : "text-[#F1F5F9] font-semibold")}>{value}</span>
     </div>
   );
 }
 
-function Legend({ color, label }: { color: string; label: string }) {
+function Legend({ label, color }: { label: string; color: string }) {
   return (
-    <div className="inline-flex items-center gap-1.5">
-      <span className={cn("w-2.5 h-2.5 rounded-full", color)} />
-      <span>{label}</span>
+    <div className="flex items-center gap-[6px] text-[11.5px] text-[#94A3B8]">
+      <div className="h-2 w-2 rounded-full" style={{ background: color }} />
+      {label}
     </div>
   );
 }

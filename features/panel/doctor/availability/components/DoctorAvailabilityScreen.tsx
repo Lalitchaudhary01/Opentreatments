@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Clock3, Info, Minus, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock3, Info, Minus, Plus, Trash2, X } from "lucide-react";
 import HolidayModal from "./HolidayModal";
 import { BreakSlot, HolidayBlock, SlotConfig, WeeklyHour } from "../types";
 
@@ -33,9 +33,33 @@ const slotSeed: SlotConfig = {
 };
 
 const durationOptions = [10, 15, 20, 30, 45, 60];
+const holidayTypeColors: Record<string, { chip: string; text: string }> = {
+  "Public Holiday": { chip: "bg-red-500/15", text: "text-red-400" },
+  "Personal Leave": { chip: "bg-blue-500/15", text: "text-blue-400" },
+  "Medical Leave": { chip: "bg-amber-500/15", text: "text-amber-400" },
+  "Conference / Training": { chip: "bg-violet-500/15", text: "text-violet-300" },
+  Other: { chip: "bg-white/10", text: "text-slate-300" },
+};
 
 function fmtDate(date: Date) {
   return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function fmtTime(t: string) {
+  const [h, m] = t.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function hoursLabel(open: string, close: string) {
+  const [oh, om] = open.split(":").map(Number);
+  const [ch, cm] = close.split(":").map(Number);
+  const mins = ch * 60 + cm - (oh * 60 + om);
+  if (mins <= 0) return "—";
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h && m ? `${h}h ${m}m` : h ? `${h}h` : `${m}m`;
 }
 
 function toDateString(y: number, m: number, d: number) {
@@ -69,17 +93,27 @@ export default function DoctorAvailabilityScreen() {
   const openCount = useMemo(() => weeklyHours.filter((w) => w.enabled).length, [weeklyHours]);
 
   const slotPreview = useMemo(() => {
-    const base = 9 * 60;
-    const step = slotConfig.duration + slotConfig.buffer;
-    return Array.from({ length: 8 }).map((_, idx) => {
-      const mins = base + idx * step;
-      const hh = Math.floor(mins / 60);
-      const mm = mins % 60;
-      const d = new Date();
-      d.setHours(hh, mm, 0, 0);
-      return d.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
-    });
-  }, [slotConfig.duration, slotConfig.buffer]);
+    const ref = weeklyHours.find((d) => d.enabled) || { open: "09:00", close: "18:00" };
+    const [oh, om] = ref.open.split(":").map(Number);
+    const [ch, cm] = ref.close.split(":").map(Number);
+    const totalMins = ch * 60 + cm - (oh * 60 + om);
+    const slotLen = slotConfig.duration + slotConfig.buffer;
+    const slotsTotal = Math.max(0, Math.floor(totalMins / Math.max(slotLen, 1)));
+    const previewCount = Math.min(slotsTotal, 6);
+
+    const slots: string[] = [];
+    let cur = oh * 60 + om;
+    for (let i = 0; i < previewCount; i += 1) {
+      const hh = Math.floor(cur / 60);
+      const mm = cur % 60;
+      const ampm = hh >= 12 ? "PM" : "AM";
+      const h12 = hh % 12 || 12;
+      slots.push(`${h12}:${String(mm).padStart(2, "0")} ${ampm}`);
+      cur += slotLen;
+    }
+
+    return { slots, slotsTotal };
+  }, [slotConfig.buffer, slotConfig.duration, weeklyHours]);
 
   const calendarCells = useMemo(() => {
     const y = calMonth.getFullYear();
@@ -110,13 +144,13 @@ export default function DoctorAvailabilityScreen() {
     return map;
   }, [holidays]);
 
-  const upcoming = useMemo(() => {
-    const now = new Date();
-    return [...holidays]
-      .filter((h) => new Date(h.to).getTime() >= now.getTime())
-      .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
-      .slice(0, 4);
-  }, [holidays]);
+  const upcoming = useMemo(
+    () =>
+      [...holidays]
+        .sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime())
+        .slice(0, 4),
+    [holidays]
+  );
 
   const discard = () => {
     setWeeklyHours(savedSnapshot.weeklyHours);
@@ -164,14 +198,19 @@ export default function DoctorAvailabilityScreen() {
                 <div className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">Weekly Working Hours</div>
                 <div className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94A3B8]">Set your clinic hours for each day</div>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{openCount} days open</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">
+                {openCount} day{openCount !== 1 ? "s" : ""} open
+              </span>
             </div>
 
             <div className="px-0 py-[6px]">
               {weeklyHours.map((row) => (
-                <div key={row.day} className="border-b border-slate-200 px-5 py-[10px] dark:border-white/[0.07] last:border-b-0">
-                  <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
-                    <div className="flex items-center gap-3 text-[12.5px] font-medium text-slate-700 dark:text-slate-200">
+                <div
+                  key={row.day}
+                  className="flex items-center gap-[10px] border-b border-slate-200 px-5 py-[11px] dark:border-white/[0.07]"
+                  style={{ opacity: row.enabled ? 1 : 0.5 }}
+                >
+                  <div className="flex items-center gap-3">
                       <button
                         type="button"
                         aria-label={`Toggle ${row.day}`}
@@ -190,39 +229,47 @@ export default function DoctorAvailabilityScreen() {
                             )
                           )
                         }
-                        className={`relative h-5 w-9 rounded-[10px] transition-colors ${
-                          row.enabled ? "bg-green-500" : "bg-slate-300 dark:bg-white/15"
+                        className={`relative h-[19px] w-[34px] rounded-[10px] transition-colors ${
+                          row.enabled ? "bg-blue-500" : "bg-slate-200 dark:bg-white/10"
                         }`}
                       >
                         <span
-                          className={`absolute top-[3px] h-[14px] w-[14px] rounded-full bg-white transition-all ${
-                            row.enabled ? "left-[19px]" : "left-[3px]"
+                          className={`absolute h-[14px] w-[14px] rounded-full bg-white transition-all ${
+                            row.enabled ? "left-[17px] top-[2.5px]" : "left-[2.5px] top-[2.5px]"
                           }`}
                         />
                       </button>
-                      {row.day}
+                      <div
+                        className={`w-[88px] shrink-0 text-[12.5px] ${row.enabled ? "font-medium text-slate-900 dark:text-slate-100" : "font-normal text-slate-500 dark:text-[#94A3B8]"}`}
+                      >
+                        {row.day}
+                      </div>
                     </div>
 
-                    <input
-                      type="time"
-                      disabled={!row.enabled}
-                      value={row.open}
-                      onChange={(e) =>
-                        setWeeklyHours((prev) => prev.map((d) => (d.day === row.day ? { ...d, open: e.target.value } : d)))
-                      }
-                      className="h-[33px] rounded-lg border border-slate-200 bg-slate-50 px-2 text-[12px] text-slate-800 dark:border-white/[0.07] dark:bg-white/5 dark:text-slate-200"
-                    />
-                    <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">to</span>
-                    <input
-                      type="time"
-                      disabled={!row.enabled}
-                      value={row.close}
-                      onChange={(e) =>
-                        setWeeklyHours((prev) => prev.map((d) => (d.day === row.day ? { ...d, close: e.target.value } : d)))
-                      }
-                      className="h-[33px] rounded-lg border border-slate-200 bg-slate-50 px-2 text-[12px] text-slate-800 dark:border-white/[0.07] dark:bg-white/5 dark:text-slate-200"
-                    />
-                  </div>
+                    {row.enabled ? (
+                      <>
+                        <input
+                          type="time"
+                          value={row.open}
+                          onChange={(e) =>
+                            setWeeklyHours((prev) => prev.map((d) => (d.day === row.day ? { ...d, open: e.target.value } : d)))
+                          }
+                          className="h-[33px] w-[96px] cursor-pointer rounded-lg border border-slate-200 bg-white px-[9px] text-[12px] text-slate-800 dark:border-white/[0.07] dark:bg-white/5 dark:text-slate-200"
+                        />
+                        <div className="text-[11px] text-slate-500 dark:text-[#94A3B8]">to</div>
+                        <input
+                          type="time"
+                          value={row.close}
+                          onChange={(e) =>
+                            setWeeklyHours((prev) => prev.map((d) => (d.day === row.day ? { ...d, close: e.target.value } : d)))
+                          }
+                          className="h-[33px] w-[96px] cursor-pointer rounded-lg border border-slate-200 bg-white px-[9px] text-[12px] text-slate-800 dark:border-white/[0.07] dark:bg-white/5 dark:text-slate-200"
+                        />
+                        <div className="ml-auto text-[10.5px] text-slate-500 dark:text-[#94A3B8]">{hoursLabel(row.open, row.close)}</div>
+                      </>
+                    ) : (
+                      <div className="ml-1 text-[11.5px] text-slate-500 dark:text-[#94A3B8]">Day off</div>
+                    )}
                 </div>
               ))}
             </div>
@@ -237,7 +284,7 @@ export default function DoctorAvailabilityScreen() {
               <button
                 type="button"
                 onClick={() =>
-                  setBreaks((prev) => [...prev, { id: `B-${Date.now()}`, label: "Break", from: "13:00", to: "13:30" }])
+                  setBreaks((prev) => [...prev, { id: `B-${Date.now()}`, label: "New Break", from: "12:00", to: "12:30" }])
                 }
                 className="rounded-[7px] bg-blue-500/15 px-[11px] py-[5px] text-[11.5px] font-semibold text-blue-400"
               >
@@ -246,20 +293,47 @@ export default function DoctorAvailabilityScreen() {
             </div>
 
             <div className="py-[6px]">
-              {breaks.map((b) => (
-                <div key={b.id} className="flex items-center justify-between border-b border-slate-200 px-5 py-[10px] dark:border-white/[0.07] last:border-b-0">
-                  <div className="text-[12px] text-slate-700 dark:text-slate-200">
-                    <span className="font-medium">{b.label}</span> · {b.from} - {b.to}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setBreaks((prev) => prev.filter((x) => x.id !== b.id))}
-                    className="rounded-md p-1.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+              {breaks.length === 0 ? (
+                <div className="px-5 py-[30px] text-center text-[12px] text-slate-500 dark:text-[#94A3B8]">
+                  No breaks configured. Click <strong className="text-blue-400">+ Add</strong> to set one.
                 </div>
-              ))}
+              ) : (
+                breaks.map((b) => (
+                  <div key={b.id} className="flex items-center gap-[10px] border-b border-slate-200 px-5 py-[11px] dark:border-white/[0.07]">
+                    <div className="h-2 w-2 shrink-0 rounded-full bg-amber-400" />
+                    <div className="flex-1">
+                      <div className="text-[12.5px] font-medium text-slate-800 dark:text-slate-100">{b.label}</div>
+                      <div className="mt-[1px] text-[10.5px] text-slate-500 dark:text-[#94A3B8]">
+                        {fmtTime(b.from)} — {fmtTime(b.to)} · {hoursLabel(b.from, b.to)}
+                      </div>
+                    </div>
+                    <input
+                      type="time"
+                      value={b.from}
+                      onChange={(e) =>
+                        setBreaks((prev) => prev.map((x) => (x.id === b.id ? { ...x, from: e.target.value } : x)))
+                      }
+                      className="h-[30px] w-[86px] rounded-[7px] border border-slate-200 bg-slate-50 px-2 text-[11.5px] text-slate-800 dark:border-white/[0.07] dark:bg-white/5 dark:text-slate-100"
+                    />
+                    <div className="text-[11px] text-slate-500 dark:text-[#94A3B8]">—</div>
+                    <input
+                      type="time"
+                      value={b.to}
+                      onChange={(e) =>
+                        setBreaks((prev) => prev.map((x) => (x.id === b.id ? { ...x, to: e.target.value } : x)))
+                      }
+                      className="h-[30px] w-[86px] rounded-[7px] border border-slate-200 bg-slate-50 px-2 text-[11.5px] text-slate-800 dark:border-white/[0.07] dark:bg-white/5 dark:text-slate-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBreaks((prev) => prev.filter((x) => x.id !== b.id))}
+                      className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-red-500/10"
+                    >
+                      <Trash2 className="h-3 w-3 text-red-400" />
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
 
             <div className="border-t border-slate-200 px-5 py-[14px] dark:border-white/[0.07]">
@@ -289,11 +363,11 @@ export default function DoctorAvailabilityScreen() {
                         onClick={() => setSlotConfig((s) => ({ ...s, duration: opt }))}
                         className={
                           active
-                            ? "rounded-lg border border-blue-500/40 bg-blue-500/15 px-3 py-[5px] text-[11.5px] font-medium text-blue-400"
-                            : "rounded-lg border border-slate-200 bg-slate-50 px-3 py-[5px] text-[11.5px] font-medium text-slate-600 dark:border-white/[0.07] dark:bg-white/5 dark:text-[#94A3B8]"
+                            ? "rounded-lg border border-blue-500/40 bg-blue-500/15 px-[14px] py-[6px] text-[12px] font-medium text-blue-400"
+                            : "rounded-lg border border-slate-200 bg-transparent px-[14px] py-[6px] text-[12px] font-medium text-slate-600 dark:border-white/[0.07] dark:text-[#94A3B8]"
                         }
                       >
-                        {opt}m
+                        {opt} min
                       </button>
                     );
                   })}
@@ -343,14 +417,17 @@ export default function DoctorAvailabilityScreen() {
               <div className="rounded-[10px] border border-blue-500/20 bg-blue-500/10 px-4 py-[13px]">
                 <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[.05em] text-blue-400">Live Preview</div>
                 <div className="flex flex-wrap gap-[6px]">
-                  {slotPreview.map((s) => (
-                    <span key={s} className="rounded-md border border-blue-500/30 bg-blue-500/10 px-2 py-1 text-[10.5px] text-blue-300">
+                  {slotPreview.slots.map((s) => (
+                    <span key={s} className="rounded-md border border-blue-500/30 bg-blue-500/10 px-[10px] py-1 text-[11px] font-medium text-[#60a5fa]">
                       {s}
                     </span>
                   ))}
+                  {slotPreview.slotsTotal > 6 ? (
+                    <span className="px-[10px] py-1 text-[11px] text-slate-500 dark:text-[#94A3B8]">+{slotPreview.slotsTotal - 6} more</span>
+                  ) : null}
                 </div>
                 <div className="mt-2 text-[10.5px] text-slate-500 dark:text-[#94A3B8]">
-                  {slotConfig.duration}m slot + {slotConfig.buffer}m buffer with {slotConfig.leadTime} lead time.
+                  {slotPreview.slotsTotal} slots · {slotConfig.duration} min each · {slotConfig.buffer} min buffer
                 </div>
               </div>
             </div>
@@ -403,14 +480,31 @@ export default function DoctorAvailabilityScreen() {
               <div className="grid grid-cols-7 gap-[2px]" id="cal-grid">
                 {calendarCells.map((c) => {
                   if (!c.inMonth) {
-                    return <div key={c.key} className="h-8 rounded" />;
+                    return <div key={c.key} className="aspect-square rounded" />;
                   }
                   const dateKey = toDateString(calMonth.getFullYear(), calMonth.getMonth(), c.d);
                   const blocked = holidayMap.has(dateKey);
+                  const dow = new Date(calMonth.getFullYear(), calMonth.getMonth(), c.d).getDay();
+                  const weekIdx = dow === 0 ? 6 : dow - 1;
+                  const dayCfg = weeklyHours[weekIdx];
+                  const dayOff = dayCfg ? !dayCfg.enabled : false;
+                  const today = new Date();
+                  const isToday =
+                    today.getFullYear() === calMonth.getFullYear() &&
+                    today.getMonth() === calMonth.getMonth() &&
+                    today.getDate() === c.d;
                   return (
                     <div
                       key={c.key}
-                      className={`flex h-8 items-center justify-center rounded text-[11px] ${blocked ? "bg-red-500/15 text-red-400" : "text-slate-700 dark:text-slate-200"}`}
+                      className={`flex aspect-square items-center justify-center rounded-[6px] border text-[11.5px] transition-colors ${
+                        isToday
+                          ? "border-blue-500 bg-blue-500 text-white font-bold"
+                          : blocked
+                          ? "border-red-500/40 bg-red-500/15 text-red-400"
+                          : dayOff
+                          ? "border-transparent text-slate-400 dark:text-[#64748b]"
+                          : "border-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5"
+                      }`}
                     >
                       {c.d}
                     </div>
@@ -423,21 +517,60 @@ export default function DoctorAvailabilityScreen() {
               <div className="px-5 pb-2 text-[10px] font-semibold uppercase tracking-[.07em] text-slate-500 dark:text-[#94A3B8]">Upcoming</div>
               <div>
                 {upcoming.length === 0 ? (
-                  <div className="px-5 py-3 text-[11px] text-slate-500 dark:text-[#94A3B8]">No upcoming blocks</div>
+                  <div className="px-5 py-[18px] text-[12px] text-slate-500 dark:text-[#94A3B8]">
+                    No upcoming holidays or time offs.
+                  </div>
                 ) : (
                   upcoming.map((h) => (
-                    <div key={h.id} className="flex items-center justify-between border-b border-slate-200 px-5 py-[10px] text-[11.5px] dark:border-white/[0.07] last:border-b-0">
-                      <div>
-                        <div className="font-medium text-slate-800 dark:text-slate-100">{h.label}</div>
-                        <div className="mt-0.5 text-slate-500 dark:text-[#94A3B8]">{fmtDate(new Date(h.from))}</div>
+                    <div key={h.id} className="flex items-center gap-[10px] border-b border-slate-200 px-5 py-[10px] dark:border-white/[0.07]">
+                      <div className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-[9px] bg-blue-500/15 text-blue-400">
+                        <div className="text-[14px] font-bold leading-none">{new Date(h.from).getDate()}</div>
+                        <div className="text-[8.5px] leading-none opacity-80">
+                          {new Date(h.from).toLocaleDateString("en-IN", { month: "short" }).toUpperCase()}
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setHolidays((prev) => prev.filter((x) => x.id !== h.id))}
-                        className="rounded-md p-1.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[12.5px] font-medium text-slate-800 dark:text-slate-100">{h.label}</div>
+                        <div className="mt-[1px] text-[10.5px] text-slate-500 dark:text-[#94A3B8]">
+                          {h.from === h.to
+                            ? fmtDate(new Date(h.from))
+                            : `${new Date(h.from).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                              })} – ${fmtDate(new Date(h.to))}`}{" "}
+                          ·{" "}
+                          {Math.round(
+                            (new Date(`${h.to}T00:00:00`).getTime() -
+                              new Date(`${h.from}T00:00:00`).getTime()) /
+                              86400000
+                          ) + 1}{" "}
+                          day
+                          {Math.round(
+                            (new Date(`${h.to}T00:00:00`).getTime() -
+                              new Date(`${h.from}T00:00:00`).getTime()) /
+                              86400000
+                          ) + 1 >
+                          1
+                            ? "s"
+                            : ""}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-[5px]">
+                        <span
+                          className={`whitespace-nowrap rounded-[10px] px-[7px] py-[2px] text-[10px] font-medium ${
+                            (holidayTypeColors[h.type] || holidayTypeColors.Other).chip
+                          } ${(holidayTypeColors[h.type] || holidayTypeColors.Other).text}`}
+                        >
+                          {h.type.replace("Conference / ", "")}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setHolidays((prev) => prev.filter((x) => x.id !== h.id))}
+                          className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] bg-red-500/10"
+                        >
+                          <X className="h-[10px] w-[10px] text-red-400" />
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}

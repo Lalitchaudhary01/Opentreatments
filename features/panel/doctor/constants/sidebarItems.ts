@@ -51,7 +51,8 @@ export const doctorSidebarItems = [
         label: "Billing", 
         href: "/doctor/billing", 
         icon: Receipt,
-        badge: "3"
+        badge: "3",
+        badgeTone: "amber",
       },
       { 
         label: "Revenue", 
@@ -72,6 +73,8 @@ export const doctorSidebarItems = [
         label: "Reviews",
         href: "/doctor/reviews",
         icon: Star,
+        badge: "4.8",
+        badgeTone: "amber-dark",
       },
     ],
   },
