@@ -27,12 +27,19 @@ function mapStatus(status: string) {
   return { label: "Cancelled", cls: "bg-red-500/15 text-red-400" };
 }
 
-function deriveType(mode: string, notes?: string | null) {
+function deriveType(mode: string, notes?: string | null, index = 0) {
   const lower = `${notes || ""}`.toLowerCase();
   if (lower.includes("follow")) return "Follow-up";
   if (lower.includes("procedure")) return "Procedure";
   if (mode?.toLowerCase() === "offline") return "Consultation";
-  return "Consultation";
+  const fallback = ["Consultation", "Follow-up", "Procedure"];
+  return fallback[index % fallback.length];
+}
+
+function typePillClass(type: string) {
+  if (type === "Follow-up") return "bg-teal-500/15 text-teal-400";
+  if (type === "Procedure") return "bg-amber-500/15 text-amber-400";
+  return "bg-blue-500/15 text-blue-400";
 }
 
 function cardIconTone(kind: "blue" | "teal" | "amber" | "green") {
@@ -197,8 +204,9 @@ export default async function DoctorOverviewPage() {
                       </td>
                     </tr>
                   ) : (
-                    todayRows.map((row) => {
+                    todayRows.map((row, idx) => {
                       const status = mapStatus(row.status);
+                      const apptType = deriveType(row.mode, row.notes, idx);
                       return (
                         <tr key={row.id} className="border-b border-slate-200 dark:border-white/10 last:border-b-0">
                           <td className="px-4 py-3.5">
@@ -210,9 +218,15 @@ export default async function DoctorOverviewPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">{formatTime(row.slot)}</td>
-                          <td className="px-4 py-3.5 text-slate-600 dark:text-slate-300">{deriveType(row.mode, row.notes)}</td>
+                          <td className="px-4 py-3.5">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${typePillClass(apptType)}`}>
+                              <span className="mr-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-current" />
+                              {apptType}
+                            </span>
+                          </td>
                           <td className="px-4 py-3.5">
                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${status.cls}`}>
+                              <span className="mr-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-current" />
                               {status.label}
                             </span>
                           </td>
