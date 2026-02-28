@@ -1,4 +1,3 @@
-// app/doctor/patients/page.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
@@ -8,20 +7,57 @@ import { AddOfflinePatientModal } from "@/features/panel/doctor/consultations/co
 import { Download, Search } from "lucide-react";
 import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
 
-// Helper functions
+type UiFilter = "all" | "recent" | "active" | "new";
+
+type UiPatient = {
+  id: string;
+  type: "online" | "offline";
+  displayName: string;
+  phoneNumber?: string;
+  city: string;
+  lastVisit: string;
+  sortTime: number;
+  visits: number;
+  bloodGroup: string;
+  status: "Active" | "New";
+  avatar: string;
+  patientId: string;
+  gender: "Male" | "Female";
+  dob: string;
+  avatarBg: string;
+  avatarText: string;
+};
+
+const patientIds = [
+  "PT-0041",
+  "PT-0088",
+  "PT-0112",
+  "PT-0057",
+  "PT-0203",
+  "PT-0174",
+  "PT-0091",
+  "PT-0288",
+];
+
+const mockPatientProfiles = [
+  { gender: "Female", dob: "12 Mar 1988", city: "Pune", blood: "B+", avatarBg: "bg-blue-500/20", avatarText: "text-blue-400" },
+  { gender: "Male", dob: "04 Jul 1992", city: "Pune", blood: "O+", avatarBg: "bg-teal-500/20", avatarText: "text-teal-400" },
+  { gender: "Female", dob: "29 Nov 1975", city: "Pune", blood: "A+", avatarBg: "bg-amber-500/20", avatarText: "text-amber-400" },
+  { gender: "Male", dob: "17 Feb 1985", city: "Mumbai", blood: "AB-", avatarBg: "bg-violet-500/20", avatarText: "text-violet-400" },
+  { gender: "Female", dob: "08 Aug 1993", city: "Pune", blood: "O-", avatarBg: "bg-pink-500/20", avatarText: "text-pink-400" },
+  { gender: "Male", dob: "22 Jan 1980", city: "Nashik", blood: "A-", avatarBg: "bg-green-500/20", avatarText: "text-green-400" },
+  { gender: "Female", dob: "15 Apr 1967", city: "Pune", blood: "B-", avatarBg: "bg-yellow-500/20", avatarText: "text-yellow-400" },
+  { gender: "Male", dob: "30 Oct 1999", city: "Pune", blood: "O+", avatarBg: "bg-blue-500/20", avatarText: "text-blue-400" },
+] as const;
+
 function getInitials(name?: string | null): string {
   if (!name?.trim()) return "PT";
   return name
-    .split(' ')
-    .map(word => word[0])
-    .join('')
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
     .toUpperCase()
     .slice(0, 2);
-}
-
-function getRandomBloodGroup(): string {
-  const groups = ['O+', 'A+', 'B+', 'AB+', 'O-', 'A-', 'B-', 'AB-'];
-  return groups[Math.floor(Math.random() * groups.length)];
 }
 
 function formatLastVisit(dateInput?: string | Date | null): string {
@@ -32,237 +68,213 @@ function formatLastVisit(dateInput?: string | Date | null): string {
   const today = new Date();
   const diffTime = today.getTime() - date.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) return "Today";
+
+  if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
-  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+  return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 }
 
 function getPatientId(index: number): string {
-  const ids = ["PT-0041", "PT-0088", "PT-0112", "PT-0057", "PT-0203", "PT-0174", "PT-0091", "PT-0288"];
-  return ids[index] || `PT-${String(index + 1).padStart(4, '0')}`;
+  return patientIds[index] || `PT-${String(index + 1).padStart(4, "0")}`;
 }
 
-// SERVER ACTION
-async function getDashboardData(doctorId: string, filter: "ALL" | "ONLINE" | "OFFLINE") {
-  if (filter === "ONLINE") {
-    const online = await prisma.independentConsultation.findMany({
-      where: { 
-        doctorId, 
-        status: "APPROVED" 
-      },
-      include: { 
-        user: { 
-          select: { 
-            name: true, 
-            phone: true, 
-            email: true 
-          } 
-        } 
-      },
-      orderBy: { slot: "desc" }
-    });
-    
-    return online.map((p, index) => {
-      const displayName = p.user.name || "Unknown Patient";
-      return {
-        ...p,
-        id: p.id,
-        type: "online",
-        displayName,
-        phoneNumber: p.user.phone,
-        city: "Pune", // Default city since field doesn't exist
-        lastVisit: formatLastVisit(p.slot),
-        sortTime: new Date(p.slot).getTime(),
-        visits: Math.floor(Math.random() * 20) + 1,
-        bloodGroup: getRandomBloodGroup(),
-        status: "Active",
-        avatar: getInitials(displayName),
-        patientId: getPatientId(index)
-      };
-    });
+function hashKey(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
   }
-  
-  if (filter === "OFFLINE") {
-    const offline = await prisma.offlineConsultation.findMany({
-      where: { doctorId },
-      orderBy: { visitTime: "desc" }
-    });
-    
-    return offline.map((p, index) => ({
-      ...p,
-      id: p.id,
-      type: "offline",
-      displayName: p.patientName,
-      phoneNumber: p.phoneNumber,
-      city: "Pune",
-      lastVisit: formatLastVisit(p.visitTime),
-      sortTime: new Date(p.visitTime).getTime(),
-      visits: Math.floor(Math.random() * 15) + 1,
-      bloodGroup: getRandomBloodGroup(),
-      status: index === 7 ? "New" : "Active",
-      avatar: getInitials(p.patientName),
-      patientId: getPatientId(index)
-    }));
-  }
-  
-  // ALL PATIENTS
+  return hash;
+}
+
+function deriveMock(patientId: string, name: string) {
+  const key = hashKey(`${patientId}-${name}`);
+  const idx = key % mockPatientProfiles.length;
+  return mockPatientProfiles[idx];
+}
+
+function deriveVisits(key: string, min: number, max: number) {
+  const hash = hashKey(key);
+  return min + (hash % (max - min + 1));
+}
+
+async function getPatientsData(doctorId: string): Promise<UiPatient[]> {
   const [online, offline] = await Promise.all([
     prisma.independentConsultation.findMany({
       where: { doctorId, status: "APPROVED" },
-      include: { 
-        user: { 
-          select: { 
-            name: true, 
-            phone: true
-          } 
-        } 
+      include: {
+        user: {
+          select: {
+            name: true,
+            phone: true,
+          },
+        },
       },
+      orderBy: { slot: "desc" },
     }),
-    prisma.offlineConsultation.findMany({ 
-      where: { doctorId } 
-    })
+    prisma.offlineConsultation.findMany({
+      where: { doctorId },
+      orderBy: { visitTime: "desc" },
+    }),
   ]);
-  
-  const onlineFormatted = online.map((p, index) => {
+
+  const onlineFormatted: UiPatient[] = online.map((p, index) => {
     const displayName = p.user.name || "Unknown Patient";
+    const patientId = getPatientId(index);
+    const mock = deriveMock(patientId, displayName);
+    const visits = deriveVisits(p.id, 2, 21);
+
     return {
-      ...p,
       id: p.id,
       type: "online",
       displayName,
-      phoneNumber: p.user.phone,
-      city: "Pune", // Default city
+      phoneNumber: p.user.phone || "+91 98765 43210",
+      city: mock.city,
       lastVisit: formatLastVisit(p.slot),
       sortTime: new Date(p.slot).getTime(),
-      visits: Math.floor(Math.random() * 20) + 1,
-      bloodGroup: getRandomBloodGroup(),
-      status: "Active",
+      visits,
+      bloodGroup: mock.blood,
+      status: visits <= 1 ? "New" : "Active",
       avatar: getInitials(displayName),
-      patientId: getPatientId(index)
+      patientId,
+      gender: mock.gender,
+      dob: mock.dob,
+      avatarBg: mock.avatarBg,
+      avatarText: mock.avatarText,
     };
   });
-  
-  const offlineFormatted = offline.map((p, index) => ({
-    ...p,
-    id: p.id,
-    type: "offline",
-    displayName: p.patientName,
-    phoneNumber: p.phoneNumber,
-    city: "Pune",
-    lastVisit: formatLastVisit(p.visitTime),
-    sortTime: new Date(p.visitTime).getTime(),
-    visits: Math.floor(Math.random() * 15) + 1,
-    bloodGroup: getRandomBloodGroup(),
-    status: "Active",
-    avatar: getInitials(p.patientName),
-    patientId: getPatientId(index + online.length)
-  }));
-  
-  return [...onlineFormatted, ...offlineFormatted]
-    .sort((a, b) => b.sortTime - a.sortTime)
-    .slice(0, 8);
+
+  const offlineFormatted: UiPatient[] = offline.map((p, index) => {
+    const displayName = p.patientName;
+    const patientId = getPatientId(index + online.length);
+    const mock = deriveMock(patientId, displayName);
+    const visits = deriveVisits(p.id, 1, 24);
+
+    return {
+      id: p.id,
+      type: "offline",
+      displayName,
+      phoneNumber: p.phoneNumber || "+91 98765 43210",
+      city: mock.city,
+      lastVisit: formatLastVisit(p.visitTime),
+      sortTime: new Date(p.visitTime).getTime(),
+      visits,
+      bloodGroup: mock.blood,
+      status: visits === 1 ? "New" : "Active",
+      avatar: getInitials(displayName),
+      patientId,
+      gender: mock.gender,
+      dob: mock.dob,
+      avatarBg: mock.avatarBg,
+      avatarText: mock.avatarText,
+    };
+  });
+
+  return [...onlineFormatted, ...offlineFormatted].sort((a, b) => b.sortTime - a.sortTime);
 }
 
-// MAIN PAGE COMPONENT
-export default async function DashboardPage({
-  searchParams
+export default async function DoctorPatientsPage({
+  searchParams,
 }: {
-  searchParams: { filter?: "ALL" | "ONLINE" | "OFFLINE" }
+  searchParams: { filter?: string; q?: string };
 }) {
-  // Auth check
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
-  
-  // Get doctor
+
   const doctor = await prisma.independentDoctor.findUnique({
-    where: { userId: session.user.id }
+    where: { userId: session.user.id },
   });
   if (!doctor) redirect("/register-doctor");
-  
-  const filter = searchParams.filter || "ALL";
-  const patients = await getDashboardData(doctor.id, filter);
-  
-  // Counts for badges
-  const [onlineCount, offlineCount] = await Promise.all([
-    prisma.independentConsultation.count({ where: { doctorId: doctor.id, status: "APPROVED" } }),
-    prisma.offlineConsultation.count({ where: { doctorId: doctor.id } })
-  ]);
+
+  const filter = (searchParams.filter || "all").toLowerCase() as UiFilter;
+  const query = (searchParams.q || "").trim().toLowerCase();
+
+  const allPatients = await getPatientsData(doctor.id);
+
+  const filteredByChip =
+    filter === "recent"
+      ? allPatients.slice(0, 4)
+      : filter === "new"
+      ? allPatients.filter((p) => p.status === "New")
+      : filter === "active"
+      ? allPatients.filter((p) => p.status === "Active")
+      : allPatients;
+
+  const patients = query
+    ? filteredByChip.filter(
+        (p) =>
+          p.displayName.toLowerCase().includes(query) ||
+          p.patientId.toLowerCase().includes(query) ||
+          p.phoneNumber?.toLowerCase().includes(query)
+      )
+    : filteredByChip;
+
+  const stats = {
+    all: allPatients.length,
+    recent: Math.min(4, allPatients.length),
+    active: allPatients.filter((p) => p.status === "Active").length,
+    new: allPatients.filter((p) => p.status === "New").length,
+  };
+
+  const chips: { name: string; value: UiFilter; count: number }[] = [
+    { name: "All", value: "all", count: stats.all },
+    { name: "Recent", value: "recent", count: stats.recent },
+    { name: "Active", value: "active", count: stats.active },
+    { name: "New", value: "new", count: stats.new },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      
-
-      {/* MAIN CONTENT */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-
-        {/* FILTER CHIPS */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div className="flex flex-wrap items-center gap-2">
-            {[
-              { name: "All", value: "ALL", count: onlineCount + offlineCount },
-              { name: "Recent", value: "RECENT", count: 4 },
-              { name: "Active", value: "ACTIVE", count: onlineCount },
-              { name: "New", value: "NEW", count: 1 },
-            ].map((chip) => (
-              <Link
-                key={chip.name}
-                href={`/dashboard?filter=${chip.value}`}
-                className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                  filter === chip.value
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/25"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700"
-                }`}
-              >
-                {chip.name}
-                {chip.count > 0 && (
-                  <span
-                    className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
-                      filter === chip.value
-                        ? "bg-white/20 text-white"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                    }`}
-                  >
-                    {chip.count}
-                  </span>
-                )}
-              </Link>
-            ))}
+    <div className="min-h-screen bg-slate-50 dark:bg-[#111827]">
+      <div className="max-w-[1164px] mx-auto px-6 py-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            {chips.map((chip) => {
+              const isActive = filter === chip.value;
+              return (
+                <Link
+                  key={chip.value}
+                  href={`/doctor/patients?filter=${chip.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+                  className={`px-4 py-1.5 rounded-full text-sm border transition-colors ${
+                    isActive
+                      ? "bg-blue-500/15 border-blue-500/40 text-blue-400"
+                      : "bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300"
+                  }`}
+                >
+                  {chip.name}
+                  {chip.count > 0 ? <span className="ml-1.5">{chip.count}</span> : null}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Search */}
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-2.5">
+            <form method="GET" action="/doctor/patients" className="relative">
+              <input type="hidden" name="filter" value={filter} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
-                type="text"
+                name="q"
+                defaultValue={query}
                 placeholder="Search patients..."
-                className="pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                className="pl-9 pr-3 h-9 text-sm border border-slate-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#161f30] text-slate-900 dark:text-slate-100 w-64"
               />
-            </div>
+            </form>
             <AddOfflinePatientModal doctorId={doctor.id} />
           </div>
         </div>
 
-        {/* PATIENT DIRECTORY HEADER */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Patient Directory
-          </h2>
-          <button className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Patient Directory</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{stats.all} registered</p>
+          </div>
+
+          <button className="inline-flex items-center gap-1.5 text-sm text-blue-500 hover:text-blue-400 font-medium">
             <Download className="w-4 h-4" />
             Export CSV →
           </button>
         </div>
 
-        {/* Count */}
-        <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-          {patients.length} shown
-        </div>
-
-        <PatientDirectoryTable patients={patients as any} />
+        <PatientDirectoryTable patients={patients} />
       </div>
     </div>
   );
