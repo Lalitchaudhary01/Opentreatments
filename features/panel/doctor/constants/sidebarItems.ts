@@ -10,6 +10,8 @@ import {
   LineChart,
   Wallet,
   Star,
+  Settings,
+  UserCircle2,
 } from "lucide-react";
 
 export const doctorSidebarItems = [
@@ -78,4 +80,19 @@ export const doctorSidebarItems = [
       },
     ],
   },
+  {
+    section: "Account",
+    items: [
+      {
+        label: "Settings",
+        href: "/doctor/settings",
+        icon: Settings,
+      },
+      {
+        label: "Profile",
+        href: "/doctor/profile",
+        icon: UserCircle2,
+      },
+    ]
+  }
 ];

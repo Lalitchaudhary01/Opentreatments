@@ -126,7 +126,7 @@ export default function DoctorSidebar({ collapsed = false, onToggleCollapse }: P
       </div>
 
       <div className="px-[10px] py-3 border-t border-slate-200 dark:border-[rgba(255,255,255,0.07)] space-y-1.5">
-        <Link
+        {/* <Link
           href="/doctor/profile"
           className={cn(
             "relative flex items-center rounded-lg py-2 transition-all text-[12.5px]",
@@ -139,9 +139,9 @@ export default function DoctorSidebar({ collapsed = false, onToggleCollapse }: P
         >
           <UserCircle2 className="h-[15px] w-[15px] shrink-0" />
           <span className={cn("truncate", collapsed && "hidden")}>Profile</span>
-        </Link>
+        </Link> */}
 
-        <Link
+        {/* <Link
           href="/doctor/settings"
           className={cn(
             "relative flex items-center rounded-lg py-2 transition-all text-[12.5px]",
@@ -154,16 +154,26 @@ export default function DoctorSidebar({ collapsed = false, onToggleCollapse }: P
         >
           <Settings className="h-[15px] w-[15px] shrink-0" />
           <span className={cn("truncate", collapsed && "hidden")}>Settings</span>
-        </Link>
+        </Link> */}
 
         <div className="pt-1">
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:border-white/[0.07] dark:bg-white/[0.06] dark:text-[#94A3B8] dark:hover:bg-white/[0.12]"
+            className={cn(
+              "mx-auto flex items-center justify-center border border-slate-200 bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:border-white/[0.07] dark:bg-white/[0.06] dark:text-[#94A3B8] dark:hover:bg-white/[0.12]",
+              collapsed ? "h-8 w-8 rounded-full" : "h-8 w-full rounded-lg gap-1.5 px-3 text-[11.5px] font-medium"
+            )}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+            {collapsed ? (
+              <ChevronsRight className="h-4 w-4" />
+            ) : (
+              <>
+                <span className="text-[12px] leading-none">&lt;</span>
+                <span>Collapse</span>
+              </>
+            )}
           </button>
         </div>
       </div>
