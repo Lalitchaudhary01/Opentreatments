@@ -176,7 +176,7 @@ async function getPatientsData(doctorId: string): Promise<UiPatient[]> {
 export default async function DoctorPatientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; q?: string }> | { filter?: string; q?: string };
+  searchParams: Promise<{ filter?: string; q?: string; new?: string }> | { filter?: string; q?: string; new?: string };
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -188,6 +188,7 @@ export default async function DoctorPatientsPage({
 
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();
+  const openNew = resolvedSearchParams.new === "1";
   const filter: UiFilter = ["all", "recent", "active", "new"].includes(rawFilter)
     ? (rawFilter as UiFilter)
     : "all";
@@ -264,6 +265,7 @@ export default async function DoctorPatientsPage({
             <AddOfflinePatientModal
               doctorId={doctor.id}
               triggerLabel="Add Patient"
+              defaultOpen={openNew}
               triggerClassName="inline-flex h-[29px] items-center gap-[5px] rounded-lg bg-[#3b82f6] px-3 text-[12px] font-medium text-white hover:bg-[#2563eb]"
             />
           </div>

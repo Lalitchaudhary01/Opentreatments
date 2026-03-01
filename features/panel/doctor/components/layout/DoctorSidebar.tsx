@@ -25,7 +25,7 @@ export default function DoctorSidebar({ collapsed = false, onToggleCollapse }: P
     >
       <div
         className={cn(
-          "border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center pt-5 pb-4",
+          "border-b border-slate-200 dark:border-[rgba(255,255,255,0.07)] flex items-center h-[76px]",
           collapsed ? "justify-center px-2" : "gap-[10px] px-[18px]"
         )}
       >

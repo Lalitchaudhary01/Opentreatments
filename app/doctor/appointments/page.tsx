@@ -3,8 +3,8 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { updateConsultationStatus } from "@/features/panel/doctor/consultations/actions";
+import { AddOfflinePatientModal } from "@/features/panel/doctor/consultations/components/AddOfflinePatientModal";
 
 type ChipFilter = "all" | "confirmed" | "in-progress" | "waiting" | "completed";
 
@@ -115,7 +115,7 @@ function deriveWalkinType(complaint?: string | null) {
 export default async function DoctorAppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }> | { filter?: string };
+  searchParams: Promise<{ filter?: string; new?: string }> | { filter?: string; new?: string };
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -128,6 +128,7 @@ export default async function DoctorAppointmentsPage({
 
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();
+  const openNew = resolvedSearchParams.new === "1";
   const filter: ChipFilter = ["all", "confirmed", "in-progress", "waiting", "completed"].includes(rawFilter)
     ? (rawFilter as ChipFilter)
     : "all";
@@ -257,10 +258,7 @@ export default async function DoctorAppointmentsPage({
             })}
           </div>
 
-          <button className="inline-flex h-[29px] items-center gap-[5px] rounded-lg bg-[#3b82f6] px-3 text-[12px] font-medium text-white hover:bg-[#2563eb]">
-            <Plus className="h-[13px] w-[13px]" />
-            New
-          </button>
+          <AddOfflinePatientModal doctorId={doctor.id} triggerLabel="New" defaultOpen={openNew} />
         </div>
 
         <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] transition-colors hover:border-slate-300 dark:hover:border-white/20">

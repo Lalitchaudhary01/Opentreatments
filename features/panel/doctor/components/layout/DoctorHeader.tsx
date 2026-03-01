@@ -5,7 +5,7 @@ import { Bell, Search, Plus, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DoctorProfile } from "@/features/panel/doctor/types/doctor";
 import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Props = {
   profile: DoctorProfile | null;
@@ -42,6 +42,8 @@ function getHeaderPageKey(pathname: string): HeaderPageKey {
 export default function DoctorHeader({ profile }: Props) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -163,6 +165,21 @@ export default function DoctorHeader({ profile }: Props) {
     return "New Appointment";
   }, [pageKey]);
 
+  const handlePrimaryAction = () => {
+    if (pageKey === "appointments") {
+      const params = new URLSearchParams(searchParams?.toString() || "");
+      params.set("new", "1");
+      router.push(`/doctor/appointments?${params.toString()}`);
+      return;
+    }
+
+    if (pageKey === "patients") {
+      const params = new URLSearchParams(searchParams?.toString() || "");
+      params.set("new", "1");
+      router.push(`/doctor/patients?${params.toString()}`);
+    }
+  };
+
   return (
     <header className="flex items-center justify-between px-7 py-3.5 bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-white/[0.07]">
       {/* LEFT SIDE */}
@@ -211,6 +228,8 @@ export default function DoctorHeader({ profile }: Props) {
 
         {/* Primary Action */}
         <Button 
+          type="button"
+          onClick={handlePrimaryAction}
           className="h-[29px] px-3 rounded-lg bg-[#3b82f6] hover:bg-blue-600 text-white text-sm font-normal gap-2"
         >
           <Plus className="w-3.5 h-3.5" />

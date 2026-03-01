@@ -9,12 +9,14 @@ export function AddOfflinePatientModal({
   doctorId,
   triggerLabel = "Add Patient",
   triggerClassName,
+  defaultOpen = false,
 }: {
   doctorId: string;
   triggerLabel?: string;
   triggerClassName?: string;
+  defaultOpen?: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const formRef = useRef<HTMLFormElement>(null); // 👈 Add ref

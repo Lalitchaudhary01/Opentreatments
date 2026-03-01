@@ -147,7 +147,7 @@ export default function DoctorReviewsScreen() {
   const awaitingReplies = reviews.filter((r) => !r.replied).length;
 
   return (
-    <div className="min-h-screen bg-[#111827] px-7 py-[22px]">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
       <div className="w-full space-y-[18px]">
         <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2 xl:grid-cols-4">
           <KpiCard
@@ -204,7 +204,7 @@ export default function DoctorReviewsScreen() {
                       className={
                         active
                           ? "rounded-[20px] border border-blue-500/40 bg-blue-500/15 px-3 py-[5px] text-[11.5px] font-medium text-blue-400"
-                          : "rounded-[20px] border border-white/[0.07] bg-transparent px-3 py-[5px] text-[11.5px] font-medium text-[#94A3B8] transition-colors hover:border-white/20 hover:text-[#F1F5F9]"
+                          : "rounded-[20px] border border-slate-200 dark:border-white/[0.07] bg-transparent px-3 py-[5px] text-[11.5px] font-medium text-slate-500 dark:text-[#94A3B8] transition-colors hover:border-white/20 hover:text-slate-900 dark:hover:text-[#F1F5F9]"
                       }
                     >
                       {chip.label}
@@ -216,7 +216,7 @@ export default function DoctorReviewsScreen() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortMode)}
-                className="cursor-pointer rounded-lg border border-white/[0.07] bg-[#1c2840] px-[10px] py-[6px] text-[12px] text-[#F1F5F9] outline-none"
+                className="cursor-pointer rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-[#1c2840] px-[10px] py-[6px] text-[12px] text-slate-900 dark:text-[#F1F5F9] outline-none"
               >
                 <option value="recent">Most Recent</option>
                 <option value="high">Highest Rated</option>
@@ -228,7 +228,7 @@ export default function DoctorReviewsScreen() {
               {filtered.map((r) => (
                 <div
                   key={r.id}
-                  className="rounded-[12px] border border-white/[0.07] bg-[#161f30] px-[18px] py-4 transition-colors hover:border-white/20"
+                  className="rounded-[12px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] px-[18px] py-4 transition-colors hover:border-white/20"
                 >
                   <div className="mb-[10px] flex items-start justify-between gap-3">
                     <div className="flex items-center gap-[10px]">
@@ -239,8 +239,8 @@ export default function DoctorReviewsScreen() {
                         {r.av}
                       </div>
                       <div>
-                        <div className="text-[13px] font-semibold text-[#F1F5F9]">{r.name}</div>
-                        <div className="mt-[1px] text-[10.5px] text-[#475569]">
+                        <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">{r.name}</div>
+                        <div className="mt-[1px] text-[10.5px] text-slate-500 dark:text-[#475569]">
                           {r.service} · {r.date}
                         </div>
                       </div>
@@ -259,12 +259,12 @@ export default function DoctorReviewsScreen() {
                     </div>
                   </div>
 
-                  <div className="mb-[10px] text-[12.5px] leading-[1.6] text-[#94A3B8]">{r.text}</div>
+                  <div className="mb-[10px] text-[12.5px] leading-[1.6] text-slate-500 dark:text-[#94A3B8]">{r.text}</div>
 
                   {r.replied ? (
                     <div className="mb-[10px] rounded-r-lg border-l-[3px] border-blue-500 bg-blue-500/10 px-3 py-[10px]">
                       <div className="mb-[3px] text-[10.5px] font-semibold text-blue-400">Dr. Ramesh Iyer · replied</div>
-                      <div className="text-[12px] text-[#94A3B8]">{r.reply}</div>
+                      <div className="text-[12px] text-slate-500 dark:text-[#94A3B8]">{r.reply}</div>
                     </div>
                   ) : null}
 
@@ -275,7 +275,7 @@ export default function DoctorReviewsScreen() {
                         value={draftReplies[r.id] || ""}
                         onChange={(e) => setDraftReplies((prev) => ({ ...prev, [r.id]: e.target.value }))}
                         placeholder="Write a reply…"
-                        className="h-[35px] flex-1 rounded-lg border border-white/[0.07] bg-white/5 px-3 text-[12px] text-[#F1F5F9] outline-none placeholder:text-[#475569]"
+                        className="h-[35px] flex-1 rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/5 px-3 text-[12px] text-slate-900 dark:text-[#F1F5F9] outline-none placeholder:text-slate-500 dark:placeholder:text-[#475569]"
                       />
                       <button
                         type="button"
@@ -297,22 +297,22 @@ export default function DoctorReviewsScreen() {
           </div>
 
           <div className="flex flex-col gap-[14px]">
-            <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-              <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
+            <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
                 <div>
-                  <div className="text-[13px] font-semibold text-[#F1F5F9]">Rating Breakdown</div>
-                  <div className="mt-[2px] text-[11px] text-[#94A3B8]">Based on 247 reviews</div>
+                  <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Rating Breakdown</div>
+                  <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Based on 247 reviews</div>
                 </div>
               </div>
 
               <div className="px-5 py-[18px]">
                 <div className="mb-4 flex items-center gap-4">
                   <div className="text-center">
-                    <div className="text-[42px] font-bold leading-none text-[#F1F5F9]">4.8</div>
+                    <div className="text-[42px] font-bold leading-none text-slate-900 dark:text-[#F1F5F9]">4.8</div>
                     <div className="my-[5px] flex justify-center gap-[2px]" id="big-stars">
                       {renderStars(5, "14")}
                     </div>
-                    <div className="text-[10px] text-[#475569]">247 reviews</div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#475569]">247 reviews</div>
                   </div>
 
                   <div id="rating-bars" className="flex flex-1 flex-col gap-[5px]">
@@ -322,11 +322,11 @@ export default function DoctorReviewsScreen() {
                       const color = s >= 4 ? "bg-amber-400" : s === 3 ? "bg-blue-500" : "bg-red-500";
                       return (
                         <div key={s} className="flex items-center gap-[6px]">
-                          <div className="w-[14px] text-right text-[10px] text-[#475569]">{s}</div>
+                          <div className="w-[14px] text-right text-[10px] text-slate-500 dark:text-[#475569]">{s}</div>
                           <div className="h-[5px] flex-1 overflow-hidden rounded bg-white/[0.07]">
                             <div className={cn("h-full rounded", color)} style={{ width: `${pct}%` }} />
                           </div>
-                          <div className="w-6 text-[10px] text-[#475569]">{count}</div>
+                          <div className="w-6 text-[10px] text-slate-500 dark:text-[#475569]">{count}</div>
                         </div>
                       );
                     })}
@@ -338,20 +338,20 @@ export default function DoctorReviewsScreen() {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="rounded-[9px] border border-green-500/20 bg-green-500/10 px-3 py-[10px] text-center">
                     <div className="text-[18px] font-bold text-green-400">92%</div>
-                    <div className="mt-[2px] text-[10px] text-[#475569]">Recommend</div>
+                    <div className="mt-[2px] text-[10px] text-slate-500 dark:text-[#475569]">Recommend</div>
                   </div>
                   <div className="rounded-[9px] border border-blue-500/20 bg-blue-500/10 px-3 py-[10px] text-center">
                     <div className="text-[18px] font-bold text-blue-400">68%</div>
-                    <div className="mt-[2px] text-[10px] text-[#475569]">Return Patients</div>
+                    <div className="mt-[2px] text-[10px] text-slate-500 dark:text-[#475569]">Return Patients</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-              <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
+            <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
                 <div>
-                  <div className="text-[13px] font-semibold text-[#F1F5F9]">Category Scores</div>
+                  <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Category Scores</div>
                 </div>
               </div>
 
@@ -359,8 +359,8 @@ export default function DoctorReviewsScreen() {
                 {categoryScores.map((c) => (
                   <div key={c.label}>
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-[12px] text-[#94A3B8]">{c.label}</span>
-                      <span className="text-[12px] font-semibold text-[#F1F5F9]">{c.score}</span>
+                      <span className="text-[12px] text-slate-500 dark:text-[#94A3B8]">{c.label}</span>
+                      <span className="text-[12px] font-semibold text-slate-900 dark:text-[#F1F5F9]">{c.score}</span>
                     </div>
                     <div className="h-[5px] overflow-hidden rounded bg-white/[0.07]">
                       <div className="h-full rounded bg-amber-400" style={{ width: `${(c.score / 5) * 100}%` }} />
@@ -392,7 +392,7 @@ function KpiCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-[18px] transition-all hover:-translate-y-[2px] hover:border-white/20">
+    <div className="rounded-[13px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-[18px] transition-all hover:-translate-y-[2px] hover:border-white/20">
       <div className="mb-3 flex items-start justify-between">
         <div
           className={cn(
@@ -417,8 +417,8 @@ function KpiCard({
         </span>
       </div>
 
-      <div className="mb-[3px] text-[24px] font-bold leading-none tracking-[-0.03em] text-[#F1F5F9]">{value}</div>
-      <div className="text-[11px] text-[#94A3B8]">{title}</div>
+      <div className="mb-[3px] text-[24px] font-bold leading-none tracking-[-0.03em] text-slate-900 dark:text-[#F1F5F9]">{value}</div>
+      <div className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{title}</div>
     </div>
   );
 }
@@ -427,7 +427,7 @@ function renderStars(n: number, size = "13") {
   return [1, 2, 3, 4, 5].map((i) => (
     <Star
       key={`${size}-${i}`}
-      className={cn(i <= n ? "text-amber-400 fill-amber-400" : "text-[#475569]")}
+      className={cn(i <= n ? "text-amber-400 fill-amber-400" : "text-slate-500 dark:text-[#475569]")}
       style={{ width: `${size}px`, height: `${size}px` }}
     />
   ));

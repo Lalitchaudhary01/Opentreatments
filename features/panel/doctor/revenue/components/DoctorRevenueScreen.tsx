@@ -169,7 +169,7 @@ export default function DoctorRevenueScreen() {
   const maxServiceRev = revenueByService[0]?.rev || 1;
 
   return (
-    <div className="min-h-screen bg-[#111827] px-7 py-[22px]">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
       <div className="w-full space-y-4">
         <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2 xl:grid-cols-4">
           <KpiCard title="Total Revenue" value="₹3,84,200" delta="+18%" trend="up" tone="blue" icon={<IndianRupee className="h-[17px] w-[17px]" />} />
@@ -179,13 +179,13 @@ export default function DoctorRevenueScreen() {
         </div>
 
         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[1fr_260px]">
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30] transition-colors hover:border-white/20">
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] transition-colors hover:border-white/20">
             <div className="flex items-center justify-between px-5 pb-0 pt-4">
               <div>
-                <div className="text-[13px] font-semibold text-[#F1F5F9]">Weekly Revenue</div>
-                <div className="mt-[2px] text-[11px] text-[#94A3B8]">Feb 2026 · 4 weeks</div>
+                <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Weekly Revenue</div>
+                <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Feb 2026 · 4 weeks</div>
               </div>
-              <span className="text-[11px] text-[#475569]">₹92,100 total</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#475569]">₹92,100 total</span>
             </div>
             <div className="p-5">
               <div className="relative h-[200px]">
@@ -199,10 +199,10 @@ export default function DoctorRevenueScreen() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="border-b border-white/[0.07] px-[18px] py-[13px]">
-              <div className="text-[12.5px] font-semibold text-[#F1F5F9]">Current Month Breakdown</div>
-              <div className="mt-[2px] text-[11px] text-[#94A3B8]">February 2026</div>
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="border-b border-slate-200 dark:border-white/[0.07] px-[18px] py-[13px]">
+              <div className="text-[12.5px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Current Month Breakdown</div>
+              <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">February 2026</div>
             </div>
 
             <div>
@@ -211,7 +211,7 @@ export default function DoctorRevenueScreen() {
               <BreakdownLine label="Processing Fees" value="-₹2,671" danger />
               <BreakdownLine label="Taxes" sub="(Est.)" value="-₹7,368" danger />
               <div className="flex items-center justify-between border-t border-green-500/20 bg-green-500/10 px-[18px] py-3">
-                <span className="text-[13px] font-semibold text-[#F1F5F9]">Net Payout</span>
+                <span className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Net Payout</span>
                 <span className="text-[16px] font-bold text-green-400">₹72,851</span>
               </div>
             </div>
@@ -219,11 +219,11 @@ export default function DoctorRevenueScreen() {
         </div>
 
         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[1fr_330px]">
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
               <div>
-                <div className="text-[13px] font-semibold text-[#F1F5F9]">Payment History</div>
-                <div className="mt-[2px] text-[11px] text-[#94A3B8]">Recent transactions</div>
+                <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Payment History</div>
+                <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Recent transactions</div>
               </div>
               <span className="cursor-pointer text-[12px] font-medium text-blue-400">Export CSV →</span>
             </div>
@@ -240,7 +240,7 @@ export default function DoctorRevenueScreen() {
                     "Amount",
                     "Status",
                   ].map((h) => (
-                    <th key={h} className="border-b border-white/[0.07] px-[18px] py-[9px] text-left text-[10px] font-semibold uppercase tracking-[.07em] text-[#475569]">
+                    <th key={h} className="border-b border-slate-200 dark:border-white/[0.07] px-[18px] py-[9px] text-left text-[10px] font-semibold uppercase tracking-[.07em] text-slate-500 dark:text-[#475569]">
                       {h}
                     </th>
                   ))}
@@ -248,20 +248,20 @@ export default function DoctorRevenueScreen() {
               </thead>
               <tbody>
                 {paymentHistory.map((p) => (
-                  <tr key={p.inv} className="border-b border-white/[0.07] last:border-b-0">
+                  <tr key={p.inv} className="border-b border-slate-200 dark:border-white/[0.07] last:border-b-0">
                     <td className="px-[18px] py-[11px] text-[11.5px] font-medium text-blue-400">{p.inv}</td>
-                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#94A3B8]">
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-slate-500 dark:text-[#94A3B8]">
                       <div className="flex items-center gap-[10px]">
                         <div className="flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-semibold" style={{ background: p.col, color: p.ac }}>
                           {p.av}
                         </div>
-                        <span className="text-[12px] text-[#F1F5F9]">{p.name}</span>
+                        <span className="text-[12px] text-slate-900 dark:text-[#F1F5F9]">{p.name}</span>
                       </div>
                     </td>
-                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#94A3B8]">{p.svc}</td>
-                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#475569]">{p.date}</td>
-                    <td className="px-[18px] py-[11px] text-[12.5px] text-[#94A3B8]">{p.mode}</td>
-                    <td className="px-[18px] py-[11px] text-[12.5px] font-semibold text-[#F1F5F9]">₹{p.amt.toLocaleString("en-IN")}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-slate-500 dark:text-[#94A3B8]">{p.svc}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-slate-500 dark:text-[#475569]">{p.date}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] text-slate-500 dark:text-[#94A3B8]">{p.mode}</td>
+                    <td className="px-[18px] py-[11px] text-[12.5px] font-semibold text-slate-900 dark:text-[#F1F5F9]">₹{p.amt.toLocaleString("en-IN")}</td>
                     <td className="px-[18px] py-[11px]">
                       <span
                         className={cn(
@@ -279,31 +279,31 @@ export default function DoctorRevenueScreen() {
             </table>
           </div>
 
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="border-b border-white/[0.07] px-5 py-[15px]">
-              <div className="text-[13px] font-semibold text-[#F1F5F9]">Revenue by Service</div>
-              <div className="mt-[2px] text-[11px] text-[#94A3B8]">February 2026</div>
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
+              <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Revenue by Service</div>
+              <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">February 2026</div>
             </div>
 
             <div>
               {revenueByService.map((s) => {
                 const pct = Math.round((s.rev / maxServiceRev) * 100);
                 return (
-                  <div key={s.svc} className="border-b border-white/[0.07] px-[18px] py-3 last:border-b-0 hover:bg-white/[0.02]">
+                  <div key={s.svc} className="border-b border-slate-200 dark:border-white/[0.07] px-[18px] py-3 last:border-b-0 hover:bg-white/[0.02]">
                     <div className="mb-[7px] flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-[14px]">{s.icon}</span>
                         <div>
-                          <div className="text-[12.5px] font-medium text-[#F1F5F9]">{s.svc}</div>
-                          <div className="text-[10px] text-[#475569]">{s.count} sessions</div>
+                          <div className="text-[12.5px] font-medium text-slate-900 dark:text-[#F1F5F9]">{s.svc}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-[#475569]">{s.count} sessions</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[13px] font-bold text-[#F1F5F9]">₹{s.rev.toLocaleString("en-IN")}</div>
-                        <div className="text-[10px] text-[#475569]">₹{Math.round(s.rev / s.count).toLocaleString("en-IN")}/session</div>
+                        <div className="text-[13px] font-bold text-slate-900 dark:text-[#F1F5F9]">₹{s.rev.toLocaleString("en-IN")}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-[#475569]">₹{Math.round(s.rev / s.count).toLocaleString("en-IN")}/session</div>
                       </div>
                     </div>
-                    <div className="h-1 overflow-hidden rounded bg-white/[0.06]">
+                    <div className="h-1 overflow-hidden rounded bg-slate-100 dark:bg-white/[0.06]">
                       <div className="h-full rounded" style={{ width: `${pct}%`, background: s.color }} />
                     </div>
                   </div>
@@ -333,7 +333,7 @@ function KpiCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-[18px] transition-all hover:-translate-y-[2px] hover:border-white/20">
+    <div className="rounded-[13px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-[18px] transition-all hover:-translate-y-[2px] hover:border-white/20">
       <div className="mb-3 flex items-start justify-between">
         <div
           className={cn(
@@ -358,26 +358,26 @@ function KpiCard({
         </span>
       </div>
 
-      <div className="mb-[3px] text-[24px] font-bold leading-none tracking-[-0.03em] text-[#F1F5F9]">{value}</div>
-      <div className="text-[11px] text-[#94A3B8]">{title}</div>
+      <div className="mb-[3px] text-[24px] font-bold leading-none tracking-[-0.03em] text-slate-900 dark:text-[#F1F5F9]">{value}</div>
+      <div className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{title}</div>
     </div>
   );
 }
 
 function BreakdownLine({ label, sub, value, danger }: { label: string; sub?: string; value: string; danger?: boolean }) {
   return (
-    <div className="flex items-center justify-between border-b border-white/[0.07] px-[18px] py-3">
-      <span className="text-[12px] text-[#94A3B8]">
-        {label} {sub ? <span className="text-[10px] text-[#475569]">{sub}</span> : null}
+    <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-[18px] py-3">
+      <span className="text-[12px] text-slate-500 dark:text-[#94A3B8]">
+        {label} {sub ? <span className="text-[10px] text-slate-500 dark:text-[#475569]">{sub}</span> : null}
       </span>
-      <span className={cn("text-[12.5px] font-medium", danger ? "text-red-400" : "text-[#F1F5F9] font-semibold")}>{value}</span>
+      <span className={cn("text-[12.5px] font-medium", danger ? "text-red-400" : "text-slate-900 dark:text-[#F1F5F9] font-semibold")}>{value}</span>
     </div>
   );
 }
 
 function Legend({ label, color }: { label: string; color: string }) {
   return (
-    <div className="flex items-center gap-[6px] text-[11.5px] text-[#94A3B8]">
+    <div className="flex items-center gap-[6px] text-[11.5px] text-slate-500 dark:text-[#94A3B8]">
       <div className="h-2 w-2 rounded-full" style={{ background: color }} />
       {label}
     </div>

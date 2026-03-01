@@ -39,14 +39,14 @@ export default function DoctorProfileScreen({ profile, email }: Props) {
   }, [profile.name]);
 
   return (
-    <div className="min-h-screen bg-[#111827] px-7 py-[22px]">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
       <div className="grid grid-cols-1 items-start gap-[18px] xl:grid-cols-[280px_1fr]">
         <div className="flex flex-col gap-[14px]">
-          <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] px-5 py-7 text-center">
+          <div className="rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] px-5 py-7 text-center">
             <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-[28px] font-bold text-white">
               {initials}
             </div>
-            <div className="mb-[2px] text-[16px] font-bold text-[#F1F5F9]">Dr. {profile.name || "Ramesh Iyer"}</div>
+            <div className="mb-[2px] text-[16px] font-bold text-slate-900 dark:text-[#F1F5F9]">Dr. {profile.name || "Ramesh Iyer"}</div>
             <div className="mb-[10px] text-[11.5px] text-blue-400">General Physician · MBBS, MD</div>
 
             <div className="flex justify-center gap-[6px]">
@@ -58,30 +58,30 @@ export default function DoctorProfileScreen({ profile, email }: Props) {
 
             <div className="flex justify-around text-center">
               <div>
-                <div className="text-[17px] font-bold text-[#F1F5F9]">{profile.experience || 12}</div>
-                <div className="text-[10px] text-[#475569]">Yrs Exp.</div>
+                <div className="text-[17px] font-bold text-slate-900 dark:text-[#F1F5F9]">{profile.experience || 12}</div>
+                <div className="text-[10px] text-slate-500 dark:text-[#475569]">Yrs Exp.</div>
               </div>
               <div>
-                <div className="text-[17px] font-bold text-[#F1F5F9]">1,284</div>
-                <div className="text-[10px] text-[#475569]">Patients</div>
+                <div className="text-[17px] font-bold text-slate-900 dark:text-[#F1F5F9]">1,284</div>
+                <div className="text-[10px] text-slate-500 dark:text-[#475569]">Patients</div>
               </div>
               <div>
                 <div className="text-[17px] font-bold text-amber-400">{(profile.rating ?? 4.8).toFixed(1)}★</div>
-                <div className="text-[10px] text-[#475569]">Rating</div>
+                <div className="text-[10px] text-slate-500 dark:text-[#475569]">Rating</div>
               </div>
             </div>
 
             <button
               type="button"
-              className="mt-[14px] inline-flex h-[34px] w-full items-center justify-center rounded-lg border border-white/[0.07] bg-white/[0.06] text-[12px] font-medium text-[#94A3B8] hover:bg-white/[0.1] hover:text-[#F1F5F9]"
+              className="mt-[14px] inline-flex h-[34px] w-full items-center justify-center rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.06] text-[12px] font-medium text-slate-500 dark:text-[#94A3B8] hover:bg-white/[0.1] hover:text-slate-900 dark:hover:text-[#F1F5F9]"
             >
               Change Photo
             </button>
           </div>
 
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="border-b border-white/[0.07] px-5 py-[15px]">
-              <div className="text-[13px] font-semibold text-[#F1F5F9]">Clinic</div>
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
+              <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Clinic</div>
             </div>
             <div className="flex flex-col gap-[10px] px-[18px] py-[14px]">
               <InfoRow label="Clinic Name" value="Sunrise Clinic" />
@@ -92,11 +92,11 @@ export default function DoctorProfileScreen({ profile, email }: Props) {
         </div>
 
         <div className="flex flex-col gap-[14px]">
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
               <div>
-                <div className="text-[13px] font-semibold text-[#F1F5F9]">Personal Information</div>
-                <div className="mt-[2px] text-[11px] text-[#94A3B8]">Basic details visible to patients</div>
+                <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Personal Information</div>
+                <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Basic details visible to patients</div>
               </div>
               <button
                 type="button"
@@ -114,11 +114,11 @@ export default function DoctorProfileScreen({ profile, email }: Props) {
               <Field label="Date of Birth" type="date" value={personal.dob} onChange={(v) => setPersonal((p) => ({ ...p, dob: v }))} />
 
               <label className="space-y-[6px]">
-                <span className="text-[11px] text-[#94A3B8]">Gender</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">Gender</span>
                 <select
                   value={personal.gender}
                   onChange={(e) => setPersonal((p) => ({ ...p, gender: e.target.value }))}
-                  className="h-[36px] w-full rounded-lg border border-white/[0.07] bg-[#1c2840] px-[11px] text-[12.5px] text-[#F1F5F9] outline-none"
+                  className="h-[36px] w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-[#1c2840] px-[11px] text-[12.5px] text-slate-900 dark:text-[#F1F5F9] outline-none"
                 >
                   <option>Male</option>
                   <option>Female</option>
@@ -127,20 +127,20 @@ export default function DoctorProfileScreen({ profile, email }: Props) {
               </label>
 
               <label className="space-y-[6px] md:col-span-2">
-                <span className="text-[11px] text-[#94A3B8]">Bio / Introduction</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">Bio / Introduction</span>
                 <textarea
                   value={personal.bio}
                   onChange={(e) => setPersonal((p) => ({ ...p, bio: e.target.value }))}
-                  className="min-h-[80px] w-full rounded-lg border border-white/[0.07] bg-[#1c2840] px-[11px] py-2 text-[12.5px] text-[#F1F5F9] outline-none"
+                  className="min-h-[80px] w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-[#1c2840] px-[11px] py-2 text-[12.5px] text-slate-900 dark:text-[#F1F5F9] outline-none"
                 />
               </label>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="border-b border-white/[0.07] px-5 py-[15px]">
-              <div className="text-[13px] font-semibold text-[#F1F5F9]">Professional Details</div>
-              <div className="mt-[2px] text-[11px] text-[#94A3B8]">Credentials and qualifications</div>
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
+              <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Professional Details</div>
+              <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Credentials and qualifications</div>
             </div>
 
             <div className="grid grid-cols-1 gap-[14px] px-5 py-5 md:grid-cols-2">
@@ -161,8 +161,8 @@ export default function DoctorProfileScreen({ profile, email }: Props) {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-[10px] text-[#475569]">{label}</div>
-      <div className="mt-[2px] text-[12.5px] font-medium text-[#F1F5F9]">{value}</div>
+      <div className="text-[10px] text-slate-500 dark:text-[#475569]">{label}</div>
+      <div className="mt-[2px] text-[12.5px] font-medium text-slate-900 dark:text-[#F1F5F9]">{value}</div>
     </div>
   );
 }
@@ -180,12 +180,12 @@ function Field({
 }) {
   return (
     <label className="space-y-[6px]">
-      <span className="text-[11px] text-[#94A3B8]">{label}</span>
+      <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-[36px] w-full rounded-lg border border-white/[0.07] bg-[#1c2840] px-[11px] text-[12.5px] text-[#F1F5F9] outline-none"
+        className="h-[36px] w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-[#1c2840] px-[11px] text-[12.5px] text-slate-900 dark:text-[#F1F5F9] outline-none"
       />
     </label>
   );
