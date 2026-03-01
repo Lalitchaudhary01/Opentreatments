@@ -42,6 +42,20 @@ function typePillClass(type: string) {
   return "bg-blue-500/15 text-blue-400";
 }
 
+function bookingPillClass(booking: "Online Booked" | "Offline Booked" | "Walk-in") {
+  if (booking === "Online Booked") return "bg-blue-500/15 text-blue-400";
+  if (booking === "Offline Booked") return "bg-teal-500/15 text-teal-400";
+  return "bg-purple-500/15 text-purple-400";
+}
+
+function deriveBooking(mode?: string | null, isWalkIn = false): "Online Booked" | "Offline Booked" | "Walk-in" {
+  if (isWalkIn) return "Walk-in";
+  const lowerMode = `${mode || ""}`.toLowerCase();
+  if (lowerMode === "offline") return "Offline Booked";
+  if (lowerMode.includes("walk")) return "Walk-in";
+  return "Online Booked";
+}
+
 function cardIconTone(kind: "blue" | "teal" | "amber" | "green") {
   if (kind === "blue") return "bg-blue-500/15 text-blue-400";
   if (kind === "teal") return "bg-teal-500/15 text-teal-400";
@@ -73,13 +87,7 @@ export default async function DoctorOverviewPage() {
   const endOfDay = new Date(now);
   endOfDay.setHours(23, 59, 59, 999);
 
-  const [todayAppointmentsCount, onlinePatients, offlinePatients, todayRows] = await Promise.all([
-    prisma.independentConsultation.count({
-      where: {
-        doctorId: doctor.id,
-        slot: { gte: startOfDay, lte: endOfDay },
-      },
-    }),
+  const [onlinePatients, offlinePatients, todayConsultations, todayWalkins] = await Promise.all([
     prisma.independentConsultation.count({
       where: { doctorId: doctor.id, status: "APPROVED" },
     }),
@@ -99,8 +107,40 @@ export default async function DoctorOverviewPage() {
       orderBy: { slot: "asc" },
       take: 12,
     }),
+    prisma.offlineConsultation.findMany({
+      where: {
+        doctorId: doctor.id,
+        visitTime: { gte: startOfDay, lte: endOfDay },
+      },
+      orderBy: { visitTime: "asc" },
+      take: 12,
+    }),
   ]);
 
+  const todayRows = [
+    ...todayConsultations.map((row) => ({
+      id: row.id,
+      slot: row.slot,
+      notes: row.notes,
+      mode: row.mode,
+      status: row.status,
+      userName: row.user.name || "Patient",
+      isWalkIn: false,
+    })),
+    ...todayWalkins.map((row) => ({
+      id: row.id,
+      slot: row.visitTime,
+      notes: row.complaint,
+      mode: "walk-in",
+      status: row.visitTime.getTime() <= now.getTime() ? "COMPLETED" : "APPROVED",
+      userName: row.patientName || "Walk-in Patient",
+      isWalkIn: true,
+    })),
+  ]
+    .sort((a, b) => a.slot.getTime() - b.slot.getTime())
+    .slice(0, 12);
+
+  const todayAppointmentsCount = todayRows.length;
   const totalPatients = onlinePatients + offlinePatients;
 
   const stats = [
@@ -136,7 +176,7 @@ export default async function DoctorOverviewPage() {
 
   const activity = todayRows.slice(0, 5).map((row, idx) => ({
     id: row.id,
-    text: `${row.user.name || "Patient"} ${row.status === "COMPLETED" ? "appointment completed" : "checked in"}`,
+    text: `${row.userName} ${row.status === "COMPLETED" ? "appointment completed" : "checked in"}`,
     time: idx === 0 ? "2 min ago" : `${idx * 15} min ago`,
     dot: idx % 2 === 0 ? "bg-green-400" : "bg-blue-400",
   }));
@@ -146,7 +186,7 @@ export default async function DoctorOverviewPage() {
     .slice(0, 4)
     .map((row) => ({
       id: row.id,
-      name: row.user.name || "Patient",
+      name: row.userName,
       type: deriveType(row.mode, row.notes),
       time: row.slot,
     }));
@@ -195,13 +235,14 @@ export default async function DoctorOverviewPage() {
                     <th className="px-[18px] py-[9px]">Patient</th>
                     <th className="px-[18px] py-[9px]">Time</th>
                     <th className="px-[18px] py-[9px]">Type</th>
+                    <th className="px-[18px] py-[9px]">Booking</th>
                     <th className="px-[18px] py-[9px]">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {todayRows.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-[18px] py-14 text-center text-[12.5px] text-slate-500 dark:text-[#94A3B8]">
+                      <td colSpan={5} className="px-[18px] py-14 text-center text-[12.5px] text-slate-500 dark:text-[#94A3B8]">
                         No appointments for today
                       </td>
                     </tr>
@@ -209,14 +250,15 @@ export default async function DoctorOverviewPage() {
                     todayRows.map((row, idx) => {
                       const status = mapStatus(row.status);
                       const apptType = deriveType(row.mode, row.notes, idx);
+                      const booking = deriveBooking(row.mode, row.isWalkIn);
                       return (
                         <tr key={row.id} className="border-b border-slate-200 dark:border-white/[0.07] last:border-b-0 hover:bg-slate-50/70 dark:hover:bg-white/[0.02]">
                           <td className="px-[18px] py-[11px] align-middle">
                             <div className="flex items-center gap-[10px]">
                               <div className="h-[30px] w-[30px] rounded-full bg-blue-500/20 text-[10.5px] font-bold text-blue-400 flex items-center justify-center">
-                                {initials(row.user.name)}
+                                {initials(row.userName)}
                               </div>
-                              <span className="text-[12.5px] font-medium text-slate-900 dark:text-slate-100">{row.user.name || "Patient"}</span>
+                              <span className="text-[12.5px] font-medium text-slate-900 dark:text-slate-100">{row.userName}</span>
                             </div>
                           </td>
                           <td className="px-[18px] py-[11px] align-middle text-[12.5px] text-slate-600 dark:text-slate-300">{formatTime(row.slot)}</td>
@@ -224,6 +266,12 @@ export default async function DoctorOverviewPage() {
                             <span className={`inline-flex items-center gap-1 rounded-[20px] px-[9px] py-[3px] text-[11px] font-medium ${typePillClass(apptType)}`}>
                               <span className="inline-block h-[5px] w-[5px] shrink-0 rounded-full bg-current opacity-70" />
                               {apptType}
+                            </span>
+                          </td>
+                          <td className="px-[18px] py-[11px] align-middle">
+                            <span className={`inline-flex items-center gap-1 rounded-[20px] px-[9px] py-[3px] text-[11px] font-medium ${bookingPillClass(booking)}`}>
+                              <span className="inline-block h-[5px] w-[5px] shrink-0 rounded-full bg-current opacity-70" />
+                              {booking}
                             </span>
                           </td>
                           <td className="px-[18px] py-[11px] align-middle">
