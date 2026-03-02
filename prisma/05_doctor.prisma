@@ -1,0 +1,111 @@
+// prisma/doctor.prisma
+model IndependentDoctor {
+  id                String                    @id @default(cuid())
+  userId            String                    @unique
+  name              String
+  specialties       String[]
+  specialization    String
+  experience        Int?
+  gender            String?
+  profilePic        String?
+  fees              Float?
+  rating            Float                     @default(0)
+  totalReviews      Int                       @default(0)
+  languages         String[]
+  availability      Json?
+  badges            String[]
+  city              String?
+  status            DoctorStatus              @default(PENDING)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  consultations     IndependentConsultation[]
+  user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  IndependentReview IndependentReview[]
+  offlineConsultations OfflineConsultation[]
+}
+
+model IndependentConsultation {
+  id                String             @id @default(cuid())
+  doctorId          String
+  userId            String
+  slot              DateTime
+  duration          Int?
+  status            ConsultationStatus @default(PENDING)
+  mode              String             @default("online")
+  fee               Float?
+  paymentId         String?
+  paymentStatus     String             @default("unpaid")
+  notes             String?
+  prescription      String?
+  cancelReason      String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  doctor            IndependentDoctor  @relation(fields: [doctorId], references: [id])
+  user              User               @relation(fields: [userId], references: [id])
+  IndependentReview IndependentReview?
+  Payment           Payment?
+}
+
+model OfflineConsultation {
+  id             String   @id @default(cuid())
+  doctorId       String
+  patientName    String
+  patientAge     Int?
+  patientGender  String?
+  phoneNumber    String?
+  complaint      String
+  prescription   String?   // Medicine/advice diya
+  followUpDate   DateTime? // Next visit
+  visitTime      DateTime @default(now())
+  
+  doctor         IndependentDoctor @relation(fields: [doctorId], references: [id])
+  
+  createdAt      DateTime @default(now())
+}
+
+model IndependentReview {
+  id             String                  @id @default(cuid())
+  consultationId String                  @unique
+  doctorId       String
+  userId         String
+  rating         Int
+  feedback       String?
+  createdAt      DateTime                @default(now())
+  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  doctor         IndependentDoctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id             String                  @id @default(cuid())
+  consultationId String                  @unique
+  consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  labBookingId   String?                 @unique
+  labBooking     LabBooking?             @relation("BookingPayment", fields: [labBookingId], references: [id])
+  amount         Float
+  status         PaymentStatus           @default(PENDING)
+  provider       String?
+  transactionId  String?
+  createdAt      DateTime                @default(now())
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminId    String
+  actionType String
+  targetId   String
+  targetType String
+  details    String?
+  createdAt  DateTime @default(now())
+  admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,118 @@
+// prisma/enums.prisma
+enum Role {
+  USER
+  ADMIN
+  DOCTOR
+  HOSPITAL
+  PHARMACY
+  INSURANCE_COMPANY
+}
+
+enum HospitalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PharmacyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum StockType {
+  INCOMING
+  OUTGOING
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  DELIVERED
+  CANCELLED
+}
+
+enum InventoryChangeType {
+  SALE
+  DAMAGE
+  EXPIRE
+  MANUAL_ADJUSTMENT
+}
+
+enum DoctorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ConsultationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  CONSULTATION_REQUEST
+  CONSULTATION_STATUS
+  ADMIN_APPROVAL
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum InsuranceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LabStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  TECHNICIAN_ASSIGNED
+  SAMPLE_COLLECTED
+  SAMPLE_RECEIVED
+  PROCESSING
+  REPORT_READY
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum SampleStatus {
+  PENDING
+  SCHEDULED
+  COLLECTED
+  RECEIVED
+  REJECTED
+  PROCESSING
+  COMPLETED
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  READY
+  VERIFIED
+  DELIVERED
+}

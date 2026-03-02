@@ -1,0 +1,51 @@
+// prisma/blog.prisma
+model Blog {
+  id        String    @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  image     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User      @relation(fields: [authorId], references: [id])
+  tags      BlogTag[]
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  blogId    String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  author    User     @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  blogId    String
+  userId    String
+  createdAt DateTime @default(now())
+  blog      Blog     @relation(fields: [blogId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([blogId, userId])
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  blogs BlogTag[]
+}
+
+model BlogTag {
+  blogId String
+  tagId  String
+  blog   Blog   @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([blogId, tagId])
+}

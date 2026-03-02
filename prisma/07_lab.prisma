@@ -1,0 +1,430 @@
+// prisma/lab.prisma
+model LabCompany {
+  id                 String       @id @default(cuid())
+  userId             String       @unique
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  name               String
+  slug               String       @unique
+  registrationNumber String?
+  email              String       @unique
+  phone              String?      @unique
+  address            String
+  city               String?
+  state              String?
+  pincode            String?
+  latitude           Float?
+  longitude          Float?
+  website            String?
+  logo               String?
+  coverImage         String?
+  description        String?
+  
+  // Accreditation & Documents
+  accreditations     Json[]       @default([])
+  documents          String[]      @default([])
+  licenseNumber      String?
+  licenseExpiry      DateTime?
+  
+  // Operational
+  homeCollection     Boolean      @default(false)
+  homeCollectionFee  Int?
+  collectionCenters  Json[]       @default([])
+  
+  // Stats
+  rating             Float        @default(0)
+  totalReviews       Int          @default(0)
+  totalBookings      Int          @default(0)
+  
+  // Status
+  status             LabStatus    @default(PENDING)
+  rejectionReason    String?
+  verifiedAt         DateTime?
+  isActive           Boolean      @default(true)
+  
+  // Timestamps
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  
+  // Relations
+  tests              LabTest[]
+  packages           LabPackage[]
+  slots              LabSlot[]
+  bookings           LabBooking[]
+  technicians        LabTechnician[]
+  reports            LabReport[]
+  priceHistory       LabPriceHistory[] @relation("CompanyPriceHistory")
+  adminNotes         AdminNote[]
+  
+  @@index([status])
+  @@index([city])
+  @@index([slug])
+}
+
+model LabTest {
+  id                 String           @id @default(cuid())
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  
+  // Test Details
+  name               String
+  code               String?
+  description        String?
+  category           String
+  subCategory        String?
+  
+  // Parameters
+  sampleType         String?
+  volume             String?
+  container          String?
+  method             String?
+  
+  // Requirements
+  fastingRequired    Boolean          @default(false)
+  fastingHours       Int?
+  preparation        String?
+  
+  // Pricing & Turnaround
+  price              Int
+  discountedPrice    Int?
+  tatHours           Int?
+  
+  // Parameters & Reference Ranges
+  parameters         Json[]           @default([])
+  
+  // Status
+  isActive           Boolean          @default(true)
+  isPopular          Boolean          @default(false)
+  isHomeCollection   Boolean          @default(true)
+  
+  // Timestamps
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  // Relations
+  packageTests       LabPackageTest[]
+  bookingItems       LabBookingItem[] @relation("TestBookingItems")
+  priceHistory       LabPriceHistory[] @relation("TestPriceHistory")
+  singleBookings     LabBooking[]     @relation("SingleTestBookings")
+  
+  @@unique([labId, code])
+  @@unique([labId, name])
+  @@index([labId, isActive])
+  @@index([category])
+}
+
+model LabPackage {
+  id                 String           @id @default(cuid())
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  
+  // Package Details
+  name               String
+  slug               String           @unique
+  description        String?
+  shortDesc          String?
+  image              String?
+  
+  // Package Type
+  category           String
+  popularFor         String[]         @default([])
+  samplesRequired    String[]         @default([])
+  
+  // Pricing
+  price              Int
+  discountedPrice    Int?
+  discountPercent    Float?
+  
+  // Requirements
+  fastingRequired    Boolean          @default(false)
+  reportTat          Int?
+  
+  // Status
+  isActive           Boolean          @default(true)
+  isFeatured         Boolean          @default(false)
+  
+  // Stats
+  totalBookings      Int              @default(0)
+  
+  // Timestamps
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  // Relations
+  packageTests       LabPackageTest[]
+  bookings           LabBooking[]     @relation("PackageBookings")
+  bookingItems       LabBookingItem[] @relation("PackageBookingItems")
+  
+  @@unique([labId, slug])
+  @@index([labId, isActive])
+}
+
+model LabPackageTest {
+  packageId          String
+  testId             String
+  pkg                LabPackage       @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  test               LabTest          @relation(fields: [testId], references: [id], onDelete: Cascade)
+  
+  @@id([packageId, testId])
+  @@index([testId])
+}
+
+model LabSlot {
+  id                 String           @id @default(cuid())
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  
+  dayOfWeek          Int
+  startTime          String
+  endTime            String
+  capacity           Int              @default(10)
+  isActive           Boolean          @default(true)
+  
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  @@index([labId])
+}
+
+model LabTechnician {
+  id                 String           @id @default(cuid())
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  
+  // Personal Info
+  name               String
+  email              String?          @unique
+  phone              String?          @unique
+  employeeId         String?
+  
+  // Professional
+  designation        String
+  specialization     String[]         @default([])
+  experience         Int?
+  qualification      String?
+  certificates       String[]         @default([])
+  
+  // Status
+  isActive           Boolean          @default(true)
+  
+  // Timestamps
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  // Relations
+  assignments        LabTechnicianAssignment[]
+  schedules          LabTechnicianSchedule[]
+  
+  @@index([labId])
+}
+
+model LabTechnicianSchedule {
+  id                 String           @id @default(cuid())
+  technicianId       String
+  technician         LabTechnician    @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  
+  dayOfWeek          Int
+  startTime          String
+  endTime            String
+  isAvailable        Boolean          @default(true)
+  
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  @@index([technicianId])
+}
+
+model LabTechnicianAssignment {
+  id                 String           @id @default(cuid())
+  technicianId       String
+  technician         LabTechnician    @relation(fields: [technicianId], references: [id], onDelete: Cascade)
+  bookingId          String           @unique
+  booking            LabBooking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  assignmentDate     DateTime
+  status             String           @default("assigned")
+  notes              String?
+  
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  @@index([technicianId])
+}
+
+model LabBooking {
+  id                 String           @id @default(cuid())
+  bookingNumber      String           @unique
+  
+  // Relations
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Items
+  items              LabBookingItem[]
+  
+  // If single item
+  testId             String?
+  packageId          String?
+  singleTest         LabTest?         @relation("SingleTestBookings", fields: [testId], references: [id])
+  singlePackage      LabPackage?      @relation("PackageBookings", fields: [packageId], references: [id])
+  
+  // Pricing
+  subtotal           Int
+  discount           Int              @default(0)
+  homeCollectionFee  Int              @default(0)
+  total              Int
+  
+  // Schedule
+  appointmentDate    DateTime
+  appointmentSlot    String
+  
+  // Collection Type
+  collectionType     String
+  collectionCenter   String?
+  
+  // Patient Details
+  patientName        String
+  patientAge         Int
+  patientGender      String
+  patientPhone       String
+  patientEmail       String?
+  
+  // Address
+  address            String?
+  city               String?
+  pincode            String?
+  landmark           String?
+  latitude           Float?
+  longitude          Float?
+  
+  // Status Tracking
+  status             BookingStatus    @default(PENDING)
+  paymentStatus      PaymentStatus    @default(PENDING)
+  sampleStatus       SampleStatus     @default(PENDING)
+  reportStatus       ReportStatus     @default(PENDING)
+  
+  // Assignment
+  technicianAssignment LabTechnicianAssignment?
+  
+  // Timestamps
+  sampleCollectedAt  DateTime?
+  sampleReceivedAt   DateTime?
+  reportGeneratedAt  DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  cancelReason       String?
+  
+  // Relations
+  report             LabReport?
+  timeline           LabBookingTimeline[]
+  payment            Payment?         @relation("BookingPayment")
+  
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  @@index([labId, status])
+  @@index([userId, status])
+  @@index([bookingNumber])
+  @@index([appointmentDate])
+}
+
+model LabBookingItem {
+  id                 String           @id @default(cuid())
+  bookingId          String
+  booking            LabBooking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  itemType           String
+  testId             String?
+  packageId          String?
+  test               LabTest?         @relation("TestBookingItems", fields: [testId], references: [id])
+  package            LabPackage?      @relation("PackageBookingItems", fields: [packageId], references: [id])
+  
+  name               String
+  price              Int
+  status             String?
+  
+  createdAt          DateTime         @default(now())
+  
+  @@index([bookingId])
+}
+
+model LabBookingTimeline {
+  id                 String           @id @default(cuid())
+  bookingId          String
+  booking            LabBooking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  status             String
+  note               String?
+  createdBy          String?
+  createdAt          DateTime         @default(now())
+  
+  @@index([bookingId])
+}
+
+model LabReport {
+  id                 String           @id @default(cuid())
+  bookingId          String           @unique
+  booking            LabBooking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id])
+  
+  // Report Files
+  reportUrl          String?
+  summaryUrl         String?
+  
+  // Verification
+  isVerified         Boolean          @default(false)
+  verifiedBy         String?
+  verifiedAt         DateTime?
+  
+  // Report Data
+  reportData         Json?
+  parameters         Json[]           @default([])
+  
+  // Status
+  status             ReportStatus     @default(PENDING)
+  
+  // Timestamps
+  generatedAt        DateTime?
+  downloadedAt       DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  
+  @@index([labId, status])
+}
+
+model LabPriceHistory {
+  id                 String           @id @default(cuid())
+  labId              String
+  testId             String
+  lab                LabCompany       @relation("CompanyPriceHistory", fields: [labId], references: [id])
+  test               LabTest          @relation("TestPriceHistory", fields: [testId], references: [id], onDelete: Cascade)
+  
+  oldPrice           Int
+  newPrice           Int
+  changedBy          String
+  reason             String?
+  
+  createdAt          DateTime         @default(now())
+  
+  @@index([testId])
+}
+
+model AdminNote {
+  id                 String           @id @default(cuid())
+  labId              String
+  lab                LabCompany       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  
+  adminId            String
+  admin              User             @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  
+  note               String
+  type               String
+  
+  createdAt          DateTime         @default(now())
+  
+  @@index([labId])
+}

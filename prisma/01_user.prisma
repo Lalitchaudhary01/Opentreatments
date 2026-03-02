@@ -1,0 +1,105 @@
+// prisma/user.prisma
+model User {
+  id                       String                    @id @default(cuid())
+  name                     String?
+  email                    String                    @unique
+  password                 String?
+  createdAt                DateTime                  @default(now())
+  role                     Role                      @default(USER)
+  isVerified               Boolean                   @default(false)
+  otp                      String?
+  otpExpiry                DateTime?
+  phone                    String?                   @unique
+  accounts                 Account[]
+  AdminAction              AdminAction[]
+  adminNotes               AdminNote[]
+  blogs                    Blog[]
+  claims                   Claim[]
+  comments                 Comment[]
+  Hospital                 Hospital?
+  independentConsultations IndependentConsultation[]
+  IndependentDoctor        IndependentDoctor?
+  IndependentReview        IndependentReview[]
+  InsuranceCompany         InsuranceCompany?
+  likes                    Like[]
+  Notification             Notification[]
+  Orders                   Order[]
+  Pharmacy                 Pharmacy?
+  policies                 Policy[]
+  sessions                 Session[]
+  LabCompany               LabCompany?
+  labBookings              LabBooking[]
+  patientProfile           Patient?
+}
+
+model Patient {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic Personal Info
+  fullName    String?
+  age         Int?
+  gender      String?
+  phoneNumber String?
+  email       String?
+  address     String?
+
+  // Physical Data
+  height     String?
+  weight     String?
+  bloodGroup String?
+
+  // Medical History
+  conditions    String[] // known diseases
+  allergies     String[]
+  medications   Json?
+  pastSurgeries String[]
+  familyHistory String[] // diabetes, BP, thyroid, etc.
+  appointments  Json? // stored appointments for the patient
+
+  // Lifestyle (Full Body Checkup Essentials)
+  smokingStatus      String? // smoker / non-smoker / past smoker
+  alcoholConsumption String? // none / occasional / regular
+  dietType           String? // veg / non-veg / vegan
+  sleepHours         Int? // avg daily sleep
+  activityLevel      String? // low / moderate / high
+  waterIntake        Int? // glasses/day
+  stressLevel        String? // low / moderate / high
+
+  // Checkup & Doctor Visit
+  healthScore     Int?
+  lastVisit       DateTime?
+  nextAppointment DateTime?
+  primaryDoctor   String?
+
+  // System Fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  access_token      String?
+  refresh_token     String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+}

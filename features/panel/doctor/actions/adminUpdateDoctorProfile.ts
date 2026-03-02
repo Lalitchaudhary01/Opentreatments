@@ -26,7 +26,7 @@ export async function adminUpdateDoctor(data: AdminUpdateDoctorInput) {
       ...rest,
     },
   });
-
+  
   return updated;
 }
 

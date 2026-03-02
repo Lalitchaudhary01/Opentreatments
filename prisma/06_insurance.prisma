@@ -1,0 +1,49 @@
+// prisma/insurance.prisma
+model InsuranceCompany {
+  id                 String          @id @default(cuid())
+  userId             String          @unique
+  name               String
+  email              String          @unique
+  contactPhone       String?
+  registrationNumber String?
+  logoUrl            String?
+  description        String?
+  provider           String?
+  profile            Json?
+  address            String?
+  website            String?
+  status             InsuranceStatus @default(PENDING)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  claims             Claim[]
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plans              Plan[]
+}
+
+model Plan {
+  id              String           @id @default(cuid())
+  companyId       String
+  name            String
+  description     String?
+  coverageDetails Json
+  premium         Float
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  coverageAmount  Float
+  claims          Claim[]
+  company         InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model Claim {
+  id          String           @id @default(cuid())
+  userId      String
+  companyId   String
+  planId      String
+  billDetails Json
+  status      ClaimStatus      @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  company     InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  plan        Plan             @relation(fields: [planId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

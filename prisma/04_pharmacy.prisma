@@ -1,0 +1,119 @@
+// prisma/pharmacy.prisma
+model Pharmacy {
+  id            String         @id @default(cuid())
+  name          String
+  address       String?
+  city          String?
+  state         String?
+  phone         String
+  latitude      Float?
+  longitude     Float?
+  country       String?
+  createdAt     DateTime       @default(now())
+  email         String
+  gstNumber     String?
+  licenseNumber String
+  ownerName     String
+  status        PharmacyStatus @default(PENDING)
+  updatedAt     DateTime       @updatedAt
+  userId        String         @unique
+  InventoryLog  InventoryLog[]
+  medicines     Medicine[]
+  orders        Order[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stock         StockEntry[]   @relation("PharmacyStock")
+}
+
+model Medicine {
+  id            String         @id @default(cuid())
+  name          String
+  genericName   String?
+  strength      String?
+  price         Float
+  description   String?
+  pharmacyId    String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  brand         String?
+  category      String?
+  dosageForm    String?
+  gst           Float?
+  manufacturer  String?
+  mrp           Float?
+  inventoryLogs InventoryLog[]
+  pharmacy      Pharmacy       @relation(fields: [pharmacyId], references: [id])
+  orderItems    OrderItem[]
+  priceTrends   PriceTrend[]
+  stock         StockEntry[]
+  substitutes   Substitute[]   @relation("OriginalMedicine")
+  substituteFor Substitute[]   @relation("SubstituteMedicine")
+}
+
+model StockEntry {
+  id            String         @id @default(cuid())
+  medicineId    String
+  batchNumber   String
+  quantity      Int
+  expiryDate    DateTime
+  purchasePrice Float?
+  sellingPrice  Float?
+  type          StockType      @default(INCOMING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  pharmacyId    String
+  logs          InventoryLog[]
+  medicine      Medicine       @relation(fields: [medicineId], references: [id])
+  pharmacy      Pharmacy       @relation("PharmacyStock", fields: [pharmacyId], references: [id])
+}
+
+model InventoryLog {
+  id              String              @id @default(cuid())
+  stockEntryId    String
+  medicineId      String
+  pharmacyId      String
+  changeType      InventoryChangeType
+  quantityChanged Int
+  note            String?
+  createdAt       DateTime            @default(now())
+  medicine        Medicine            @relation(fields: [medicineId], references: [id])
+  pharmacy        Pharmacy            @relation(fields: [pharmacyId], references: [id])
+  stockEntry      StockEntry          @relation(fields: [stockEntryId], references: [id])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  userId     String
+  pharmacyId String
+  status     OrderStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  pharmacy   Pharmacy    @relation(fields: [pharmacyId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  medicineId String
+  quantity   Int
+  price      Float
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model PriceTrend {
+  id         String   @id @default(cuid())
+  medicineId String
+  price      Float
+  date       DateTime @default(now())
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+}
+
+model Substitute {
+  id                   String   @id @default(cuid())
+  medicineId           String
+  substituteMedicineId String
+  medicine             Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
+  substitute           Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
+}
