@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { updateConsultationStatus } from "@/features/panel/doctor/consultations/actions";
-import { AddOfflinePatientModal } from "@/features/panel/doctor/consultations/components/AddOfflinePatientModal";
+import { AddOfflinePatientModal } from "@/features/panel/doctor/patient/components/AddOfflinePatientModal";
 
 type ChipFilter = "all" | "confirmed" | "in-progress" | "waiting" | "completed";
 

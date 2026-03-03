@@ -22,7 +22,7 @@ type HeaderPageKey =
   | "availability"
   | "reviews"
   | "profile"
-  | "settings";
+  "settings";
 
 function getHeaderPageKey(pathname: string): HeaderPageKey {
   if (pathname === "/doctor" || pathname.startsWith("/doctor/overview")) return "dashboard";

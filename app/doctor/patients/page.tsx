@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { AddOfflinePatientModal } from "@/features/panel/doctor/consultations/components/AddOfflinePatientModal";
+import { AddOfflinePatientModal } from "@/features/panel/doctor/patient/components/AddOfflinePatientModal";
 import { Search } from "lucide-react";
 import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
 
