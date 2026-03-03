@@ -1,7 +1,10 @@
-import { DoctorStatus, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
-// Re-export for external usage
-export { DoctorStatus };
+export enum DoctorStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
 
 // Full Doctor profile (DB shape)
 export interface DoctorProfile {

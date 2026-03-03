@@ -1,8 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { DoctorStatus } from "@/features/panel/doctor/types";
 import { statusConfig } from "@/features/panel/doctor/utils/statusConfig";
-import { DoctorStatus } from "@prisma/client";
 
 export default function DoctorStatusBadge({
   status,

@@ -113,7 +113,7 @@ export default async function AdminDoctorPage(props: any) {
                 <AvatarFallback className="text-3xl font-black bg-gradient-to-br from-cyan-500 to-teal-500 text-white">
                   {doctor.name
                     .split(" ")
-                    .map((n) => n[0])
+                    .map((n: string) => n[0])
                     .join("")
                     .toUpperCase()}
                 </AvatarFallback>

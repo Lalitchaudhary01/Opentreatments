@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { DoctorStatus } from "@prisma/client";
 import { GetApprovedDoctorsResponse } from "../types/userDoctor";
 
 export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> {
@@ -9,7 +8,7 @@ export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> 
     // Use enum from Prisma client instead of string
     const doctors = await prisma.independentDoctor.findMany({
       where: { 
-        status: DoctorStatus.APPROVED
+        status: "APPROVED"
       },
       orderBy: { createdAt: "desc" },
       select: {
