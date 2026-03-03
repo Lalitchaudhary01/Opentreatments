@@ -2,7 +2,7 @@ import {
   PendingView,
   ApprovedView,
   RejectedView,
-} from "@/features/panel/doctor/screens/status";
+} from "@/features/panel/doctor/onboarding/status";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";

@@ -3,9 +3,10 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { AddOfflinePatientModal } from "@/features/panel/doctor/patient/components/AddOfflinePatientModal";
+
 import { Search } from "lucide-react";
 import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
+import { AddOfflinePatientModal } from "@/features/panel/doctor/patient/components/AddOfflinePatientModal";
 
 type UiFilter = "all" | "recent" | "active" | "new";
 

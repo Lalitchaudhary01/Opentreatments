@@ -2,7 +2,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";
-import { DoctorProfileForm } from "@/features/panel/doctor/screens/onboarding";
+import { DoctorProfileForm } from "@/features/panel/doctor/onboarding/onboarding";
 
 export default async function EditDoctorProfilePage() {
   const session = await getServerSession(authOptions);

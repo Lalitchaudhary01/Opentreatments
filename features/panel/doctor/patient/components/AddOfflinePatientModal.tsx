@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Plus } from "lucide-react";
-import { addOfflinePatient } from "../../consultations/actions/addOfflinePatient";
+import { addOfflinePatient } from "../../appointments/actions/addOfflinePatient";
 import { useRouter } from "next/navigation";
 
 export function AddOfflinePatientModal({

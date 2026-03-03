@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { updateConsultationStatus } from "@/features/panel/doctor/consultations/actions";
+import { updateConsultationStatus } from "@/features/panel/doctor/appointments/actions";
 import { AddOfflinePatientModal } from "@/features/panel/doctor/patient/components/AddOfflinePatientModal";
 
 type ChipFilter = "all" | "confirmed" | "in-progress" | "waiting" | "completed";
