@@ -3,7 +3,7 @@
 import { DoctorProfile } from "@/features/panel/doctor/types";
 import { User, MapPin, Camera } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AvatarWithFallback } from "../../ui/shared";
+
 
 export default function PersonalInfoSection({
   profile,
@@ -21,11 +21,7 @@ export default function PersonalInfoSection({
 
       <CardContent className="p-0">
         <div className="flex items-start gap-6">
-          <AvatarWithFallback
-            src={profile.profilePic}
-            name={profile.name}
-            className="w-24 h-24 border-2 border-white shadow"
-          />
+          
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
             <InfoItem label="Full Name" value={`Dr. ${profile.name}`} />

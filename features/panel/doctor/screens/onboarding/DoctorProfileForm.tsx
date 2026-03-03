@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import { useOnboarding } from "@/features/panel/doctor/hooks/useOnboarding";
-import { ProgressStepper } from "../../components/ui/shared";
+
 import { onboardingSteps } from "@/features/panel/doctor/constants";
 import { Button } from "@/components/ui/button";
 
@@ -44,7 +44,7 @@ export default function DoctorProfileForm({
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <ProgressStepper steps={onboardingSteps} current={step} />
+      
 
       <div className="rounded-2xl border p-6 bg-white/60">
         <StepComponent data={data} setData={setData} />

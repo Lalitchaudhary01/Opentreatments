@@ -1,7 +1,6 @@
 "use client";
 
 import { DoctorProfile } from "@/features/panel/doctor/types/doctor";
-import { AvatarWithFallback } from "../../ui/shared";
 import DoctorStatusBadge from "../../ui/badges/DoctorStatusBadge";
 import { Stethoscope, Star, MapPin, Briefcase } from "lucide-react";
 import ActionButtons from "./ActionButtons";
@@ -9,11 +8,7 @@ import ActionButtons from "./ActionButtons";
 export default function ProfileHeader({ profile }: { profile: DoctorProfile }) {
   return (
     <div className="flex flex-col sm:flex-row items-start gap-8">
-      <AvatarWithFallback
-        src={profile.profilePic}
-        name={profile.name}
-        className="w-40 h-40 border-4 border-white shadow-lg"
-      />
+     
 
       <div className="flex-1">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
