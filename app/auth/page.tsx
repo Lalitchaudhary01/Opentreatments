@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic"; // ⚡ disables pre-rendering
 
 export default function LoginPage() {
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex h-screen items-center justify-center">
       <Suspense>
         <AuthForm />
       </Suspense>

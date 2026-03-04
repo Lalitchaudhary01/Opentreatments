@@ -1,42 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
+type Mode = "login" | "register" | "verify";
+type Role = "USER" | "DOCTOR" | "PHARMACY";
+
+const ROLE_OPTIONS: Role[] = ["USER", "DOCTOR", "PHARMACY"];
+
+const ROLE_REDIRECT: Record<Role, string> = {
+  USER: "/",
+  DOCTOR: "/doctor",
+  PHARMACY: "/pharmacy/dashboard",
+};
+
+function roleLabel(role: Role) {
+  return role[0] + role.slice(1).toLowerCase();
+}
+
 export default function AuthForm() {
-  const { resolvedTheme } = useTheme();
-  const [color, setColor] = useState("#ffffff");
-
-  useEffect(() => {
-    setColor(resolvedTheme === "dark" ? "#ffffff" : "#000000");
-  }, [resolvedTheme]);
-
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [mode, setMode] = useState<"login" | "register" | "verify">("login");
-  const [userId, setUserId] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("login");
   const [isLoading, setIsLoading] = useState(false);
-  const [isActive, setIsActive] = useState(false);
-  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    const m = searchParams.get("mode");
-    if (m === "register") {
-      setMode("register");
-      setIsActive(true);
-    } else if (m === "verify") {
-      setMode("verify");
-    } else {
-      setMode("login");
-      setIsActive(false);
-    }
-  }, [searchParams]);
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
 
   const [form, setForm] = useState({
     name: "",
@@ -44,49 +35,75 @@ export default function AuthForm() {
     phone: "",
     password: "",
     confirm: "",
-    otp: "",
-    role: "",
+    role: "" as "" | Role,
   });
 
-  const roles = {
-    login: [
-      "USER",
-      "DOCTOR",
-      "ADMIN",
-      "HOSPITAL",
-      "PHARMACY",
-      "INSURANCE_COMPANY",
-    ],
-    register: [
-      "USER",
-      "DOCTOR",
-      "ADMIN",
-      "HOSPITAL",
-      "PHARMACY",
-      "INSURANCE_COMPANY",
-    ],
+  useEffect(() => {
+    const nextMode = searchParams.get("mode");
+    if (nextMode === "register") setMode("register");
+    else if (nextMode === "verify") setMode("verify");
+    else setMode("login");
+  }, [searchParams]);
+
+  const stepData = useMemo(() => {
+    if (mode === "login") {
+      return [
+        { label: "Sign in", active: true },
+        { label: "Access dashboard", active: false },
+        { label: "Manage practice", active: false },
+      ];
+    }
+
+    if (mode === "verify") {
+      return [
+        { label: "Create account", active: true },
+        { label: "Verify email", active: true },
+        { label: "Start dashboard", active: false },
+      ];
+    }
+
+    return [
+      { label: "Create account", active: true },
+      { label: "Verify email", active: false },
+      { label: "Start dashboard", active: false },
+    ];
+  }, [mode]);
+
+  const updateMode = (nextMode: Exclude<Mode, "verify">) => {
+    router.push(`/auth?mode=${nextMode}`);
   };
 
-  const getRoleDisplayName = (role: string) => {
-    return role.replace("_", " ");
+  const onOtpChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const copy = [...otpDigits];
+    copy[index] = digit;
+    setOtpDigits(copy);
+
+    if (digit && index < 5) {
+      const next = document.getElementById(`otp-${index + 1}`) as HTMLInputElement | null;
+      next?.focus();
+    }
   };
 
-  const toggleActive = () => {
-    setIsActive(!isActive);
-    setIsRoleDropdownOpen(false);
-    if (isActive) {
-      router.push("/auth?mode=login");
-    } else {
-      router.push("/auth?mode=register");
+  const onOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      const prev = document.getElementById(`otp-${index - 1}`) as HTMLInputElement | null;
+      prev?.focus();
     }
   };
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.role) {
+      alert("Please select a role");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name,
           email: form.email,
@@ -95,18 +112,16 @@ export default function AuthForm() {
           confirmPassword: form.confirm,
           role: form.role,
         }),
-        headers: { "Content-Type": "application/json" },
       });
 
       const data = await res.json();
-
-      if (res.ok) {
-        setUserId(data.userId);
-        router.push("/auth?mode=verify");
-      } else {
+      if (!res.ok) {
         alert(data.error || "Registration failed");
+        return;
       }
-    } catch (error) {
+
+      router.push("/auth?mode=verify");
+    } catch {
       alert("An error occurred during registration");
     } finally {
       setIsLoading(false);
@@ -115,26 +130,32 @@ export default function AuthForm() {
 
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
+    const otp = otpDigits.join("");
+    if (otp.length !== 6) {
+      alert("Please enter 6-digit OTP");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,
-          otp: form.otp,
+          otp,
         }),
-        headers: { "Content-Type": "application/json" },
       });
 
       const data = await res.json();
-
-      if (res.ok) {
-        alert("Email verified successfully! You can now login.");
-        router.push("/auth?mode=login");
-      } else {
+      if (!res.ok) {
         alert(data.error || "Verification failed");
+        return;
       }
-    } catch (error) {
+
+      alert("Email verified successfully! You can now login.");
+      router.push("/auth?mode=login");
+    } catch {
       alert("An error occurred during verification");
     } finally {
       setIsLoading(false);
@@ -143,6 +164,11 @@ export default function AuthForm() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.role) {
+      alert("Please select a role");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await signIn("credentials", {
@@ -152,588 +178,298 @@ export default function AuthForm() {
       });
 
       if (res?.error) {
-        alert("Login failed: " + res.error);
+        alert(`Login failed: ${res.error}`);
         return;
       }
 
       const sessionRes = await fetch("/api/auth/session");
       const sessionData = await sessionRes.json();
+      const sessionRole = sessionData?.user?.role as Role | undefined;
 
-      if (sessionData?.user?.role !== form.role) {
+      if (!sessionRole || sessionRole !== form.role) {
         alert(`You cannot login as ${form.role} with this account.`);
         return;
       }
 
-      if (form.role === "DOCTOR") router.push("/doctor");
-      else if (form.role === "ADMIN") router.push("/admin/dashbaord");
-      else if (form.role === "HOSPITAL") router.push("/hospitals");
-      else if (form.role === "PHARMACY") router.push("/pharmacy/dashboard");
-      else if (form.role === "INSURANCE_COMPANY")
-        router.push("/insurance/dashbaord");
-      else router.push("/");
-    } catch (error) {
+      router.push(ROLE_REDIRECT[form.role]);
+    } catch {
       alert("An error occurred during login");
     } finally {
       setIsLoading(false);
     }
   }
 
-  if (mode === "verify") {
-    return (
-      <div className="min-h-screen flex bg-background text-foreground justify-center items-center relative">
-        {/* Back to Home Button - Screen ke top left corner */}
-
-        <div className="w-full max-w-md bg-card p-8 rounded-2xl shadow-lg">
-          <div className="text-center mb-6">
-            <div className="flex justify-center items-center mb-4">
-              <div className="flex items-center gap-2 text-2xl font-bold">
-                <span className="text-cyan-500">Open</span>
-                <span className="text-teal-500">Treatment</span>
-              </div>
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent">
-              Verify Email
-            </h1>
-            <p className="text-cyan-600 font-semibold mt-2">
-              We've sent a verification code to your email
-            </p>
-          </div>
-
-          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              value={form.otp}
-              onChange={(e) => setForm({ ...form, otp: e.target.value })}
-              className="border px-4 py-3 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              required
-            />
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white py-3 rounded-lg transition disabled:opacity-50 font-medium"
-            >
-              {isLoading ? "Verifying..." : "Verify OTP"}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <Button
-        onClick={() => router.push("/")}
-        className="absolute top-6 left-6 z-50 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2 shadow-lg"
-      >
-        <i className="bx bx-arrow-back text-lg"></i>
+    <div className="min-h-screen bg-[#090f1b] text-white">
+      <Button onClick={() => router.push("/")} className="absolute left-5 top-5 z-20 bg-white/10 hover:bg-white/20">
         Back to Home
       </Button>
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-gray-200 to-blue-100 dark:from-gray-800 dark:to-gray-900 relative">
-        {/* Back to Home Button - Screen ke top left corner (form ke bahar) */}
 
-        <div
-          className={`relative w-[850px] h-[600px] bg-white dark:bg-gray-800 m-5 rounded-3xl shadow-2xl overflow-hidden transition-all duration-700 ${
-            isActive ? "active" : ""
-          }`}
-        >
-          {/* Login Form */}
-          <motion.div
-            className="absolute w-1/2 h-full bg-white dark:bg-gray-800 flex items-center text-gray-800 dark:text-white text-center p-6 z-10"
-            initial={false}
-            animate={{
-              right: isActive ? "100%" : "0%",
-              opacity: isActive ? 0 : 1,
-            }}
-            transition={{ duration: 0.7, delay: 0.3, ease: "easeInOut" }}
-          >
-            <div className="w-full overflow-y-auto max-h-full">
-              <div className="flex justify-center items-center mb-4">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src="/logos.png"
-                    alt="Open Treatment Logo"
-                    width={130}
-                    height={80}
-                    className="object-contain"
-                  />
-                  <div className="flex items-center gap-2 text-3xl font-bold"></div>
-                </div>
+      <div className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-8">
+        <div className="grid w-full overflow-hidden rounded-3xl border border-white/10 bg-[#090f1b] shadow-2xl lg:grid-cols-[400px_1fr]">
+          <aside className="relative hidden bg-gradient-to-br from-[#0c1e3e] via-[#0a1628] to-[#070d1a] p-10 lg:block">
+            <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
+            <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-teal-500/20 blur-3xl" />
+
+            <div className="relative z-10">
+              <Image src="/logos.png" alt="OpenTreatment" width={170} height={48} className="mb-10 h-11 w-auto" />
+
+              <div className="space-y-3">
+                {stepData.map((step, i) => (
+                  <div key={step.label} className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${step.active ? "border-cyan-400/60 bg-cyan-500/15 text-cyan-100" : "border-white/10 bg-white/5 text-slate-300"}`}>
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${step.active ? "bg-cyan-400 text-slate-900" : "bg-white/10 text-slate-300"}`}>
+                      {i + 1}
+                    </span>
+                    {step.label}
+                  </div>
+                ))}
               </div>
 
-              <form onSubmit={handleLogin} className="w-full">
-                <h1 className="text-2xl font-bold mb-3 text-gray-800 dark:text-white">
-                  Login
-                </h1>
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold leading-tight">
+                  {mode === "login" ? "Welcome back" : "Your practice, fully digital."}
+                </h2>
+                <p className="mt-3 text-sm text-slate-300">
+                  {mode === "login"
+                    ? "Sign in to manage appointments, patients, and revenue from one place."
+                    : "Create your account and launch your dashboard in a few quick steps."}
+                </p>
+              </div>
+            </div>
+          </aside>
 
-                <div className="relative my-4">
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    required
-                    value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
-                    disabled={isLoading}
-                    className="w-full py-2.5 px-4 pr-11 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <i className="bx bxs-envelope absolute right-3 top-1/2 transform -translate-y-1/2 text-lg text-gray-600 dark:text-gray-400"></i>
-                </div>
+          <main className="flex min-h-[700px] flex-col bg-[#090f1b]">
+            <div className="flex-1 overflow-y-auto px-6 py-10 sm:px-12">
+              {mode === "verify" ? (
+                <section className="mx-auto w-full max-w-xl">
+                  <h1 className="text-3xl font-bold">Verify your email</h1>
+                  <p className="mt-2 text-sm text-slate-400">
+                    Enter the 6-digit code sent to <span className="text-cyan-300">{form.email || "your email"}</span>
+                  </p>
 
-                <div className="relative my-4">
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    required
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
-                    }
-                    disabled={isLoading}
-                    className="w-full py-2.5 px-4 pr-11 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <i className="bx bxs-lock-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-lg text-gray-600 dark:text-gray-400"></i>
-                </div>
+                  <form onSubmit={handleVerifyOtp} className="mt-8 space-y-6">
+                    <div className="flex justify-center gap-2 sm:gap-3">
+                      {otpDigits.map((d, i) => (
+                        <input
+                          key={i}
+                          id={`otp-${i}`}
+                          value={d}
+                          onChange={(e) => onOtpChange(i, e.target.value)}
+                          onKeyDown={(e) => onOtpKeyDown(i, e)}
+                          inputMode="numeric"
+                          maxLength={1}
+                          className="h-12 w-11 rounded-xl border border-white/15 bg-white/5 text-center text-lg font-bold outline-none focus:border-cyan-400"
+                        />
+                      ))}
+                    </div>
 
-                <div className="mb-3 relative">
-                  <label className="font-semibold text-xs block mb-1.5 text-left text-gray-800 dark:text-white">
-                    Select Role:
-                  </label>
-                  <div className="relative">
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600"
+                    >
+                      {isLoading ? "Verifying..." : "Verify OTP"}
+                    </Button>
+
+                    <button type="button" onClick={() => updateMode("login")} className="w-full text-sm text-slate-400 hover:text-slate-200">
+                      Back to sign in
+                    </button>
+                  </form>
+                </section>
+              ) : mode === "register" ? (
+                <section className="mx-auto w-full max-w-xl">
+                  <h1 className="text-3xl font-bold">Create your account</h1>
+                  <p className="mt-2 text-sm text-slate-400">Get started free. No credit card required.</p>
+
+                  <form onSubmit={handleRegister} className="mt-7 space-y-4">
                     <button
                       type="button"
-                      onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                      disabled={isLoading}
-                      className="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium text-left flex justify-between items-center disabled:opacity-50 text-sm focus:ring-2 focus:ring-cyan-500"
+                      onClick={() => signIn("google", { callbackUrl: "/" })}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10"
                     >
-                      <span
-                        className={
-                          form.role
-                            ? "text-gray-800 dark:text-white"
-                            : "text-gray-500 dark:text-gray-400"
-                        }
-                      >
-                        {form.role
-                          ? getRoleDisplayName(form.role)
-                          : "Choose your role"}
-                      </span>
-                      <i
-                        className={`bx bx-chevron-down transform transition-transform duration-200 text-gray-600 dark:text-gray-400 ${
-                          isRoleDropdownOpen ? "rotate-180" : ""
-                        }`}
-                      ></i>
+                      Continue with Google
                     </button>
 
-                    {isRoleDropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 right-0 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
-                      >
-                        {roles["login"].map((role) => (
+                    <div className="flex items-center gap-3 py-1 text-xs text-slate-500">
+                      <span className="h-px flex-1 bg-white/10" />
+                      or create with email
+                      <span className="h-px flex-1 bg-white/10" />
+                    </div>
+
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      required
+                      value={form.name}
+                      onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      required
+                      value={form.email}
+                      onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      required
+                      value={form.phone}
+                      onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+                    />
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <input
+                        type="password"
+                        placeholder="Password"
+                        required
+                        value={form.password}
+                        onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                        className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+                      />
+                      <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        required
+                        value={form.confirm}
+                        onChange={(e) => setForm((prev) => ({ ...prev, confirm: e.target.value }))}
+                        className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
+                      />
+                    </div>
+
+                    <div>
+                      <p className="mb-2 text-sm font-medium text-slate-300">Select role</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {ROLE_OPTIONS.map((role) => (
                           <button
                             key={role}
                             type="button"
-                            onClick={() => {
-                              setForm({ ...form, role });
-                              setIsRoleDropdownOpen(false);
-                            }}
-                            className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors border-b border-gray-100 dark:border-gray-600 last:border-b-0"
+                            onClick={() => setForm((prev) => ({ ...prev, role }))}
+                            className={`rounded-lg border px-3 py-2 text-sm transition ${
+                              form.role === role
+                                ? "border-cyan-400 bg-cyan-500/20 text-cyan-100"
+                                : "border-white/15 bg-white/5 text-slate-300 hover:border-white/25"
+                            }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={`w-2 h-2 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 ${
-                                  form.role === role
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
-                              ></div>
-                              <span className="text-gray-800 dark:text-white">
-                                {getRoleDisplayName(role)}
-                              </span>
-                            </div>
+                            {roleLabel(role)}
                           </button>
                         ))}
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
+                      </div>
+                    </div>
 
-                <div className="my-3">
-                  <a
-                    href="#"
-                    className="text-xs text-gray-800 dark:text-gray-300 hover:underline hover:text-cyan-600"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="mt-2 w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600"
+                    >
+                      {isLoading ? "Creating account..." : "Create Account"}
+                    </Button>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 rounded-lg shadow-lg border-none cursor-pointer text-white font-semibold text-base mb-3 disabled:opacity-50 transition-all"
-                >
-                  {isLoading ? "Logging in..." : "Login"}
-                </button>
+                    <p className="pt-2 text-center text-sm text-slate-400">
+                      Already have an account?{" "}
+                      <button type="button" onClick={() => updateMode("login")} className="text-cyan-300 hover:underline">
+                        Sign in
+                      </button>
+                    </p>
+                  </form>
+                </section>
+              ) : (
+                <section className="mx-auto w-full max-w-xl">
+                  <h1 className="text-3xl font-bold">Sign in</h1>
+                  <p className="mt-2 text-sm text-slate-400">Continue to your OpenTreatment dashboard.</p>
 
-                <p className="text-xs my-2 text-gray-600 dark:text-gray-400">
-                  or login with social platforms
-                </p>
+                  <form onSubmit={handleLogin} className="mt-7 space-y-4">
+                    <button
+                      type="button"
+                      onClick={() => signIn("google", { callbackUrl: "/" })}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10"
+                    >
+                      Continue with Google
+                    </button>
 
-                {/* Google Login */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLoading(true);
-                    signIn("google", { callbackUrl: "/" });
-                  }}
-                  disabled={isLoading}
-                  className="w-full bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-white py-2.5 rounded-lg transition flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 mb-2 disabled:opacity-50 text-sm"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    <div className="flex items-center gap-3 py-1 text-xs text-slate-500">
+                      <span className="h-px flex-1 bg-white/10" />
+                      or sign in with email
+                      <span className="h-px flex-1 bg-white/10" />
+                    </div>
+
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      required
+                      value={form.email}
+                      onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
                     />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    />
-                  </svg>
-                  Sign in with Google
-                </button>
-              </form>
-            </div>
-          </motion.div>
-
-          {/* Register Form */}
-          <motion.div
-            className="absolute w-1/2 h-full bg-white dark:bg-gray-800 flex items-center text-gray-800 dark:text-white text-center p-6 z-10"
-            initial={false}
-            animate={{
-              left: isActive ? "0%" : "-100%",
-              opacity: isActive ? 1 : 0,
-            }}
-            transition={{ duration: 0.7, delay: 0.3, ease: "easeInOut" }}
-          >
-            <div className="w-full overflow-y-auto max-h-full">
-              <div className="flex justify-center items-center mb-4">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src="/logos.png"
-                    alt="Open Treatment Logo"
-                    width={120}
-                    height={80}
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-
-              <form onSubmit={handleRegister} className="w-full">
-                <h1 className="text-2xl font-bold mb-3 text-gray-800 dark:text-white">
-                  Registration
-                </h1>
-
-                <div className="relative my-3">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    required
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    disabled={isLoading}
-                    className="w-full py-2.5 px-4 pr-11 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <i className="bx bxs-user absolute right-3 top-1/2 transform -translate-y-1/2 text-lg text-gray-600 dark:text-gray-400"></i>
-                </div>
-
-                <div className="relative my-3">
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    required
-                    value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
-                    disabled={isLoading}
-                    className="w-full py-2.5 px-4 pr-11 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <i className="bx bxs-envelope absolute right-3 top-1/2 transform -translate-y-1/2 text-lg text-gray-600 dark:text-gray-400"></i>
-                </div>
-
-                <div className="relative my-3">
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    required
-                    value={form.phone}
-                    onChange={(e) =>
-                      setForm({ ...form, phone: e.target.value })
-                    }
-                    disabled={isLoading}
-                    className="w-full py-2.5 px-4 pr-11 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-cyan-500"
-                  />
-                  <i className="bx bxs-phone absolute right-3 top-1/2 transform -translate-y-1/2 text-lg text-gray-600 dark:text-gray-400"></i>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 my-3">
-                  <div className="relative">
                     <input
                       type="password"
                       placeholder="Password"
                       required
                       value={form.password}
-                      onChange={(e) =>
-                        setForm({ ...form, password: e.target.value })
-                      }
-                      disabled={isLoading}
-                      className="w-full py-2.5 px-3 pr-8 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-xs focus:ring-2 focus:ring-cyan-500"
+                      onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400"
                     />
-                    <i className="bx bxs-lock-alt absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-600 dark:text-gray-400"></i>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="password"
-                      placeholder="Confirm Password"
-                      required
-                      value={form.confirm}
-                      onChange={(e) =>
-                        setForm({ ...form, confirm: e.target.value })
-                      }
-                      disabled={isLoading}
-                      className="w-full py-2.5 px-3 pr-8 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium placeholder-gray-500 dark:placeholder-gray-400 text-xs focus:ring-2 focus:ring-cyan-500"
-                    />
-                    <i className="bx bxs-lock-alt absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-600 dark:text-gray-400"></i>
-                  </div>
-                </div>
 
-                <div className="mb-3 relative">
-                  <label className="font-semibold text-xs block mb-1.5 text-left text-gray-800 dark:text-white">
-                    Select Role:
-                  </label>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                      disabled={isLoading}
-                      className="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-700 rounded-lg border-none outline-none text-gray-800 dark:text-white font-medium text-left flex justify-between items-center disabled:opacity-50 text-sm focus:ring-2 focus:ring-cyan-500"
-                    >
-                      <span
-                        className={
-                          form.role
-                            ? "text-gray-800 dark:text-white"
-                            : "text-gray-500 dark:text-gray-400"
-                        }
-                      >
-                        {form.role
-                          ? getRoleDisplayName(form.role)
-                          : "Choose your role"}
-                      </span>
-                      <i
-                        className={`bx bx-chevron-down transform transition-transform duration-200 text-gray-600 dark:text-gray-400 ${
-                          isRoleDropdownOpen ? "rotate-180" : ""
-                        }`}
-                      ></i>
-                    </button>
-
-                    {isRoleDropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 right-0 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
-                      >
-                        {roles["register"].map((role) => (
+                    <div>
+                      <p className="mb-2 text-sm font-medium text-slate-300">Select role</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {ROLE_OPTIONS.map((role) => (
                           <button
                             key={role}
                             type="button"
-                            onClick={() => {
-                              setForm({ ...form, role });
-                              setIsRoleDropdownOpen(false);
-                            }}
-                            className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors border-b border-gray-100 dark:border-gray-600 last:border-b-0"
+                            onClick={() => setForm((prev) => ({ ...prev, role }))}
+                            className={`rounded-lg border px-3 py-2 text-sm transition ${
+                              form.role === role
+                                ? "border-cyan-400 bg-cyan-500/20 text-cyan-100"
+                                : "border-white/15 bg-white/5 text-slate-300 hover:border-white/25"
+                            }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={`w-2 h-2 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 ${
-                                  form.role === role
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                }`}
-                              ></div>
-                              <span className="text-gray-800 dark:text-white">
-                                {getRoleDisplayName(role)}
-                              </span>
-                            </div>
+                            {roleLabel(role)}
                           </button>
                         ))}
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
+                      </div>
+                    </div>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 rounded-lg shadow-lg border-none cursor-pointer text-white font-semibold text-base mb-3 disabled:opacity-50 transition-all"
-                >
-                  {isLoading ? "Registering..." : "Register"}
-                </button>
+                    <div className="text-right">
+                      <button type="button" className="text-xs text-slate-400 hover:text-slate-200">
+                        Forgot password?
+                      </button>
+                    </div>
 
-                <p className="text-xs my-2 text-gray-600 dark:text-gray-400">
-                  or register with social platforms
-                </p>
-              </form>
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600"
+                    >
+                      {isLoading ? "Signing in..." : "Sign In"}
+                    </Button>
+
+                    <p className="pt-2 text-center text-sm text-slate-400">
+                      New here?{" "}
+                      <button type="button" onClick={() => updateMode("register")} className="text-cyan-300 hover:underline">
+                        Create account
+                      </button>
+                    </p>
+                  </form>
+                </section>
+              )}
             </div>
-          </motion.div>
 
-          {/* Toggle Box with Animation */}
-          <div className="absolute w-full h-full">
-            {/* Animated Background Circle */}
-            <motion.div
-              className="absolute w-[300%] h-full bg-gradient-to-r from-cyan-500 to-teal-500 rounded-[150px] z-20"
-              initial={false}
-              animate={{
-                left: isActive ? "50%" : "-250%",
-              }}
-              transition={{ duration: 1.8, ease: "easeInOut" }}
-            />
-
-            {/* Left Toggle Panel */}
-            <motion.div
-              className="absolute left-0 w-1/2 h-full text-white flex flex-col justify-center items-center z-30"
-              initial={false}
-              animate={{
-                left: isActive ? "-50%" : "0%",
-                opacity: isActive ? 0 : 1,
-              }}
-              transition={{
-                duration: 0.7,
-                delay: isActive ? 0.3 : 0.7,
-                ease: "easeInOut",
-              }}
-            >
-              <div className="flex flex-col items-center gap-2 mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 text-3xl font-bold">
-                    <span className="text-white">Open</span>
-                    <span className="text-white opacity-90">Treatment</span>
-                  </div>
+            <footer className="border-t border-white/10 px-6 py-4 text-xs text-slate-500 sm:px-12">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex gap-4">
+                  <span>Privacy Policy</span>
+                  <span>Terms of Service</span>
+                  <span>Help</span>
                 </div>
+                <span>© 2026 OpenTreatment</span>
               </div>
-              <h1 className="text-3xl font-bold">Hello, Welcome!</h1>
-              <p className="text-sm my-4">Good to See You Again</p>
-              <p className="text-lg opacity-90 mb-6 text-center px-4 max-w-md mx-auto leading-relaxed">
-                Continue your journey towards stress-free healthcare
-              </p>
-              <p className="text-sm my-4">Don't have an account?</p>
-              <button
-                onClick={toggleActive}
-                className="w-40 py-3 bg-transparent border-2 border-white rounded-lg cursor-pointer text-white font-semibold text-lg hover:bg-white hover:bg-gradient-to-r hover:from-cyan-500 hover:to-teal-500 transition-all"
-              >
-                Register
-              </button>
-            </motion.div>
-
-            {/* Right Toggle Panel */}
-            <motion.div
-              className="absolute right-0 w-1/2 h-full text-white flex flex-col justify-center items-center z-30"
-              initial={false}
-              animate={{
-                right: isActive ? "0%" : "-50%",
-                opacity: isActive ? 1 : 0,
-              }}
-              transition={{
-                duration: 0.7,
-                delay: isActive ? 0.7 : 0.3,
-                ease: "easeInOut",
-              }}
-            >
-              <div className="flex flex-col items-center gap-2 mb-4">
-                <div className="flex items-center gap-2 text-3xl font-bold">
-                  <span className="text-white">Open</span>
-                  <span className="text-white opacity-90">Treatment</span>
-                </div>
-              </div>
-              <h1 className="text-3xl font-bold">Transparency Starts Here</h1>
-              <p className="text-sm my-4">Join Us Today</p>
-              <p className="text-lg opacity-90 mb-6 text-center px-4 max-w-md mx-auto leading-relaxed">
-                Sign up and know your medical costs upfront
-              </p>
-              <p className="text-sm my-4">Already have an account?</p>
-              <button
-                onClick={toggleActive}
-                className="w-40 py-3 bg-transparent border-2 border-white rounded-lg cursor-pointer text-white font-semibold text-lg hover:bg-white hover:bg-gradient-to-r hover:from-cyan-500 hover:to-teal-500 transition-all"
-              >
-                Login
-              </button>
-            </motion.div>
-          </div>
+            </footer>
+          </main>
         </div>
-
-        {/* Mobile Styles */}
-        <style jsx>{`
-          @media screen and (max-width: 650px) {
-            .relative {
-              height: calc(100vh - 40px);
-            }
-
-            .absolute.w-1/2 {
-              width: 100%;
-              height: 70%;
-              bottom: 0;
-            }
-
-            .absolute.w-1/2:nth-child(2) {
-              bottom: 30%;
-            }
-
-            .absolute.left-[-250%] {
-              left: 0;
-              top: -270%;
-              width: 100%;
-              height: 300%;
-              border-radius: 20vw;
-            }
-
-            .absolute.left-0.w-1/2,
-            .absolute.right-[-50%].w-1/2 {
-              width: 100%;
-              height: 30%;
-            }
-
-            .absolute.left-0.w-1/2 {
-              top: 0;
-            }
-
-            .absolute.right-[-50%].w-1/2 {
-              bottom: -30%;
-              right: 0;
-            }
-          }
-
-          @media screen and (max-width: 400px) {
-            .absolute.w-1/2 {
-              padding: 20px;
-            }
-
-            .text-3xl {
-              font-size: 30px;
-            }
-          }
-        `}</style>
       </div>
     </div>
   );

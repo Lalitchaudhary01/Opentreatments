@@ -115,7 +115,10 @@ function deriveWalkinType(complaint?: string | null) {
 export default async function DoctorAppointmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string; new?: string }> | { filter?: string; new?: string };
+  searchParams?:
+    | Promise<{ filter?: string; new?: string } | undefined>
+    | { filter?: string; new?: string }
+    | undefined;
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -126,7 +129,7 @@ export default async function DoctorAppointmentsPage({
   });
   if (!doctor) redirect("/register-doctor");
 
-  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const resolvedSearchParams = (await Promise.resolve(searchParams)) ?? {};
   const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();
   const openNew = resolvedSearchParams.new === "1";
   const filter: ChipFilter = ["all", "confirmed", "in-progress", "waiting", "completed"].includes(rawFilter)
