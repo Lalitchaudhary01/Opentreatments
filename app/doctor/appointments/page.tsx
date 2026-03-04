@@ -125,9 +125,10 @@ export default async function DoctorAppointmentsPage({
 
   const doctor = await prisma.independentDoctor.findUnique({
     where: { userId: session.user.id },
-    select: { id: true, name: true },
+    select: { id: true, name: true, status: true },
   });
-  if (!doctor) redirect("/register-doctor");
+  if (!doctor) redirect("/doctor/profile/submit");
+  if (doctor.status !== "APPROVED") redirect("/doctor/approvals");
 
   const resolvedSearchParams = (await Promise.resolve(searchParams)) ?? {};
   const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();
@@ -216,6 +217,41 @@ export default async function DoctorAppointmentsPage({
       : allAppointments;
 
   const appointments = filteredByChip;
+
+  if (allAppointments.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
+        <div className="mx-auto max-w-4xl rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-0 overflow-hidden">
+          <div className="px-5 py-[15px] border-b border-slate-200 dark:border-white/[0.07]">
+            <div className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">All Appointments</div>
+            <div className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94A3B8]">0 total</div>
+          </div>
+          <div className="flex flex-col items-center justify-center px-10 py-16 text-center">
+            <div className="mb-5 h-[68px] w-[68px] rounded-[18px] bg-blue-500/10 flex items-center justify-center text-blue-500">
+              <svg viewBox="0 0 24 24" className="h-[30px] w-[30px]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+            </div>
+            <div className="mb-2 text-[15px] font-semibold text-slate-900 dark:text-slate-100">No appointments yet</div>
+            <p className="mb-5 max-w-[320px] text-[12.5px] leading-[1.7] text-slate-500 dark:text-[#94A3B8]">
+            Once you book your first appointment it will appear here. You can also accept bookings from patients via your public profile link.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/doctor/appointments?new=1" className="inline-flex h-9 items-center rounded-lg bg-[#3b82f6] px-4 text-[12px] font-medium text-white hover:bg-[#2563eb]">
+                + Book Appointment
+              </Link>
+              <Link href="/doctor/profile" className="inline-flex h-9 items-center rounded-lg border border-slate-300 dark:border-white/20 px-4 text-[12px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5">
+                Copy Booking Link
+              </Link>
+              <AddOfflinePatientModal
+                doctorId={doctor.id}
+                triggerLabel="Register First Walk-in"
+                triggerClassName="inline-flex h-9 items-center rounded-lg border border-teal-400/50 px-4 text-[12px] font-medium text-teal-500 hover:bg-teal-500/10"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const counts = {
     all: allAppointments.length,

@@ -15,9 +15,9 @@ export default async function ApprovalsPage() {
   if (!doctor) {
     return (
       <div className="p-6">
-        <p className="text-yellow-600">You haven’t created a profile yet.</p>
-        <Link href="/doctor/profile/create" className="text-blue-600 underline">
-          Create your profile
+        <p className="text-yellow-600">You haven’t completed your onboarding yet.</p>
+        <Link href="/doctor/profile/submit" className="text-blue-600 underline">
+          Complete profile setup
         </Link>
       </div>
     );
@@ -28,7 +28,7 @@ export default async function ApprovalsPage() {
       <div className="p-6">
         <h2 className="text-xl font-bold mb-2">Under Review</h2>
         <p className="text-muted-foreground">
-          Your profile is being reviewed by our admin team.
+          Your profile is being reviewed by our admin team. Dashboard access will unlock after approval.
         </p>
       </div>
     );

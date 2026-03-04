@@ -4,25 +4,67 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
-type Mode = "register" | "verify" | "login";
-type Role = "USER" | "DOCTOR" | "PHARMACY";
+type Mode =
+  | "register"
+  | "verify"
+  | "doctor-details"
+  | "doctor-clinic"
+  | "doctor-success"
+  | "login";
+type Role = "USER" | "DOCTOR" | "PHARMACY" | "ADMIN";
 
-const ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY"];
+const REGISTER_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY"];
+const LOGIN_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
+const QUALIFICATIONS = [
+  "MBBS",
+  "MBBS, MD",
+  "MBBS, MS",
+  "MBBS, DNB",
+  "BDS",
+  "BDS, MDS",
+  "BAMS",
+  "BHMS",
+  "BUMS",
+  "PhD (Medical)",
+  "Other",
+];
+const EXPERIENCE_OPTIONS = [
+  "Less than 1 year",
+  "1–3 years",
+  "3–5 years",
+  "5–10 years",
+  "10–15 years",
+  "15–20 years",
+  "20+ years",
+];
+const SPECIALIZATION_OPTIONS = [
+  "General Physician",
+  "Cardiologist",
+  "Dermatologist",
+  "Orthopaedic",
+  "Paediatrician",
+  "Gynaecologist",
+  "ENT Specialist",
+  "Neurologist",
+  "Other",
+];
 
 const REDIRECT_BY_ROLE: Record<Role, string> = {
   USER: "/",
   DOCTOR: "/doctor",
   PHARMACY: "/pharmacy/dashboard",
+  ADMIN: "/admin/dashbaord",
 };
 
 const VERIFY_REDIRECT_BY_ROLE: Record<Role, string> = {
   USER: "/",
   DOCTOR: "/doctor/profile/submit",
   PHARMACY: "/pharmacy/profile/submit",
+  ADMIN: "/admin/dashbaord",
 };
 
 function isRole(value: string | null): value is Role {
-  return !!value && ROLES.includes(value as Role);
+  return !!value && LOGIN_ROLES.includes(value as Role);
 }
 
 export default function AuthForm() {
@@ -32,6 +74,9 @@ export default function AuthForm() {
   const [mode, setMode] = useState<Mode>("login");
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [showForgot, setShowForgot] = useState(false);
+  const [resendIn, setResendIn] = useState(30);
+  const [pwScore, setPwScore] = useState(0);
 
   const [form, setForm] = useState({
     email: "",
@@ -39,11 +84,30 @@ export default function AuthForm() {
     confirmPassword: "",
     role: "" as "" | Role,
   });
+  const [doctorForm, setDoctorForm] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    gender: "",
+    medicalRegistrationNumber: "",
+    qualification: "MBBS",
+    graduationYear: "",
+    experienceLabel: "Less than 1 year",
+    languages: "",
+    clinicName: "",
+    city: "",
+    pinCode: "",
+    address: "",
+    specialization: "General Physician",
+  });
 
   useEffect(() => {
     const m = searchParams.get("mode");
     if (m === "register") setMode("register");
     else if (m === "verify") setMode("verify");
+    else if (m === "doctor-details") setMode("doctor-details");
+    else if (m === "doctor-clinic") setMode("doctor-clinic");
+    else if (m === "doctor-success") setMode("doctor-success");
     else setMode("login");
 
     const roleParam = searchParams.get("role");
@@ -57,26 +121,64 @@ export default function AuthForm() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (mode !== "verify") return;
+    setResendIn(30);
+    const id = window.setInterval(() => {
+      setResendIn((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [mode]);
+
   const progress = useMemo(() => {
     if (mode === "register") return 25;
     if (mode === "verify") return 50;
+    if (mode === "doctor-details") return 70;
+    if (mode === "doctor-clinic") return 90;
+    if (mode === "doctor-success") return 100;
     return 75;
   }, [mode]);
+
+  const pwMeta = useMemo(() => {
+    if (!form.password) return { width: 0, label: "Enter a password", color: "#475569" };
+    if (pwScore <= 1) return { width: 30, label: "Weak password", color: "#ef4444" };
+    if (pwScore <= 3) return { width: 65, label: "Good password", color: "#f59e0b" };
+    return { width: 100, label: "Strong password", color: "#22c55e" };
+  }, [form.password, pwScore]);
 
   const leftTagline = useMemo(() => {
     if (mode === "register") return "Your practice,<br/><em>fully digital.</em>";
     if (mode === "verify") return "One step to<br/><em>secure your account.</em>";
+    if (mode === "doctor-details") return "Build your profile,<br/><em>earn patient trust.</em>";
+    if (mode === "doctor-clinic") return "Clinic details,<br/><em>almost done.</em>";
+    if (mode === "doctor-success") return "You're all set,<br/><em>Doctor.</em>";
     return "Welcome back,<br/><em>Doctor.</em>";
   }, [mode]);
 
   const leftSub = useMemo(() => {
     if (mode === "register") return "Join 12,000+ doctors managing appointments, patients & revenue on OpenTreatment.";
     if (mode === "verify") return "Email verification keeps your patient data and clinic profile protected.";
+    if (mode === "doctor-details") return "Tell us about your professional details so your profile is verification-ready.";
+    if (mode === "doctor-clinic") return "Add clinic and specialisation details to complete your doctor onboarding.";
+    if (mode === "doctor-success") return "Your profile is submitted and will be reviewed by admin shortly.";
     return "Sign in to manage your appointments, patients and revenue.";
   }, [mode]);
 
   const goMode = (m: Mode) => {
+    setShowForgot(false);
     router.push(`/auth?mode=${m}`);
+  };
+
+  const updatePassword = (value: string) => {
+    const rules = [
+      value.length >= 8,
+      /[A-Z]/.test(value),
+      /[a-z]/.test(value),
+      /\d/.test(value),
+      /[^A-Za-z0-9]/.test(value),
+    ];
+    setPwScore(rules.filter(Boolean).length);
+    setForm((p) => ({ ...p, password: value }));
   };
 
   const onOtpChange = (idx: number, val: string) => {
@@ -163,6 +265,12 @@ export default function AuthForm() {
         return router.push(`/auth?mode=login&role=${verifiedRole}&email=${encodeURIComponent(form.email)}`);
       }
 
+      if (verifiedRole === "DOCTOR") {
+        return router.push(
+          `/auth?mode=doctor-details&role=DOCTOR&email=${encodeURIComponent(form.email)}`
+        );
+      }
+
       const nextPath =
         typeof data.nextPath === "string"
           ? data.nextPath
@@ -204,10 +312,77 @@ export default function AuthForm() {
     }
   }
 
+  function continueDoctorDetails() {
+    if (!doctorForm.firstName.trim() || !doctorForm.lastName.trim()) {
+      alert("First name and last name are required");
+      return;
+    }
+    if (!doctorForm.phone.trim()) {
+      alert("Phone number is required");
+      return;
+    }
+    if (!doctorForm.medicalRegistrationNumber.trim()) {
+      alert("Medical registration number is required");
+      return;
+    }
+    if (!doctorForm.qualification.trim()) {
+      alert("Qualification is required");
+      return;
+    }
+    router.push(
+      `/auth?mode=doctor-clinic&role=DOCTOR&email=${encodeURIComponent(form.email)}`
+    );
+  }
+
+  async function submitDoctorOnboarding() {
+    if (!doctorForm.clinicName.trim() || !doctorForm.city.trim()) {
+      alert("Clinic name and city are required");
+      return;
+    }
+    if (!doctorForm.specialization.trim()) {
+      alert("Specialization is required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/doctor/onboarding/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(doctorForm),
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || "Unable to submit profile");
+      router.push("/auth?mode=doctor-success");
+    } catch {
+      alert("Unable to submit profile");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleFooterContinue() {
+    if (mode === "register") {
+      void registerSubmit({ preventDefault() {} } as React.FormEvent);
+      return;
+    }
+    if (mode === "verify") {
+      void verifySubmit({ preventDefault() {} } as React.FormEvent);
+      return;
+    }
+    if (mode === "doctor-details") {
+      continueDoctorDetails();
+      return;
+    }
+    if (mode === "doctor-clinic") {
+      void submitDoctorOnboarding();
+    }
+  }
+
   return (
     <>
       <div id="ob-overlay">
-        <div className="ob-left">
+        <div className={`ob-left ${mode === "login" ? "signin-mode" : ""}`}>
           <div className="ob-left-dots" />
           <div className="ob-left-glow" />
           <div className="ob-left-glow2" />
@@ -230,9 +405,9 @@ export default function AuthForm() {
           <div className="ob-left-content">
             <div className="ob-steps-side" id="ob-steps-side">
               <div className={`ob-sp ${mode === "register" ? "active" : "done"}`}><div className="ob-sp-num">{mode === "register" ? "1" : "✓"}</div><div className="ob-sp-label">Create account</div></div>
-              <div className={`ob-sp ${mode === "verify" ? "active" : "dim"}`}><div className="ob-sp-num">2</div><div className="ob-sp-label">Verify email</div></div>
-              <div className={`ob-sp ${mode === "login" ? "active" : "dim"}`}><div className="ob-sp-num">3</div><div className="ob-sp-label">Sign in</div></div>
-              <div className="ob-sp dim"><div className="ob-sp-num">4</div><div className="ob-sp-label">Dashboard</div></div>
+              <div className={`ob-sp ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "doctor-success", "login"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "verify" ? "2" : "✓"}</div><div className="ob-sp-label">Verify email</div></div>
+              <div className={`ob-sp ${mode === "doctor-details" ? "active" : ["doctor-clinic", "doctor-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-details" ? "3" : ["doctor-clinic", "doctor-success"].includes(mode) ? "✓" : "3"}</div><div className="ob-sp-label">Personal &amp; credentials</div></div>
+              <div className={`ob-sp ${mode === "doctor-clinic" ? "active" : mode === "doctor-success" ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-success" ? "✓" : "4"}</div><div className="ob-sp-label">Clinic &amp; specialisation</div></div>
             </div>
             <div className="ob-tagline" dangerouslySetInnerHTML={{ __html: leftTagline }} />
             <div className="ob-tagsub">{leftSub}</div>
@@ -260,7 +435,7 @@ export default function AuthForm() {
                     <label>Select role</label>
                     <select value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value as Role }))} required>
                       <option value="">Choose role</option>
-                      {ROLES.map((r) => (
+                      {REGISTER_ROLES.map((r) => (
                         <option key={r} value={r}>
                           {r}
                         </option>
@@ -269,7 +444,12 @@ export default function AuthForm() {
                   </div>
 
                   <div className="ob-ff"><label>Email address</label><input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@clinic.com" required /></div>
-                  <div className="ob-ff"><label>Password</label><input type="password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} placeholder="Create a strong password" required /></div>
+                  <div className="ob-ff">
+                    <label>Password</label>
+                    <input type="password" value={form.password} onChange={(e) => updatePassword(e.target.value)} placeholder="Create a strong password" required />
+                    <div className="pw-bar-wrap"><div className="pw-bar" style={{ width: `${pwMeta.width}%`, background: pwMeta.color }} /></div>
+                    <div className="pw-lbl" style={{ color: pwMeta.color }}>{pwMeta.label}</div>
+                  </div>
                   <div className="ob-ff"><label>Confirm password</label><input type="password" value={form.confirmPassword} onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))} placeholder="Re-enter password" required /></div>
 
                   <div className="ob-footer-cta">
@@ -277,6 +457,11 @@ export default function AuthForm() {
                   </div>
                 </form>
 
+                <div className="ob-trust">
+                  <div className="ob-trust-item">256-bit SSL</div>
+                  <div className="ob-trust-item">HIPAA aligned</div>
+                  <div className="ob-trust-item">No spam, ever</div>
+                </div>
                 <div className="ob-link-row">Already have an account? <a onClick={() => goMode("login")}>Sign in -&gt;</a></div>
               </div>
             )}
@@ -298,13 +483,99 @@ export default function AuthForm() {
                   <button className="ob-btn ob-btn-primary" type="submit" disabled={loading}>{loading ? "Verifying..." : "Verify & Continue"}</button>
                 </form>
 
-                <div className="ob-resend-row">Demo mode: use code <strong>123456</strong> <button onClick={() => setOtp(["1", "2", "3", "4", "5", "6"])}>Auto-fill</button></div>
+                <div className="ob-resend-row">
+                  {resendIn > 0 ? (
+                    <span>Resend code in <strong>{resendIn}s</strong></span>
+                  ) : (
+                    <button type="button" onClick={() => setResendIn(30)}>Resend code</button>
+                  )}
+                </div>
+                <div className="ob-resend-row">Demo mode: use code <strong>123456</strong> <button type="button" onClick={() => setOtp(["1", "2", "3", "4", "5", "6"])}>Auto-fill</button></div>
+              </div>
+            )}
+
+            {mode === "doctor-details" && (
+              <div className="ob-step active" id="ob-s2">
+                <div className="ob-step-title">Your professional details</div>
+                <div className="ob-step-sub">Tell us about your medical background so patients can trust you.</div>
+                <div className="ob-row2">
+                  <div className="ob-ff"><label>First Name *</label><input value={doctorForm.firstName} onChange={(e) => setDoctorForm((p) => ({ ...p, firstName: e.target.value }))} placeholder="Ramesh" /></div>
+                  <div className="ob-ff"><label>Last Name *</label><input value={doctorForm.lastName} onChange={(e) => setDoctorForm((p) => ({ ...p, lastName: e.target.value }))} placeholder="Iyer" /></div>
+                </div>
+                <div className="ob-row2">
+                  <div className="ob-ff"><label>Phone Number *</label><input value={doctorForm.phone} onChange={(e) => setDoctorForm((p) => ({ ...p, phone: e.target.value }))} placeholder="+91 98765 43210" /></div>
+                  <div className="ob-ff">
+                    <label>Gender</label>
+                    <select value={doctorForm.gender} onChange={(e) => setDoctorForm((p) => ({ ...p, gender: e.target.value }))}>
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="ob-row2">
+                  <div className="ob-ff"><label>Medical Registration Number *</label><input value={doctorForm.medicalRegistrationNumber} onChange={(e) => setDoctorForm((p) => ({ ...p, medicalRegistrationNumber: e.target.value }))} placeholder="e.g. MH-2010-44122 (State Medical Council)" /></div>
+                  <div className="ob-ff">
+                    <label>Highest Qualification *</label>
+                    <select value={doctorForm.qualification} onChange={(e) => setDoctorForm((p) => ({ ...p, qualification: e.target.value }))}>
+                      {QUALIFICATIONS.map((q) => (
+                        <option key={q} value={q}>{q}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="ob-row2">
+                  <div className="ob-ff"><label>Year of Graduation</label><input type="number" min={1960} max={2026} value={doctorForm.graduationYear} onChange={(e) => setDoctorForm((p) => ({ ...p, graduationYear: e.target.value }))} placeholder="2010" /></div>
+                  <div className="ob-ff">
+                    <label>Years of Experience</label>
+                    <select value={doctorForm.experienceLabel} onChange={(e) => setDoctorForm((p) => ({ ...p, experienceLabel: e.target.value }))}>
+                      {EXPERIENCE_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="ob-ff"><label>Languages spoken to patients</label><input value={doctorForm.languages} onChange={(e) => setDoctorForm((p) => ({ ...p, languages: e.target.value }))} placeholder="English, Hindi, Marathi…" /></div>
+              </div>
+            )}
+
+            {mode === "doctor-clinic" && (
+              <div className="ob-step active" id="ob-s3">
+                <div className="ob-step-title">Clinic &amp; specialisation</div>
+                <div className="ob-step-sub">Where do you practise? What do you specialise in?</div>
+                <div className="ob-ff"><label>Clinic / Hospital Name *</label><input value={doctorForm.clinicName} onChange={(e) => setDoctorForm((p) => ({ ...p, clinicName: e.target.value }))} placeholder="Sunrise Clinic" /></div>
+                <div className="ob-row2">
+                  <div className="ob-ff"><label>City *</label><input value={doctorForm.city} onChange={(e) => setDoctorForm((p) => ({ ...p, city: e.target.value }))} placeholder="Pune" /></div>
+                  <div className="ob-ff"><label>Pin Code</label><input value={doctorForm.pinCode} onChange={(e) => setDoctorForm((p) => ({ ...p, pinCode: e.target.value }))} placeholder="411001" /></div>
+                </div>
+                <div className="ob-ff"><label>Full Address</label><input value={doctorForm.address} onChange={(e) => setDoctorForm((p) => ({ ...p, address: e.target.value }))} placeholder="Shop 4, Koregaon Park Plaza, Pune" /></div>
+                <div className="ob-ff" style={{ marginBottom: 8 }}><label>Primary Specialisation *</label></div>
+                <div className="spec-grid">
+                  {SPECIALIZATION_OPTIONS.map((spec) => (
+                    <div key={spec} className={`sc-chip ${doctorForm.specialization === spec ? "sel" : ""}`} onClick={() => setDoctorForm((p) => ({ ...p, specialization: spec }))}>
+                      <div className="sc-chip-lbl">{spec}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {mode === "doctor-success" && (
+              <div className="ob-step active" id="ob-success">
+                <div className="ob-step-title">You're all set, Doctor!</div>
+                <div className="ob-step-sub">Your profile is submitted and under admin review. This usually takes a short time.</div>
+                <button className="ob-btn ob-btn-launch" type="button" onClick={() => router.push("/doctor/approvals")}>
+                  Setup Dashboard
+                </button>
               </div>
             )}
 
             {mode === "login" && (
               <div id="ob-signin-panel" className="show">
                 <div className="ob-si-inner ob-login-view">
+                  {!showForgot ? (
+                    <>
                   <div className="ob-step-title">Welcome back</div>
                   <div className="ob-step-sub">Sign in to your OpenTreatment account</div>
 
@@ -317,7 +588,7 @@ export default function AuthForm() {
                       <label>Select role</label>
                       <select value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value as Role }))} required>
                         <option value="">Choose role</option>
-                        {ROLES.map((r) => (
+                        {LOGIN_ROLES.map((r) => (
                           <option key={r} value={r}>
                             {r}
                           </option>
@@ -326,38 +597,66 @@ export default function AuthForm() {
                     </div>
 
                     <div className="ob-ff"><label>Email address</label><input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@clinic.com" required /></div>
-                    <div className="ob-ff"><label>Password</label><input type="password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} placeholder="Your password" required /></div>
+                    <div className="ob-ff">
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                        <label>Password</label>
+                        <a style={{ fontSize: 11.5, color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={() => setShowForgot(true)}>Forgot password?</a>
+                      </div>
+                      <input type="password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} placeholder="Your password" required />
+                    </div>
 
                     <button className="ob-btn ob-btn-primary" type="submit" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
                   </form>
 
                   <div className="ob-link-row" style={{ marginTop: 22 }}>New to OpenTreatment? <a onClick={() => goMode("register")}>Create account -&gt;</a></div>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="ob-back-link" onClick={() => setShowForgot(false)}>Back to sign in</button>
+                      <div className="ob-step-title" style={{ fontSize: 22 }}>Reset your password</div>
+                      <div className="ob-step-sub">Enter your account email and we will send a reset link.</div>
+                      <div className="ob-ff"><label>Email address</label><input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@clinic.com" /></div>
+                      <button type="button" className="ob-btn ob-btn-primary" onClick={() => alert("Reset link feature will be added next.")}>Send reset link</button>
+                    </>
+                  )}
                 </div>
               </div>
             )}
           </div>
 
-          {mode !== "login" ? (
+          {mode !== "login" && mode !== "doctor-success" ? (
             <div className="ob-footer">
               <div className="ob-dots">
                 <div className={`ob-dot ${mode === "register" ? "active" : "done"}`} />
-                <div className={`ob-dot ${mode === "verify" ? "active" : ""}`} />
-                <div className="ob-dot" />
-                <div className="ob-dot" />
+                <div className={`ob-dot ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic"].includes(mode) ? "done" : ""}`} />
+                <div className={`ob-dot ${mode === "doctor-details" ? "active" : mode === "doctor-clinic" ? "done" : ""}`} />
+                <div className={`ob-dot ${mode === "doctor-clinic" ? "active" : ""}`} />
               </div>
               <div style={{ display: "flex", gap: 10 }}>
-                <button className="ob-btn ob-btn-ghost" onClick={() => goMode("register")}>Back</button>
-                <button className="ob-btn ob-btn-primary" onClick={() => (mode === "register" ? registerSubmit({ preventDefault() {} } as any) : verifySubmit({ preventDefault() {} } as any))}>Continue</button>
+                <button
+                  className="ob-btn ob-btn-ghost"
+                  onClick={() => {
+                    if (mode === "verify") return goMode("register");
+                    if (mode === "doctor-details") return goMode("verify");
+                    if (mode === "doctor-clinic") return goMode("doctor-details");
+                    goMode("register");
+                  }}
+                >
+                  Back
+                </button>
+                <button className="ob-btn ob-btn-primary" disabled={loading} onClick={handleFooterContinue}>
+                  {mode === "doctor-clinic" ? "Setup Dashboard" : "Continue"}
+                </button>
               </div>
             </div>
-          ) : (
+          ) : mode === "login" ? (
             <div className="ob-si-footer">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", gap: 18 }}><span>Privacy Policy</span><span>Terms of Service</span><span>Help</span></div>
                 <div>© 2026 OpenTreatment</div>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -378,6 +677,7 @@ export default function AuthForm() {
         .ob-sp-num{width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.4)}
         .ob-sp.active .ob-sp-num{background:#3b82f6;border-color:#3b82f6;color:#fff}.ob-sp.done .ob-sp-num{background:#14b8a6;border-color:#14b8a6;color:#fff}
         .ob-sp-label{font-size:12px;font-weight:500;color:rgba(255,255,255,.5)}.ob-sp.active .ob-sp-label{color:#fff;font-weight:600}
+        .ob-left.signin-mode .ob-steps-side{opacity:0;pointer-events:none;transform:translateY(8px);transition:all .4s}
         .ob-tagline{font-size:21px;font-weight:700;color:#fff;line-height:1.35;letter-spacing:-.025em}.ob-tagline em{color:#3b82f6;font-style:normal}
         .ob-tagsub{font-size:12.5px;color:rgba(255,255,255,.42);margin-top:8px;line-height:1.65}
         .ob-right{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#090f1b}
@@ -386,6 +686,8 @@ export default function AuthForm() {
         .ob-step{position:relative;padding:52px 56px;opacity:1;transform:none;pointer-events:auto;overflow-y:auto;height:100%}
         .ob-step-title{font-size:24px;font-weight:700;color:#f1f5f9;letter-spacing:-.025em;margin-bottom:5px}
         .ob-step-sub{font-size:13px;color:#64748b;margin-bottom:32px;line-height:1.55}
+        .ob-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .ob-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
         .ob-social{display:flex;align-items:center;gap:12px;width:100%;padding:11px 16px;border:1.5px solid rgba(255,255,255,.09);border-radius:9px;background:rgba(255,255,255,.025);color:#e2e8f0;font-family:Sora,sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:10px}
         .ob-social:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.05);transform:translateY(-1px)}
         .ob-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:#334155;font-size:11px}.ob-divider::before,.ob-divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.06)}
@@ -397,15 +699,30 @@ export default function AuthForm() {
         .ob-ff input,.ob-ff select{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 13px;color:#e2e8f0;font-family:Sora,sans-serif;font-size:13px;outline:none;transition:all .2s;width:100%}
         .ob-ff input:focus,.ob-ff select:focus{border-color:#3b82f6;background:rgba(59,130,246,.05)}
         .ob-ff select option{background:#111827;color:#e2e8f0}
+        .spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+        .sc-chip{padding:12px 8px;border-radius:9px;border:1.5px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);cursor:pointer;transition:all .22s;text-align:center}
+        .sc-chip:hover{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.06)}
+        .sc-chip.sel{border-color:#3b82f6;background:rgba(59,130,246,.11);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
+        .sc-chip-lbl{font-size:10.5px;font-weight:600;color:#94a3b8;line-height:1.2}
+        .sc-chip.sel .sc-chip-lbl{color:#60a5fa}
+        .pw-bar-wrap{height:3px;border-radius:2px;background:rgba(255,255,255,.06);margin-top:7px;overflow:hidden}
+        .pw-bar{height:100%;border-radius:2px;transition:width .4s ease,background .4s ease;width:0}
+        .pw-lbl{font-size:10.5px;margin-top:5px;color:#475569;transition:color .3s}
         .otp-wrap{display:flex;gap:10px;justify-content:center;margin:28px 0 20px}
         .otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#e2e8f0;font-family:Sora,sans-serif;font-size:24px;font-weight:700;text-align:center;outline:none;transition:all .2s}
         .otp-box:focus{border-color:#3b82f6;background:rgba(59,130,246,.07);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
         .ob-email-preview{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.18);border-radius:8px;padding:7px 14px;font-size:12.5px;color:#93c5fd;margin-bottom:8px}
         .ob-resend-row{font-size:12px;color:#475569;margin-top:14px;text-align:center}.ob-resend-row strong{color:#fff}.ob-resend-row button{background:none;border:1px solid rgba(245,158,11,.25);border-radius:6px;color:#fbbf24;padding:2px 10px;cursor:pointer}
+        .ob-trust{display:flex;gap:18px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+        .ob-trust-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:rgba(255,255,255,.28)}
         .ob-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:9px;font-family:Sora,sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;letter-spacing:-.01em}
         .ob-btn-primary{background:#3b82f6;color:#fff}.ob-btn-primary:hover{background:#2563eb;transform:translateY(-1px)}
         .ob-btn-ghost{background:transparent;color:#64748b;border:1.5px solid rgba(255,255,255,.09)}.ob-btn-ghost:hover{border-color:rgba(255,255,255,.18);color:#94a3b8}
+        .ob-btn-launch{background:linear-gradient(135deg,#14b8a6,#0d9488);color:#fff;padding:13px 32px;font-size:14px}
+        .ob-btn-launch:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(20,184,166,.4)}
         .ob-link-row{text-align:center;margin-top:18px;font-size:12px;color:#475569}.ob-link-row a{color:#3b82f6;cursor:pointer;font-weight:600;text-decoration:none}
+        .ob-back-link{background:none;border:none;cursor:pointer;color:#475569;font-family:Sora,sans-serif;font-size:13px;display:flex;align-items:center;gap:6px;padding:0;margin-bottom:20px;transition:color .2s}
+        .ob-back-link:hover{color:#94a3b8}
         .ob-footer{padding:22px 56px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#090f1b}
         .ob-dots{display:flex;gap:5px}.ob-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)}.ob-dot.active{width:22px;background:#3b82f6}.ob-dot.done{background:rgba(20,184,166,.55)}
         #ob-signin-panel{position:absolute;inset:0;background:#090f1b;display:flex;flex-direction:column;z-index:10}.ob-si-inner{flex:1;overflow-y:auto;padding:52px 56px}
@@ -416,6 +733,9 @@ export default function AuthForm() {
           .ob-step,.ob-si-inner{padding:28px 22px}
           .ob-footer,.ob-si-footer{padding:14px 22px}
           .ob-role-grid{grid-template-columns:1fr}
+          .ob-row2{grid-template-columns:1fr}
+          .ob-row3{grid-template-columns:1fr}
+          .spec-grid{grid-template-columns:1fr 1fr}
           .ob-footer{display:none}
           .ob-footer-cta{display:block}
           .ob-btn{width:100%;justify-content:center}
