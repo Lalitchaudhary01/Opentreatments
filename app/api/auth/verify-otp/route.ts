@@ -1,5 +1,15 @@
 import prisma from "@/lib/prisma";
+import { Role } from "@prisma/client";
 import { NextResponse } from "next/server";
+
+const NEXT_PATH_BY_ROLE: Record<Role, string> = {
+  USER: "/",
+  ADMIN: "/admin/dashbaord",
+  DOCTOR: "/doctor/profile/submit",
+  HOSPITAL: "/hospital/profile/submit",
+  PHARMACY: "/pharmacy/profile/submit",
+  INSURANCE_COMPANY: "/insurance/profile/submit",
+};
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +41,11 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ message: "Email verified successfully" });
+    return NextResponse.json({
+      message: "Email verified successfully",
+      role: user.role,
+      nextPath: NEXT_PATH_BY_ROLE[user.role],
+    });
   } catch (error) {
     return NextResponse.json(
       { error: "Something went wrong" },
