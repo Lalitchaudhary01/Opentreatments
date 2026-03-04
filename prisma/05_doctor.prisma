@@ -19,9 +19,28 @@ model IndependentDoctor {
   createdAt         DateTime                  @default(now())
   updatedAt         DateTime                  @updatedAt
   consultations     IndependentConsultation[]
+  services          DoctorService[]
   user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   IndependentReview IndependentReview[]
   offlineConsultations OfflineConsultation[]
+}
+
+model DoctorService {
+  id          String            @id @default(cuid())
+  doctorId    String
+  name        String
+  category    String
+  price       Float
+  duration    Int
+  description String?
+  availability String
+  isActive    Boolean           @default(true)
+  sessions    Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  doctor      IndependentDoctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId])
 }
 
 model IndependentConsultation {

@@ -1,21 +1,23 @@
+"use server";
+
 import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { DoctorOnboardingFormState } from "../DoctorOnboardingSteps";
 
-export async function POST(req: Request) {
+export async function completeDoctorOnboarding(
+  body: DoctorOnboardingFormState
+): Promise<{ ok: boolean; error?: string }> {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return { ok: false, error: "Unauthorized" };
     }
 
     if (session.user.role !== "DOCTOR") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return { ok: false, error: "Forbidden" };
     }
-
-    const body = await req.json();
 
     const firstName = (body.firstName || "").trim();
     const lastName = (body.lastName || "").trim();
@@ -42,21 +44,16 @@ export async function POST(req: Request) {
       !city ||
       !specialization
     ) {
-      return NextResponse.json(
-        { error: "Missing required onboarding fields" },
-        { status: 400 }
-      );
+      return { ok: false, error: "Missing required onboarding fields" };
     }
 
     const existing = await prisma.independentDoctor.findUnique({
       where: { userId: session.user.id },
+      select: { id: true },
     });
 
     if (existing) {
-      return NextResponse.json({
-        message: "Profile already exists",
-        doctorId: existing.id,
-      });
+      return { ok: true };
     }
 
     const fullName = `${firstName} ${lastName}`.trim();
@@ -88,10 +85,7 @@ export async function POST(req: Request) {
         select: { id: true },
       });
       if (phoneOwner && phoneOwner.id !== session.user.id) {
-        return NextResponse.json(
-          { error: "Phone number already used by another account" },
-          { status: 400 }
-        );
+        return { ok: false, error: "Phone number already used by another account" };
       }
     }
 
@@ -103,7 +97,7 @@ export async function POST(req: Request) {
       },
     });
 
-    const doctor = await prisma.independentDoctor.create({
+    await prisma.independentDoctor.create({
       data: {
         userId: session.user.id,
         name: fullName,
@@ -129,25 +123,18 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({
-      message: "Doctor profile submitted for admin approval",
-      doctorId: doctor.id,
-      status: doctor.status,
-    });
+    return { ok: true };
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      return NextResponse.json(
-        { error: "Duplicate value found. Please check phone/email fields." },
-        { status: 400 }
-      );
+      return {
+        ok: false,
+        error: "Duplicate value found. Please check phone/email fields.",
+      };
     }
     console.error("Doctor onboarding submit failed:", error);
-    return NextResponse.json(
-      { error: "Something went wrong while submitting onboarding" },
-      { status: 500 }
-    );
+    return { ok: false, error: "Something went wrong while submitting onboarding" };
   }
 }

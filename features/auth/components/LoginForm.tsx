@@ -7,7 +7,8 @@ import {
   AuthMode,
   DoctorOnboardingFormState,
   DoctorOnboardingSteps,
-} from "./DoctorOnboardingSteps";
+} from "../doctor/DoctorOnboardingSteps";
+import { completeDoctorOnboarding } from "../doctor/actions/doctorOnboardingActions";
 
 type Role = "USER" | "DOCTOR" | "PHARMACY" | "ADMIN";
 
@@ -311,13 +312,8 @@ export default function AuthForm() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/doctor/onboarding/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(doctorForm),
-      });
-      const data = await res.json();
-      if (!res.ok) return alert(data.error || "Unable to submit profile");
+      const result = await completeDoctorOnboarding(doctorForm);
+      if (!result.ok) return alert(result.error || "Unable to submit profile");
       router.push("/auth?mode=doctor-success");
     } catch {
       alert("Unable to submit profile");

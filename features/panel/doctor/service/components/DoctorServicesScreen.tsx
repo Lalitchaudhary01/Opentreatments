@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState, useTransition } from "react";
 import {
   Activity,
   BadgeIndianRupee,
@@ -12,97 +12,13 @@ import {
 } from "lucide-react";
 import ServiceFormModal from "./ServiceFormModal";
 import { DoctorService, ServiceCategory } from "../types";
-
-const seedServices: DoctorService[] = [
-  {
-    id: "S1",
-    name: "General Consultation",
-    category: "Consultation",
-    price: 500,
-    duration: 20,
-    sessions: 62,
-    status: "Active",
-    desc: "Initial or follow-up discussion about symptoms, medical history, and treatment plan.",
-    avail: "All Days",
-  },
-  {
-    id: "S2",
-    name: "Minor Procedure",
-    category: "Procedure",
-    price: 1200,
-    duration: 45,
-    sessions: 18,
-    status: "Active",
-    desc: "Minor in-clinic procedures including wound care, suturing, and minor excisions.",
-    avail: "Weekdays Only",
-  },
-  {
-    id: "S3",
-    name: "Follow-up Visit",
-    category: "Consultation",
-    price: 300,
-    duration: 10,
-    sessions: 41,
-    status: "Active",
-    desc: "Short revisit to assess recovery and adjust ongoing treatment.",
-    avail: "All Days",
-  },
-  {
-    id: "S4",
-    name: "Blood Test Panel",
-    category: "Diagnostic",
-    price: 800,
-    duration: 15,
-    sessions: 14,
-    status: "Active",
-    desc: "Complete blood count, lipid profile, blood glucose and other basic diagnostics.",
-    avail: "Weekdays Only",
-  },
-  {
-    id: "S5",
-    name: "ECG Recording",
-    category: "Diagnostic",
-    price: 600,
-    duration: 20,
-    sessions: 6,
-    status: "Active",
-    desc: "12-lead electrocardiogram with printed report and doctor interpretation.",
-    avail: "All Days",
-  },
-  {
-    id: "S6",
-    name: "X-Ray",
-    category: "Diagnostic",
-    price: 600,
-    duration: 25,
-    sessions: 9,
-    status: "Active",
-    desc: "Digital X-ray of chest, limbs, or spine with radiologist report.",
-    avail: "Mon/Wed/Fri",
-  },
-  {
-    id: "S7",
-    name: "Physiotherapy",
-    category: "Therapy",
-    price: 900,
-    duration: 60,
-    sessions: 11,
-    status: "Active",
-    desc: "Guided physical therapy session for musculoskeletal and post-surgical recovery.",
-    avail: "Tue/Thu/Sat",
-  },
-  {
-    id: "S8",
-    name: "Vaccination",
-    category: "Preventive",
-    price: 400,
-    duration: 10,
-    sessions: 7,
-    status: "Inactive",
-    desc: "Routine vaccinations for adults and children as per immunisation schedule.",
-    avail: "Weekdays Only",
-  },
-];
+import {
+  createDoctorService,
+  deleteDoctorService,
+  type DoctorServicePayload,
+  toggleDoctorServiceStatus,
+  updateDoctorService,
+} from "../actions/doctorServiceActions";
 
 const categoryMeta: Record<
   ServiceCategory,
@@ -121,15 +37,21 @@ const filters: ("all" | ServiceCategory)[] = [
   "Procedure",
   "Diagnostic",
   "Therapy",
+  "Preventive",
 ];
 
-export default function DoctorServicesScreen({ firstTime = false }: { firstTime?: boolean }) {
-  const [services, setServices] = useState<DoctorService[]>(
-    firstTime ? [] : seedServices
-  );
+export default function DoctorServicesScreen({
+  firstTime = false,
+  initialServices = [],
+}: {
+  firstTime?: boolean;
+  initialServices?: DoctorService[];
+}) {
+  const [services, setServices] = useState<DoctorService[]>(initialServices);
   const [activeFilter, setActiveFilter] = useState<"all" | ServiceCategory>("all");
   const [editing, setEditing] = useState<DoctorService | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [isSaving, startSaving] = useTransition();
 
   const filteredServices = useMemo(() => {
     if (activeFilter === "all") return services;
@@ -152,7 +74,48 @@ export default function DoctorServicesScreen({ firstTime = false }: { firstTime?
       .slice(0, 5);
   }, [services]);
 
-  if (firstTime) {
+  const onSaveService = (payload: DoctorServicePayload) => {
+    startSaving(async () => {
+      try {
+        if (editing) {
+          const updated = await updateDoctorService(editing.id, payload);
+          setServices((prev) => prev.map((s) => (s.id === editing.id ? updated : s)));
+        } else {
+          const created = await createDoctorService(payload);
+          setServices((prev) => [created, ...prev]);
+        }
+        setOpenModal(false);
+        setEditing(null);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : "Failed to save service");
+      }
+    });
+  };
+
+  const onToggleStatus = (service: DoctorService) => {
+    const nextStatus = service.status === "Active" ? "Inactive" : "Active";
+    startSaving(async () => {
+      try {
+        const updated = await toggleDoctorServiceStatus(service.id, nextStatus);
+        setServices((prev) => prev.map((item) => (item.id === service.id ? updated : item)));
+      } catch (error) {
+        alert(error instanceof Error ? error.message : "Failed to update status");
+      }
+    });
+  };
+
+  const onDeleteService = (serviceId: string) => {
+    startSaving(async () => {
+      try {
+        await deleteDoctorService(serviceId);
+        setServices((prev) => prev.filter((item) => item.id !== serviceId));
+      } catch (error) {
+        alert(error instanceof Error ? error.message : "Failed to delete service");
+      }
+    });
+  };
+
+  if (firstTime && services.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
         <div className="w-full space-y-4">
@@ -221,16 +184,7 @@ export default function DoctorServicesScreen({ firstTime = false }: { firstTime?
             setOpenModal(false);
             setEditing(null);
           }}
-          onSave={(payload) => {
-            if (editing) {
-              setServices((prev) =>
-                prev.map((s) => (s.id === editing.id ? { ...editing, ...payload } : s))
-              );
-            } else {
-              const id = `S${Date.now().toString(36).toUpperCase()}`;
-              setServices((prev) => [{ id, sessions: 0, ...payload }, ...prev]);
-            }
-          }}
+          onSave={onSaveService}
         />
       </div>
     );
@@ -340,15 +294,8 @@ export default function DoctorServicesScreen({ firstTime = false }: { firstTime?
 
                         <button
                           type="button"
-                          onClick={() =>
-                            setServices((prev) =>
-                              prev.map((item) =>
-                                item.id === s.id
-                                  ? { ...item, status: item.status === "Active" ? "Inactive" : "Active" }
-                                  : item
-                              )
-                            )
-                          }
+                          onClick={() => onToggleStatus(s)}
+                          disabled={isSaving}
                           className="relative h-5 w-9 rounded-[10px] transition-colors"
                           style={{ background: isActive ? "#22c55e" : "rgba(255,255,255,0.1)" }}
                         >
@@ -390,7 +337,8 @@ export default function DoctorServicesScreen({ firstTime = false }: { firstTime?
                           </button>
                           <button
                             type="button"
-                            onClick={() => setServices((prev) => prev.filter((item) => item.id !== s.id))}
+                            onClick={() => onDeleteService(s.id)}
+                            disabled={isSaving}
                             className="flex h-[26px] w-[26px] items-center justify-center rounded-[6px] bg-red-500/10 text-red-400"
                           >
                             <Trash2 className="h-3 w-3" />
@@ -464,22 +412,7 @@ export default function DoctorServicesScreen({ firstTime = false }: { firstTime?
           setOpenModal(false);
           setEditing(null);
         }}
-        onSave={(payload) => {
-          if (editing) {
-            setServices((prev) => prev.map((s) => (s.id === editing.id ? { ...s, ...payload } : s)));
-          } else {
-            setServices((prev) => [
-              ...prev,
-              {
-                id: `S${Date.now()}`,
-                sessions: 0,
-                ...payload,
-              },
-            ]);
-          }
-          setOpenModal(false);
-          setEditing(null);
-        }}
+        onSave={onSaveService}
       />
     </div>
   );
