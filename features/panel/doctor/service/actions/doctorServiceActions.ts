@@ -29,6 +29,15 @@ type StoredDoctorService = {
   sessions: number;
 };
 
+function isDoctorServiceTableMissing(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2021" &&
+    typeof error.meta?.table === "string" &&
+    error.meta.table.includes("DoctorService")
+  );
+}
+
 async function getDoctorIdFromSession(): Promise<string> {
   const session = await getServerSession(authOptions);
 
@@ -130,20 +139,24 @@ export async function createDoctorService(
     .doctorService;
 
   if (doctorServiceDelegate?.create) {
-    const created = await doctorServiceDelegate.create({
-      data: {
-        doctorId,
-        name: payload.name.trim(),
-        category: payload.category,
-        price: payload.price,
-        duration: payload.duration,
-        description: payload.desc.trim() || null,
-        availability: payload.avail,
-        isActive: payload.status === "Active",
-      },
-    });
-    revalidatePath("/doctor/services");
-    return mapRowToUiService(created);
+    try {
+      const created = await doctorServiceDelegate.create({
+        data: {
+          doctorId,
+          name: payload.name.trim(),
+          category: payload.category,
+          price: payload.price,
+          duration: payload.duration,
+          description: payload.desc.trim() || null,
+          availability: payload.avail,
+          isActive: payload.status === "Active",
+        },
+      });
+      revalidatePath("/doctor/services");
+      return mapRowToUiService(created);
+    } catch (error) {
+      if (!isDoctorServiceTableMissing(error)) throw error;
+    }
   }
 
   const created: StoredDoctorService = {
@@ -172,26 +185,30 @@ export async function updateDoctorService(
     .doctorService;
 
   if (doctorServiceDelegate?.update && doctorServiceDelegate?.findFirst) {
-    const existing = await doctorServiceDelegate.findFirst({
-      where: { id, doctorId },
-      select: { id: true },
-    });
-    if (!existing) throw new Error("Service not found");
+    try {
+      const existing = await doctorServiceDelegate.findFirst({
+        where: { id, doctorId },
+        select: { id: true },
+      });
+      if (!existing) throw new Error("Service not found");
 
-    const updated = await doctorServiceDelegate.update({
-      where: { id },
-      data: {
-        name: payload.name.trim(),
-        category: payload.category,
-        price: payload.price,
-        duration: payload.duration,
-        description: payload.desc.trim() || null,
-        availability: payload.avail,
-        isActive: payload.status === "Active",
-      },
-    });
-    revalidatePath("/doctor/services");
-    return mapRowToUiService(updated);
+      const updated = await doctorServiceDelegate.update({
+        where: { id },
+        data: {
+          name: payload.name.trim(),
+          category: payload.category,
+          price: payload.price,
+          duration: payload.duration,
+          description: payload.desc.trim() || null,
+          availability: payload.avail,
+          isActive: payload.status === "Active",
+        },
+      });
+      revalidatePath("/doctor/services");
+      return mapRowToUiService(updated);
+    } catch (error) {
+      if (!isDoctorServiceTableMissing(error)) throw error;
+    }
   }
 
   const current = await getDoctorServicesFromAvailability(doctorId);
@@ -225,18 +242,22 @@ export async function toggleDoctorServiceStatus(
     .doctorService;
 
   if (doctorServiceDelegate?.update && doctorServiceDelegate?.findFirst) {
-    const existing = await doctorServiceDelegate.findFirst({
-      where: { id, doctorId },
-      select: { id: true },
-    });
-    if (!existing) throw new Error("Service not found");
+    try {
+      const existing = await doctorServiceDelegate.findFirst({
+        where: { id, doctorId },
+        select: { id: true },
+      });
+      if (!existing) throw new Error("Service not found");
 
-    const updated = await doctorServiceDelegate.update({
-      where: { id },
-      data: { isActive: nextStatus === "Active" },
-    });
-    revalidatePath("/doctor/services");
-    return mapRowToUiService(updated);
+      const updated = await doctorServiceDelegate.update({
+        where: { id },
+        data: { isActive: nextStatus === "Active" },
+      });
+      revalidatePath("/doctor/services");
+      return mapRowToUiService(updated);
+    } catch (error) {
+      if (!isDoctorServiceTableMissing(error)) throw error;
+    }
   }
 
   const current = await getDoctorServicesFromAvailability(doctorId);
@@ -258,14 +279,18 @@ export async function deleteDoctorService(id: string): Promise<{ id: string }> {
     .doctorService;
 
   if (doctorServiceDelegate?.delete && doctorServiceDelegate?.findFirst) {
-    const existing = await doctorServiceDelegate.findFirst({
-      where: { id, doctorId },
-      select: { id: true },
-    });
-    if (!existing) throw new Error("Service not found");
-    await doctorServiceDelegate.delete({ where: { id } });
-    revalidatePath("/doctor/services");
-    return { id };
+    try {
+      const existing = await doctorServiceDelegate.findFirst({
+        where: { id, doctorId },
+        select: { id: true },
+      });
+      if (!existing) throw new Error("Service not found");
+      await doctorServiceDelegate.delete({ where: { id } });
+      revalidatePath("/doctor/services");
+      return { id };
+    } catch (error) {
+      if (!isDoctorServiceTableMissing(error)) throw error;
+    }
   }
 
   const current = await getDoctorServicesFromAvailability(doctorId);
