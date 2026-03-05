@@ -114,9 +114,10 @@ export default function Navbar({ showNav = true }: NavbarProps) {
               priority
             />
             <div className="font-['Plus_Jakarta_Sans'] leading-tight">
-            {/* <span className="bg-gradient-to-r from-[#55B685] to-[#39A4EC] bg-clip-text text-transparent text-2xl font-bold">
-              Open Treatment
-            </span> */}
+            <span className="ml-[4px] bg-gradient-to-r from-[#55B685] to-[#39A4EC] bg-clip-text text-transparent text-[24px] font-bold">
+              OpenTreament
+            </span>
+            
             
           </div>
           </Link>
