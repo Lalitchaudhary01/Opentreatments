@@ -2,11 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import Link from "next/link";
-
-import { Search } from "lucide-react";
 import { PatientDirectoryTable } from "@/features/panel/doctor/patient";
-import { AddOfflinePatientModal } from "@/features/panel/doctor/patient/components/AddOfflinePatientModal";
+import PatientsEmptyState from "./sections/PatientsEmptyState";
+import PatientsToolbar from "./sections/PatientsToolbar";
 
 type UiFilter = "all" | "recent" | "active" | "new";
 
@@ -203,35 +201,7 @@ export default async function DoctorPatientsPage({
   const allPatients = await getPatientsData(doctor.id);
 
   if (allPatients.length === 0) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
-        <div className="mx-auto max-w-4xl rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-0 overflow-hidden">
-          <div className="px-5 py-[15px] border-b border-slate-200 dark:border-white/[0.07]">
-            <div className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">Patient Directory</div>
-            <div className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94A3B8]">0 registered</div>
-          </div>
-          <div className="flex flex-col items-center justify-center px-10 py-16 text-center">
-            <div className="mb-5 h-[68px] w-[68px] rounded-[18px] bg-teal-500/10 flex items-center justify-center text-teal-500">
-              <svg viewBox="0 0 24 24" className="h-[30px] w-[30px]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div className="mb-2 text-[15px] font-semibold text-slate-900 dark:text-slate-100">No patients registered</div>
-            <p className="mb-5 max-w-[320px] text-[12.5px] leading-[1.7] text-slate-500 dark:text-[#94A3B8]">
-            Register your first patient manually, or patients who book online will be automatically added to your directory.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <AddOfflinePatientModal
-                doctorId={doctor.id}
-                triggerLabel="+ Register Patient"
-                triggerClassName="inline-flex h-9 items-center rounded-lg bg-[#3b82f6] px-4 text-[12px] font-medium text-white hover:bg-[#2563eb]"
-              />
-              <Link href="/doctor/appointments?new=1" className="inline-flex h-9 items-center rounded-lg border border-slate-300 dark:border-white/20 px-4 text-[12px] font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5">
-                Create First Appointment
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <PatientsEmptyState doctorId={doctor.id} />;
   }
 
   const filteredByChip =
@@ -269,45 +239,7 @@ export default async function DoctorPatientsPage({
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#111827]">
       <div className="w-full px-7 py-[22px] space-y-[18px]">
-        <div className="flex flex-wrap items-center justify-between gap-[10px]">
-          <div className="flex items-center gap-2 flex-wrap">
-            {chips.map((chip) => {
-              const isActive = filter === chip.value;
-              return (
-                <Link
-                  key={chip.value}
-                  href={`/doctor/patients?filter=${chip.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                  className={`rounded-[20px] border px-3 py-[5px] text-[11.5px] font-medium transition-colors ${
-                    isActive
-                      ? "bg-blue-500/15 border-blue-500/40 text-blue-400"
-                      : "bg-white dark:bg-[#161f30] border-slate-200 dark:border-white/[0.07] text-slate-500 dark:text-[#94A3B8] hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-700 dark:hover:text-slate-200"
-                  }`}
-                >
-                  {chip.name}
-                </Link>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <form method="GET" action="/doctor/patients" className="relative">
-              <input type="hidden" name="filter" value={filter} />
-              <Search className="absolute left-[11px] top-1/2 -translate-y-1/2 h-[14px] w-[14px] text-slate-400 dark:text-[#475569]" />
-              <input
-                name="q"
-                defaultValue={query}
-                placeholder="Search patients..."
-                className="h-[33px] w-[180px] rounded-lg border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-white/5 pl-[34px] pr-3 text-[12px] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-[#475569] outline-none focus:border-slate-300 dark:focus:border-white/20"
-              />
-            </form>
-            <AddOfflinePatientModal
-              doctorId={doctor.id}
-              triggerLabel="Add Patient"
-              defaultOpen={openNew}
-              triggerClassName="inline-flex h-[29px] items-center gap-[5px] rounded-lg bg-[#3b82f6] px-3 text-[12px] font-medium text-white hover:bg-[#2563eb]"
-            />
-          </div>
-        </div>
+        <PatientsToolbar chips={chips} filter={filter} query={query} doctorId={doctor.id} openNew={openNew} />
 
         <PatientDirectoryTable patients={patients} registeredCount={stats.all} />
       </div>

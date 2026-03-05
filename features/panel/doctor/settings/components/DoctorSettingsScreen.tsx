@@ -1,8 +1,23 @@
 "use client";
 
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Bell, Monitor, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  INITIAL_NOTIFICATIONS,
+  SETTINGS_TABS,
+  SettingsTab,
+} from "../constants/settingsConfig";
+import {
+  Field,
+  NotifRow,
+  PrefRow,
+  SelectField,
+  SettingsCard,
+  StatBox,
+  Switch,
+  ToggleChip,
+} from "./ui/SettingsPrimitives";
 
 type Props = {
   user: {
@@ -12,48 +27,6 @@ type Props = {
   };
 };
 
-type SettingsTab = "notifications" | "security" | "payment" | "datetime";
-
-type ToggleItem = {
-  label: string;
-  desc: string;
-  on: boolean;
-};
-
-const tabs: { id: SettingsTab; label: string }[] = [
-  { id: "notifications", label: "Notifications" },
-  { id: "security", label: "Security" },
-  { id: "payment", label: "Payment & Billing" },
-  { id: "datetime", label: "Date & Time" },
-];
-
-const initialNotifs = {
-  appts: [
-    { label: "New Booking", desc: "When a patient books an appointment", on: true },
-    { label: "Cancellation", desc: "When a patient cancels", on: true },
-    { label: "Appointment Reminder", desc: "1 hour before each appointment", on: false },
-    { label: "Reschedule Request", desc: "When a patient requests rescheduling", on: true },
-  ] as ToggleItem[],
-  rev: [
-    { label: "Payment Received", desc: "When a payment is confirmed", on: true },
-    { label: "Weekly Summary", desc: "Revenue summary every Monday", on: true },
-    { label: "Payout Processed", desc: "When earnings are transferred", on: true },
-  ] as ToggleItem[],
-  sys: [
-    { label: "Product Updates", desc: "New features and improvements", on: false },
-    { label: "Security Alerts", desc: "Login from new device or location", on: true },
-    { label: "Review Received", desc: "When a patient leaves a review", on: true },
-  ] as ToggleItem[],
-  wa: [
-    { label: "New Appointment Booked", desc: "Instant alert when a patient books", on: true },
-    { label: "Appointment Cancellation", desc: "Alert when a patient cancels or no-shows", on: true },
-    { label: "Payment Confirmed", desc: "When a payment clears successfully", on: true },
-    { label: "Daily Summary (9 AM)", desc: "Overview of the day's schedule each morning", on: false },
-    { label: "New Patient Review", desc: "When a patient posts a review on the app", on: false },
-    { label: "Low Slot Alert", desc: "When fewer than 2 slots remain for the day", on: true },
-  ] as ToggleItem[],
-};
-
 export default function DoctorSettingsScreen({ user }: Props) {
   const [tab, setTab] = useState<SettingsTab>("notifications");
   const [waEnabled, setWaEnabled] = useState(true);
@@ -61,7 +34,7 @@ export default function DoctorSettingsScreen({ user }: Props) {
   const [twoFactor, setTwoFactor] = useState(false);
   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("12h");
   const [weekStart, setWeekStart] = useState<"Sunday" | "Monday">("Sunday");
-  const [notif, setNotif] = useState(initialNotifs);
+  const [notif, setNotif] = useState(INITIAL_NOTIFICATIONS);
 
   const initials = useMemo(
     () => (user.name || "Dr").split(" ").map((x) => x[0]).join("").slice(0, 2).toUpperCase(),
@@ -79,7 +52,7 @@ export default function DoctorSettingsScreen({ user }: Props) {
     <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
       <div className="w-full space-y-5 pb-8">
         <div className="mb-5 flex gap-0 border-b border-slate-200 dark:border-white/[0.07]" id="stg-tabs">
-          {tabs.map((t) => {
+          {SETTINGS_TABS.map((t) => {
             const active = tab === t.id;
             return (
               <button
@@ -351,141 +324,5 @@ export default function DoctorSettingsScreen({ user }: Props) {
         </div>
       </div>
     </div>
-  );
-}
-
-function SettingsCard({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
-  return (
-    <section className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-[15px]">
-        <div>
-          <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">{title}</div>
-          {subtitle ? <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">{subtitle}</div> : null}
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function NotifRow({
-  item,
-  onToggle,
-  color = "#3b82f6",
-}: {
-  item: ToggleItem;
-  onToggle: () => void;
-  color?: string;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-slate-200 dark:border-white/[0.07] px-5 py-[10px] last:border-b-0">
-      <div>
-        <div className="text-[12.5px] font-medium text-slate-900 dark:text-[#F1F5F9]">{item.label}</div>
-        <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#475569]">{item.desc}</div>
-      </div>
-      <Switch checked={item.on} onToggle={onToggle} color={color} />
-    </div>
-  );
-}
-
-function Switch({ checked, onToggle, color = "#3b82f6" }: { checked: boolean; onToggle: () => void; color?: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="relative h-[23px] w-[42px] rounded-[12px] transition-colors"
-      style={{ background: checked ? color : "rgba(255,255,255,0.1)" }}
-    >
-      <span
-        className="absolute top-[3px] h-[17px] w-[17px] rounded-full bg-white shadow"
-        style={{ left: checked ? "22px" : "3px", transition: "left .2s" }}
-      />
-    </button>
-  );
-}
-
-function Field({
-  label,
-  type = "text",
-  placeholder,
-  defaultValue,
-}: {
-  label: string;
-  type?: string;
-  placeholder?: string;
-  defaultValue?: string;
-}) {
-  return (
-    <label className="space-y-[6px]">
-      <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{label}</span>
-      <input
-        type={type}
-        placeholder={placeholder}
-        defaultValue={defaultValue}
-        className="h-[36px] w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-[#1c2840] px-[11px] text-[12.5px] text-slate-900 dark:text-[#F1F5F9] outline-none"
-      />
-    </label>
-  );
-}
-
-function SelectField({ label, options }: { label: string; options: string[] }) {
-  return (
-    <label className="space-y-[6px]">
-      <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{label}</span>
-      <select className="h-[36px] w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-[#1c2840] px-[11px] text-[12.5px] text-slate-900 dark:text-[#F1F5F9] outline-none">
-        {options.map((o) => (
-          <option key={o}>{o}</option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-function StatBox({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[9px] border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.03] px-[14px] py-3">
-      <div className="text-[11px] text-slate-500 dark:text-[#475569]">{label}</div>
-      <div className="mt-[3px] text-[14px] font-semibold text-slate-900 dark:text-[#F1F5F9]">{value}</div>
-    </div>
-  );
-}
-
-function PrefRow({ title, sub, control }: { title: string; sub?: string; control: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] pb-[18px] last:border-b-0 last:pb-0">
-      <div>
-        <div className="text-[12.5px] font-medium text-slate-900 dark:text-[#F1F5F9]">{title}</div>
-        {sub ? <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#475569]">{sub}</div> : null}
-      </div>
-      <div>{control}</div>
-    </div>
-  );
-}
-
-function ToggleChip({
-  label,
-  active,
-  onClick,
-  compact,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  compact?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-lg border px-[14px] py-[6px] text-[12px] font-medium",
-        compact && "px-3",
-        active
-          ? "border-blue-500/30 bg-blue-500/15 text-blue-400"
-          : "border-slate-200 dark:border-white/[0.07] bg-transparent text-slate-500 dark:text-[#94A3B8]"
-      )}
-    >
-      {label}
-    </button>
   );
 }
