@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   title: "OpenTreatments | Healthcare services.",
   description:
     "Open Treatment — Healthcare Cost Transparency MVP. A patient-first platform that makes healthcare costs predictable, transparent, and accessible.",
+  icons: {
+    icon: "/Subtract.svg",
+    shortcut: "/Subtract.svg",
+    apple: "/Subtract.svg",
+  },
 };
 
 export default function RootLayout({
