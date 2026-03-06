@@ -34,7 +34,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const [existingUser, existingPhone] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      phone ? prisma.user.findUnique({ where: { phone } }) : Promise.resolve(null),
+    ]);
+
     if (existingUser) {
       return NextResponse.json(
         { error: "User already exists" },
@@ -42,15 +46,11 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if phone number already exists
-    if (phone) {
-      const existingPhone = await prisma.user.findUnique({ where: { phone } });
-      if (existingPhone) {
-        return NextResponse.json(
-          { error: "Phone number already exists" },
-          { status: 400 }
-        );
-      }
+    if (existingPhone) {
+      return NextResponse.json(
+        { error: "Phone number already exists" },
+        { status: 400 }
+      );
     }
 
     const hashed = await hash(password, 10);
@@ -69,8 +69,10 @@ export async function POST(req: Request) {
       },
     });
 
-    // Send OTP email
-    await sendOTPEmail(email, otp);
+    // Send OTP in background to reduce API response latency.
+    void sendOTPEmail(email, otp).catch((mailErr) => {
+      console.error("Failed to send registration OTP email:", mailErr);
+    });
 
     return NextResponse.json({
       message:

@@ -3,13 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import {
+import dynamic from "next/dynamic";
+import type {
   AuthMode,
   DoctorOnboardingFormState,
-  DoctorOnboardingSteps,
 } from "../doctor/DoctorOnboardingSteps";
 import { completeDoctorOnboarding } from "../doctor/actions/doctorOnboardingActions";
 import Image from "next/image";
+
+const DoctorOnboardingSteps = dynamic(
+  () => import("../doctor/DoctorOnboardingSteps").then((mod) => mod.DoctorOnboardingSteps),
+  { ssr: false, loading: () => null }
+);
 
 type Role = "USER" | "DOCTOR" | "PHARMACY" | "ADMIN";
 
