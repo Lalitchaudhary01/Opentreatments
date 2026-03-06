@@ -8,8 +8,10 @@ export default withAuth(
     const path = req.nextUrl.pathname;
 
     // Doctor route protection
+    // NOTE: For Google role-switch flow, token.role can be stale for the first redirect.
+    // We only require an authenticated token here; page-level checks enforce doctor ownership.
     if (path.startsWith("/doctor")) {
-      if (!token || token.role !== Role.DOCTOR) {
+      if (!token) {
         return Response.redirect(new URL("/auth", req.url));
       }
     }

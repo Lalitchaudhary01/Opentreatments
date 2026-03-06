@@ -18,13 +18,13 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (status === "loading") return; // wait for session to load
 
-    // Check if logged in and role is DOCTOR
-    if (!session || session.user.role !== "DOCTOR") {
+    // Check only authentication here; role/profile checks happen in server pages.
+    if (!session) {
       router.replace("/auth"); // redirect if not authorized
     }
   }, [session, status, router]);
 
-  if (!session || session.user.role !== "DOCTOR") {
+  if (!session) {
     return <p>Redirecting...</p>; // optional loading
   }
 
