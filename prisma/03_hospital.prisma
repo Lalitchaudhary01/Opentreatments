@@ -24,6 +24,10 @@ model Hospital {
   Insurance  Insurance[]
   procedures Procedure[]
   services   Service[]
+
+  @@index([status, createdAt])
+  @@index([city])
+  @@index([name])
 }
 
 model Service {
@@ -34,6 +38,8 @@ model Service {
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
+
+  @@index([hospitalId, createdAt])
 }
 
 model Facility {
@@ -43,6 +49,8 @@ model Facility {
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
+
+  @@index([hospitalId, createdAt])
 }
 
 model Insurance {
@@ -52,6 +60,8 @@ model Insurance {
   cashless   Boolean  @default(false)
   hospitalId String
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId])
 }
 
 model Doctor {
@@ -62,6 +72,8 @@ model Doctor {
   profilePic     String?
   hospitalId     String
   hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, specialization])
 }
 
 model Procedure {
@@ -74,6 +86,8 @@ model Procedure {
   estimates   Estimate[]
   hospital    Hospital   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   createdAt   DateTime   @default(now())
+
+  @@index([hospitalId, createdAt])
 }
 
 model Policy {
@@ -93,6 +107,8 @@ model Policy {
   updatedAt    DateTime   @updatedAt
   estimates    Estimate[]
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model Estimate {
@@ -107,4 +123,8 @@ model Estimate {
   hospital      Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   policy        Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
   procedure     Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, createdAt])
+  @@index([policyId])
+  @@index([procedureId])
 }

@@ -23,6 +23,10 @@ model IndependentDoctor {
   user              User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   IndependentReview IndependentReview[]
   offlineConsultations OfflineConsultation[]
+
+  @@index([status, createdAt])
+  @@index([city])
+  @@index([specialization])
 }
 
 model DoctorService {
@@ -41,6 +45,9 @@ model DoctorService {
   doctor      IndependentDoctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
   @@index([doctorId])
+  @@index([doctorId, createdAt])
+  @@index([doctorId, isActive])
+  @@index([doctorId, category])
 }
 
 model IndependentConsultation {
@@ -63,6 +70,10 @@ model IndependentConsultation {
   user              User               @relation(fields: [userId], references: [id])
   IndependentReview IndependentReview?
   Payment           Payment?
+
+  @@index([doctorId, slot])
+  @@index([doctorId, status, slot])
+  @@index([userId, createdAt])
 }
 
 model OfflineConsultation {
@@ -80,6 +91,9 @@ model OfflineConsultation {
   doctor         IndependentDoctor @relation(fields: [doctorId], references: [id])
   
   createdAt      DateTime @default(now())
+
+  @@index([doctorId, visitTime])
+  @@index([doctorId, createdAt])
 }
 
 model IndependentReview {
@@ -93,6 +107,9 @@ model IndependentReview {
   consultation   IndependentConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
   doctor         IndependentDoctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, createdAt])
+  @@index([userId])
 }
 
 model Notification {
@@ -103,6 +120,8 @@ model Notification {
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
 }
 
 model Payment {
@@ -116,6 +135,8 @@ model Payment {
   provider       String?
   transactionId  String?
   createdAt      DateTime                @default(now())
+
+  @@index([status, createdAt])
 }
 
 model AdminAction {
@@ -127,4 +148,7 @@ model AdminAction {
   details    String?
   createdAt  DateTime @default(now())
   admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, createdAt])
+  @@index([targetType, targetId])
 }

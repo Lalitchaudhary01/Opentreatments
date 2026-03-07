@@ -11,6 +11,9 @@ model Blog {
   tags      BlogTag[]
   comments  Comment[]
   likes     Like[]
+
+  @@index([createdAt])
+  @@index([authorId, createdAt])
 }
 
 model Comment {
@@ -22,6 +25,9 @@ model Comment {
   updatedAt DateTime @updatedAt
   blog      Blog     @relation(fields: [blogId], references: [id])
   author    User     @relation(fields: [userId], references: [id])
+
+  @@index([blogId, createdAt])
+  @@index([userId])
 }
 
 model Like {
@@ -33,6 +39,7 @@ model Like {
   user      User     @relation(fields: [userId], references: [id])
 
   @@unique([blogId, userId])
+  @@index([userId])
 }
 
 model Tag {
@@ -48,4 +55,5 @@ model BlogTag {
   tag    Tag    @relation(fields: [tagId], references: [id])
 
   @@id([blogId, tagId])
+  @@index([tagId])
 }

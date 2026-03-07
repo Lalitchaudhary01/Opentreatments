@@ -22,6 +22,9 @@ model Pharmacy {
   orders        Order[]
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   stock         StockEntry[]   @relation("PharmacyStock")
+
+  @@index([status, createdAt])
+  @@index([city])
 }
 
 model Medicine {
@@ -47,6 +50,10 @@ model Medicine {
   stock         StockEntry[]
   substitutes   Substitute[]   @relation("OriginalMedicine")
   substituteFor Substitute[]   @relation("SubstituteMedicine")
+
+  @@index([pharmacyId, createdAt])
+  @@index([pharmacyId, name])
+  @@index([pharmacyId, genericName])
 }
 
 model StockEntry {
@@ -64,6 +71,10 @@ model StockEntry {
   logs          InventoryLog[]
   medicine      Medicine       @relation(fields: [medicineId], references: [id])
   pharmacy      Pharmacy       @relation("PharmacyStock", fields: [pharmacyId], references: [id])
+
+  @@index([pharmacyId, createdAt])
+  @@index([medicineId])
+  @@index([pharmacyId, expiryDate])
 }
 
 model InventoryLog {
@@ -78,6 +89,10 @@ model InventoryLog {
   medicine        Medicine            @relation(fields: [medicineId], references: [id])
   pharmacy        Pharmacy            @relation(fields: [pharmacyId], references: [id])
   stockEntry      StockEntry          @relation(fields: [stockEntryId], references: [id])
+
+  @@index([pharmacyId, createdAt])
+  @@index([stockEntryId, createdAt])
+  @@index([medicineId, createdAt])
 }
 
 model Order {
@@ -90,6 +105,10 @@ model Order {
   pharmacy   Pharmacy    @relation(fields: [pharmacyId], references: [id])
   user       User        @relation(fields: [userId], references: [id])
   items      OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([pharmacyId, createdAt])
+  @@index([status, createdAt])
 }
 
 model OrderItem {
@@ -100,6 +119,9 @@ model OrderItem {
   price      Float
   medicine   Medicine @relation(fields: [medicineId], references: [id])
   order      Order    @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([medicineId])
 }
 
 model PriceTrend {
@@ -108,6 +130,8 @@ model PriceTrend {
   price      Float
   date       DateTime @default(now())
   medicine   Medicine @relation(fields: [medicineId], references: [id])
+
+  @@index([medicineId, date])
 }
 
 model Substitute {
@@ -116,4 +140,7 @@ model Substitute {
   substituteMedicineId String
   medicine             Medicine @relation("OriginalMedicine", fields: [medicineId], references: [id])
   substitute           Medicine @relation("SubstituteMedicine", fields: [substituteMedicineId], references: [id])
+
+  @@index([medicineId])
+  @@index([substituteMedicineId])
 }

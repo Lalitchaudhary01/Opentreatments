@@ -30,6 +30,10 @@ model User {
   LabCompany               LabCompany?
   labBookings              LabBooking[]
   patientProfile           Patient?
+
+  @@index([role])
+  @@index([isVerified])
+  @@index([createdAt])
 }
 
 model Patient {
@@ -94,6 +98,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -102,4 +107,7 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expires])
 }

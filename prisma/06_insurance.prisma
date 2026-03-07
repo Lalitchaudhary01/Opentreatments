@@ -18,6 +18,9 @@ model InsuranceCompany {
   claims             Claim[]
   user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   plans              Plan[]
+
+  @@index([status, createdAt])
+  @@index([name])
 }
 
 model Plan {
@@ -32,6 +35,9 @@ model Plan {
   coverageAmount  Float
   claims          Claim[]
   company         InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@index([name])
 }
 
 model Claim {
@@ -46,4 +52,9 @@ model Claim {
   company     InsuranceCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
   plan        Plan             @relation(fields: [planId], references: [id], onDelete: Cascade)
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status, createdAt])
+  @@index([userId, createdAt])
+  @@index([planId, createdAt])
+  @@index([status, createdAt])
 }
