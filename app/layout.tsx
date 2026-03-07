@@ -10,22 +10,19 @@ const plusJakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-export const metadata = {
-  title: "OpenTreatments | Healthcare services",
+export const metadata: Metadata = {
+  title: "OpenTreatments | Healthcare services.",
   description:
     "Open Treatment — Healthcare Cost Transparency MVP. A patient-first platform that makes healthcare costs predictable, transparent, and accessible.",
+  icons: {
+    icon: "/Subtract.svg",
+    shortcut: "/Subtract.svg",
+    apple: "/Subtract.svg",
+  },
   verification: {
     google: "CmgxHA4xOB2Nw76KccHIjbJt1mKt9VwehY40rbHXdT4",
   },
 };
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
 
 export default function RootLayout({
   children,
