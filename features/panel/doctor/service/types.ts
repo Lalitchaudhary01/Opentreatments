@@ -12,9 +12,13 @@ export type DoctorService = {
   name: string;
   category: ServiceCategory;
   price: number;
+  discountPrice: number | null;
   duration: number;
   sessions: number;
   status: ServiceStatus;
   desc: string;
   avail: string;
+  isOnline: boolean;
+  maxSlots: number | null;
+  tags: string[];
 };

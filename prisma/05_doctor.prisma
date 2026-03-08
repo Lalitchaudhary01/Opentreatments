@@ -35,9 +35,13 @@ model DoctorService {
   name        String
   category    String
   price       Float
+  discountPrice Float?
   duration    Int
   description String?
   availability String
+  isOnline    Boolean           @default(true)
+  maxSlots    Int?
+  tags        String[]          @default([])
   isActive    Boolean           @default(true)
   sessions    Int               @default(0)
   createdAt   DateTime          @default(now())
@@ -48,6 +52,7 @@ model DoctorService {
   @@index([doctorId, createdAt])
   @@index([doctorId, isActive])
   @@index([doctorId, category])
+  @@index([doctorId, isOnline])
 }
 
 model IndependentConsultation {

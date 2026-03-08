@@ -34,9 +34,13 @@ export default async function DoctorServicesPage() {
         name: string;
         category: "Consultation" | "Procedure" | "Diagnostic" | "Therapy" | "Preventive";
         price: number;
+        discountPrice: number | null;
         duration: number;
         desc: string;
         avail: string;
+        isOnline: boolean;
+        maxSlots: number | null;
+        tags: string[];
         status: "Active" | "Inactive";
         sessions: number;
       }[]
@@ -52,9 +56,13 @@ export default async function DoctorServicesPage() {
           name: true,
           category: true,
           price: true,
+          discountPrice: true,
           duration: true,
           description: true,
           availability: true,
+          isOnline: true,
+          maxSlots: true,
+          tags: true,
           isActive: true,
           sessions: true,
         },
@@ -70,9 +78,13 @@ export default async function DoctorServicesPage() {
           | "Therapy"
           | "Preventive",
         price: service.price,
+        discountPrice: service.discountPrice,
         duration: service.duration,
         desc: service.description ?? "",
         avail: service.availability,
+        isOnline: service.isOnline,
+        maxSlots: service.maxSlots,
+        tags: Array.isArray(service.tags) ? service.tags : [],
         status: service.isActive ? ("Active" as const) : ("Inactive" as const),
         sessions: service.sessions,
       }));
@@ -106,9 +118,16 @@ export default async function DoctorServicesPage() {
             | "Therapy"
             | "Preventive",
           price: Number(s.price ?? 0),
+          discountPrice:
+            typeof s.discountPrice === "number" ? Number(s.discountPrice) : null,
           duration: Number(s.duration ?? 30),
           desc: typeof s.desc === "string" ? s.desc : "",
           avail: typeof s.avail === "string" ? s.avail : "All Days",
+          isOnline: typeof s.isOnline === "boolean" ? s.isOnline : true,
+          maxSlots: typeof s.maxSlots === "number" ? Number(s.maxSlots) : null,
+          tags: Array.isArray(s.tags)
+            ? s.tags.filter((tag): tag is string => typeof tag === "string")
+            : [],
           status: s.status === "Inactive" ? ("Inactive" as const) : ("Active" as const),
           sessions: Number(s.sessions ?? 0),
         };
@@ -138,9 +157,16 @@ export default async function DoctorServicesPage() {
             | "Therapy"
             | "Preventive",
           price: Number(s.price ?? 0),
+          discountPrice:
+            typeof s.discountPrice === "number" ? Number(s.discountPrice) : null,
           duration: Number(s.duration ?? 30),
           desc: typeof s.desc === "string" ? s.desc : "",
           avail: typeof s.avail === "string" ? s.avail : "All Days",
+          isOnline: typeof s.isOnline === "boolean" ? s.isOnline : true,
+          maxSlots: typeof s.maxSlots === "number" ? Number(s.maxSlots) : null,
+          tags: Array.isArray(s.tags)
+            ? s.tags.filter((tag): tag is string => typeof tag === "string")
+            : [],
           status: s.status === "Inactive" ? ("Inactive" as const) : ("Active" as const),
           sessions: Number(s.sessions ?? 0),
         };

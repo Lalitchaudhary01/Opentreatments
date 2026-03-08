@@ -3,14 +3,19 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { DoctorService, ServiceCategory, ServiceStatus } from "../types";
+import type { DoctorServicePayload } from "../actions/doctorServiceActions";
 
 type FormState = {
   name: string;
   category: ServiceCategory;
   price: number;
+  discountPrice: number | null;
   duration: number;
   desc: string;
   avail: string;
+  isOnline: boolean;
+  maxSlots: number | null;
+  tags: string;
   status: ServiceStatus;
 };
 
@@ -18,9 +23,13 @@ const defaultForm: FormState = {
   name: "",
   category: "Consultation",
   price: 500,
+  discountPrice: null,
   duration: 30,
   desc: "",
   avail: "All Days",
+  isOnline: true,
+  maxSlots: null,
+  tags: "",
   status: "Active",
 };
 
@@ -33,7 +42,7 @@ export default function ServiceFormModal({
   open: boolean;
   editService: DoctorService | null;
   onClose: () => void;
-  onSave: (payload: Omit<DoctorService, "id" | "sessions">) => void;
+  onSave: (payload: DoctorServicePayload) => void;
 }) {
   const [form, setForm] = useState<FormState>(defaultForm);
 
@@ -48,9 +57,13 @@ export default function ServiceFormModal({
       name: editService.name,
       category: editService.category,
       price: editService.price,
+      discountPrice: editService.discountPrice,
       duration: editService.duration,
       desc: editService.desc,
       avail: editService.avail,
+      isOnline: editService.isOnline,
+      maxSlots: editService.maxSlots,
+      tags: editService.tags.join(", "),
       status: editService.status,
     });
   }, [open, editService]);
@@ -132,6 +145,40 @@ export default function ServiceFormModal({
             </label>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <label className="mb-[14px] block">
+              <span className="mb-[5px] block text-[12px] font-medium text-slate-600 dark:text-[#94A3B8]">Discount Price (₹)</span>
+              <input
+                type="number"
+                min={0}
+                value={form.discountPrice ?? ""}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    discountPrice: e.target.value === "" ? null : Number(e.target.value || 0),
+                  }))
+                }
+                className="w-full rounded-[9px] border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/5 px-3 py-[9px] text-[13px] text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+              />
+            </label>
+
+            <label className="mb-[14px] block">
+              <span className="mb-[5px] block text-[12px] font-medium text-slate-600 dark:text-[#94A3B8]">Max Slots</span>
+              <input
+                type="number"
+                min={1}
+                value={form.maxSlots ?? ""}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    maxSlots: e.target.value === "" ? null : Number(e.target.value || 1),
+                  }))
+                }
+                className="w-full rounded-[9px] border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/5 px-3 py-[9px] text-[13px] text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+              />
+            </label>
+          </div>
+
           <label className="mb-[14px] block">
             <span className="mb-[5px] block text-[12px] font-medium text-slate-600 dark:text-[#94A3B8]">Description</span>
             <textarea
@@ -173,6 +220,30 @@ export default function ServiceFormModal({
               </select>
             </label>
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="mb-[14px] block">
+              <span className="mb-[5px] block text-[12px] font-medium text-slate-600 dark:text-[#94A3B8]">Mode</span>
+              <select
+                value={form.isOnline ? "online" : "offline"}
+                onChange={(e) => setForm((s) => ({ ...s, isOnline: e.target.value === "online" }))}
+                className="w-full rounded-[9px] border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/5 px-3 py-[9px] text-[13px] text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+              >
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
+              </select>
+            </label>
+
+            <label className="mb-[14px] block">
+              <span className="mb-[5px] block text-[12px] font-medium text-slate-600 dark:text-[#94A3B8]">Tags (comma separated)</span>
+              <input
+                value={form.tags}
+                onChange={(e) => setForm((s) => ({ ...s, tags: e.target.value }))}
+                placeholder="e.g. fever, diabetes, follow-up"
+                className="w-full rounded-[9px] border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/5 px-3 py-[9px] text-[13px] text-slate-900 dark:text-slate-100 outline-none transition-colors focus:border-blue-400"
+              />
+            </label>
+          </div>
         </div>
 
         <div className="flex justify-end gap-[9px] border-t border-slate-200 dark:border-white/[0.07] px-[22px] py-[14px]">
@@ -191,9 +262,16 @@ export default function ServiceFormModal({
                 name: form.name.trim(),
                 category: form.category,
                 price: form.price,
+                discountPrice: form.discountPrice,
                 duration: form.duration,
                 desc: form.desc.trim(),
                 avail: form.avail,
+                isOnline: form.isOnline,
+                maxSlots: form.maxSlots,
+                tags: form.tags
+                  .split(",")
+                  .map((tag) => tag.trim())
+                  .filter(Boolean),
                 status: form.status,
               });
             }}

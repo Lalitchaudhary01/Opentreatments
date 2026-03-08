@@ -11,9 +11,13 @@ export type DoctorServicePayload = {
   name: string;
   category: ServiceCategory;
   price: number;
+  discountPrice: number | null;
   duration: number;
   desc: string;
   avail: string;
+  isOnline: boolean;
+  maxSlots: number | null;
+  tags: string[];
   status: ServiceStatus;
 };
 
@@ -22,9 +26,13 @@ type StoredDoctorService = {
   name: string;
   category: ServiceCategory;
   price: number;
+  discountPrice: number | null;
   duration: number;
   desc: string;
   avail: string;
+  isOnline: boolean;
+  maxSlots: number | null;
+  tags: string[];
   status: ServiceStatus;
   sessions: number;
 };
@@ -66,9 +74,13 @@ function mapRowToUiService(row: {
   name: string;
   category: string;
   price: number;
+  discountPrice: number | null;
   duration: number;
   description: string | null;
   availability: string;
+  isOnline: boolean;
+  maxSlots: number | null;
+  tags: string[];
   isActive: boolean;
   sessions: number;
 }): DoctorService {
@@ -77,9 +89,13 @@ function mapRowToUiService(row: {
     name: row.name,
     category: row.category as ServiceCategory,
     price: row.price,
+    discountPrice: row.discountPrice,
     duration: row.duration,
     desc: row.description ?? "",
     avail: row.availability,
+    isOnline: row.isOnline,
+    maxSlots: row.maxSlots,
+    tags: Array.isArray(row.tags) ? row.tags : [],
     status: row.isActive ? "Active" : "Inactive",
     sessions: row.sessions,
   };
@@ -94,9 +110,16 @@ function normalizeStoredService(value: unknown): StoredDoctorService | null {
     name: s.name,
     category: (s.category as ServiceCategory) || "Consultation",
     price: Number(s.price ?? 0),
+    discountPrice:
+      typeof s.discountPrice === "number" ? Number(s.discountPrice) : null,
     duration: Number(s.duration ?? 30),
     desc: typeof s.desc === "string" ? s.desc : "",
     avail: typeof s.avail === "string" ? s.avail : "All Days",
+    isOnline: typeof s.isOnline === "boolean" ? s.isOnline : true,
+    maxSlots: typeof s.maxSlots === "number" ? Number(s.maxSlots) : null,
+    tags: Array.isArray(s.tags)
+      ? s.tags.filter((tag): tag is string => typeof tag === "string")
+      : [],
     status: s.status === "Inactive" ? "Inactive" : "Active",
     sessions: Number(s.sessions ?? 0),
   };
@@ -146,9 +169,13 @@ export async function createDoctorService(
           name: payload.name.trim(),
           category: payload.category,
           price: payload.price,
+          discountPrice: payload.discountPrice,
           duration: payload.duration,
           description: payload.desc.trim() || null,
           availability: payload.avail,
+          isOnline: payload.isOnline,
+          maxSlots: payload.maxSlots,
+          tags: payload.tags,
           isActive: payload.status === "Active",
         },
       });
@@ -164,9 +191,13 @@ export async function createDoctorService(
     name: payload.name.trim(),
     category: payload.category,
     price: payload.price,
+    discountPrice: payload.discountPrice,
     duration: payload.duration,
     desc: payload.desc.trim(),
     avail: payload.avail,
+    isOnline: payload.isOnline,
+    maxSlots: payload.maxSlots,
+    tags: payload.tags,
     status: payload.status,
     sessions: 0,
   };
@@ -198,9 +229,13 @@ export async function updateDoctorService(
           name: payload.name.trim(),
           category: payload.category,
           price: payload.price,
+          discountPrice: payload.discountPrice,
           duration: payload.duration,
           description: payload.desc.trim() || null,
           availability: payload.avail,
+          isOnline: payload.isOnline,
+          maxSlots: payload.maxSlots,
+          tags: payload.tags,
           isActive: payload.status === "Active",
         },
       });
@@ -220,9 +255,13 @@ export async function updateDoctorService(
     name: payload.name.trim(),
     category: payload.category,
     price: payload.price,
+    discountPrice: payload.discountPrice,
     duration: payload.duration,
     desc: payload.desc.trim(),
     avail: payload.avail,
+    isOnline: payload.isOnline,
+    maxSlots: payload.maxSlots,
+    tags: payload.tags,
     status: payload.status,
   };
   await saveDoctorServicesToAvailability(
