@@ -14,14 +14,12 @@ const STATIC_PUBLIC_ROUTES = [
   "/user/doctors",
   "/user/hospitals",
   "/user/pharmacy",
-  "/user/insurance-companies",
-  "/user/insurance-companies/claims",
+  
 ] as const;
 
 const EXPLORE_SLUGS = [
   "medicine-pricing",
   "diagnostic-tests",
-  "insurance-claims",
   "hospital-bills",
   "surgery-packages",
   "cost-comparison",
@@ -61,17 +59,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         where: { status: "APPROVED" },
         select: { id: true, updatedAt: true },
       }),
-      prisma.insuranceCompany.findMany({
-        where: { status: "APPROVED" },
-        select: { id: true, updatedAt: true },
-      }),
     ]);
 
     const blogs = settled[0].status === "fulfilled" ? settled[0].value : [];
     const doctors = settled[1].status === "fulfilled" ? settled[1].value : [];
     const hospitals = settled[2].status === "fulfilled" ? settled[2].value : [];
     const pharmacies = settled[3].status === "fulfilled" ? settled[3].value : [];
-    const insuranceCompanies = settled[4].status === "fulfilled" ? settled[4].value : [];
 
     const dynamicEntries: MetadataRoute.Sitemap = [
       ...blogs.map((blog) => ({
@@ -89,10 +82,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...pharmacies.map((pharmacy) => ({
         url: withSite(`/user/pharmacy/${pharmacy.id}`),
         lastModified: pharmacy.updatedAt ?? now,
-      })),
-      ...insuranceCompanies.map((company) => ({
-        url: withSite(`/user/insurance-companies/${company.id}`),
-        lastModified: company.updatedAt ?? now,
       })),
     ];
 
