@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function isRecoverablePrismaError(error: unknown): boolean {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  return (
+    error.code === "P2021" || // table missing
+    error.code === "P5010" // fetch failed (accelerate/network)
+  );
+}
 
 export async function GET() {
   try {
@@ -33,9 +42,7 @@ export async function GET() {
       },
     });
 
-    const mappedDoctors = doctors
-      .filter((doc) => doc.user !== null)
-      .map((doc) => ({
+    const mappedDoctors = doctors.map((doc) => ({
         id: doc.id,
         name: doc.name || "Unknown Doctor",
         email: doc.user?.email ?? "",
@@ -58,7 +65,12 @@ export async function GET() {
       code: error?.code,
       name: error?.name,
     });
-    
+
+    // Keep doctors listing stable even when DB is temporarily unavailable.
+    if (isRecoverablePrismaError(error)) {
+      return NextResponse.json([]);
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch doctors" },
       { status: 500 }

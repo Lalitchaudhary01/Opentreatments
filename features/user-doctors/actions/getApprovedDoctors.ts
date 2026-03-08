@@ -35,9 +35,7 @@ export async function getApprovedDoctors(): Promise<GetApprovedDoctorsResponse> 
     });
 
     // Map doctors and handle missing user relations gracefully
-    const mappedDoctors = doctors
-      .filter((doc) => doc.user !== null) // Filter out doctors without user relation
-      .map((doc) => ({
+    const mappedDoctors = doctors.map((doc) => ({
         id: doc.id,
         name: doc.name || "Unknown Doctor",
         email: doc.user?.email ?? "",

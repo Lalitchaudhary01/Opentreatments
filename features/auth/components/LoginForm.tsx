@@ -18,7 +18,7 @@ const DoctorOnboardingSteps = dynamic(
 
 type Role = "USER" | "DOCTOR" | "PHARMACY" | "ADMIN";
 
-const REGISTER_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY"];
+const REGISTER_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
 const LOGIN_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
 
 const REDIRECT_BY_ROLE: Record<Role, string> = {
