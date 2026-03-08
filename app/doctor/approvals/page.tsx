@@ -28,7 +28,7 @@ export default async function ApprovalsPage() {
       <div className="p-6">
         <h2 className="text-xl font-bold mb-2">Under Review</h2>
         <p className="text-muted-foreground">
-          Your profile is being reviewed by our admin team. Dashboard access will unlock after approval.
+          Your profile is being reviewed by our admin team. You can access your dashboard in limited mode until approval.
         </p>
       </div>
     );

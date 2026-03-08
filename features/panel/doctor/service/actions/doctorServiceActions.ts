@@ -46,6 +46,17 @@ function isDoctorServiceTableMissing(error: unknown): boolean {
   );
 }
 
+function isDoctorServiceLegacySchemaError(error: unknown): boolean {
+  if (error instanceof Prisma.PrismaClientValidationError) return true;
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return (
+      error.code === "P2021" || // table missing
+      error.code === "P2022" // column missing
+    );
+  }
+  return false;
+}
+
 async function getDoctorIdFromSession(): Promise<string> {
   const session = await getServerSession(authOptions);
 
@@ -60,10 +71,6 @@ async function getDoctorIdFromSession(): Promise<string> {
 
   if (!doctor) {
     throw new Error("Doctor profile not found");
-  }
-
-  if (doctor.status !== "APPROVED") {
-    throw new Error("Doctor account is not approved");
   }
 
   return doctor.id;
@@ -163,22 +170,39 @@ export async function createDoctorService(
 
   if (doctorServiceDelegate?.create) {
     try {
-      const created = await doctorServiceDelegate.create({
-        data: {
-          doctorId,
-          name: payload.name.trim(),
-          category: payload.category,
-          price: payload.price,
-          discountPrice: payload.discountPrice,
-          duration: payload.duration,
-          description: payload.desc.trim() || null,
-          availability: payload.avail,
-          isOnline: payload.isOnline,
-          maxSlots: payload.maxSlots,
-          tags: payload.tags,
-          isActive: payload.status === "Active",
-        },
-      });
+      let created;
+      try {
+        created = await doctorServiceDelegate.create({
+          data: {
+            doctorId,
+            name: payload.name.trim(),
+            category: payload.category,
+            price: payload.price,
+            discountPrice: payload.discountPrice,
+            duration: payload.duration,
+            description: payload.desc.trim() || null,
+            availability: payload.avail,
+            isOnline: payload.isOnline,
+            maxSlots: payload.maxSlots,
+            tags: payload.tags,
+            isActive: payload.status === "Active",
+          },
+        });
+      } catch (error) {
+        if (!isDoctorServiceLegacySchemaError(error)) throw error;
+        created = await doctorServiceDelegate.create({
+          data: {
+            doctorId,
+            name: payload.name.trim(),
+            category: payload.category,
+            price: payload.price,
+            duration: payload.duration,
+            description: payload.desc.trim() || null,
+            availability: payload.avail,
+            isActive: payload.status === "Active",
+          },
+        });
+      }
       revalidatePath("/doctor/services");
       return mapRowToUiService(created);
     } catch (error) {
@@ -223,22 +247,39 @@ export async function updateDoctorService(
       });
       if (!existing) throw new Error("Service not found");
 
-      const updated = await doctorServiceDelegate.update({
-        where: { id },
-        data: {
-          name: payload.name.trim(),
-          category: payload.category,
-          price: payload.price,
-          discountPrice: payload.discountPrice,
-          duration: payload.duration,
-          description: payload.desc.trim() || null,
-          availability: payload.avail,
-          isOnline: payload.isOnline,
-          maxSlots: payload.maxSlots,
-          tags: payload.tags,
-          isActive: payload.status === "Active",
-        },
-      });
+      let updated;
+      try {
+        updated = await doctorServiceDelegate.update({
+          where: { id },
+          data: {
+            name: payload.name.trim(),
+            category: payload.category,
+            price: payload.price,
+            discountPrice: payload.discountPrice,
+            duration: payload.duration,
+            description: payload.desc.trim() || null,
+            availability: payload.avail,
+            isOnline: payload.isOnline,
+            maxSlots: payload.maxSlots,
+            tags: payload.tags,
+            isActive: payload.status === "Active",
+          },
+        });
+      } catch (error) {
+        if (!isDoctorServiceLegacySchemaError(error)) throw error;
+        updated = await doctorServiceDelegate.update({
+          where: { id },
+          data: {
+            name: payload.name.trim(),
+            category: payload.category,
+            price: payload.price,
+            duration: payload.duration,
+            description: payload.desc.trim() || null,
+            availability: payload.avail,
+            isActive: payload.status === "Active",
+          },
+        });
+      }
       revalidatePath("/doctor/services");
       return mapRowToUiService(updated);
     } catch (error) {

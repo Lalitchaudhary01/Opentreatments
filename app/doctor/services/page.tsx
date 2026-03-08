@@ -14,6 +14,14 @@ function isDoctorServiceTableMissing(error: unknown): boolean {
   );
 }
 
+function isDoctorServiceLegacySchemaError(error: unknown): boolean {
+  if (error instanceof Prisma.PrismaClientValidationError) return true;
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return error.code === "P2022"; // missing column in legacy table
+  }
+  return false;
+}
+
 export default async function DoctorServicesPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -23,7 +31,6 @@ export default async function DoctorServicesPage() {
     select: { id: true, status: true },
   });
   if (!doctor) redirect("/doctor/profile/submit");
-  if (doctor.status !== "APPROVED") redirect("/doctor/approvals");
 
   const doctorServiceDelegate = (prisma as unknown as { doctorService?: typeof prisma.doctorService })
     .doctorService;
@@ -48,25 +55,61 @@ export default async function DoctorServicesPage() {
 
   if (doctorServiceDelegate?.findMany) {
     try {
-      const dbServices = await doctorServiceDelegate.findMany({
-        where: { doctorId: doctor.id },
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          category: true,
-          price: true,
-          discountPrice: true,
-          duration: true,
-          description: true,
-          availability: true,
-          isOnline: true,
-          maxSlots: true,
-          tags: true,
-          isActive: true,
-          sessions: true,
-        },
-      });
+      let dbServices: Array<{
+        id: string;
+        name: string;
+        category: string;
+        price: number;
+        discountPrice?: number | null;
+        duration: number;
+        description: string | null;
+        availability: string;
+        isOnline?: boolean;
+        maxSlots?: number | null;
+        tags?: string[];
+        isActive: boolean;
+        sessions: number;
+      }> = [];
+
+      try {
+        dbServices = await doctorServiceDelegate.findMany({
+          where: { doctorId: doctor.id },
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            name: true,
+            category: true,
+            price: true,
+            discountPrice: true,
+            duration: true,
+            description: true,
+            availability: true,
+            isOnline: true,
+            maxSlots: true,
+            tags: true,
+            isActive: true,
+            sessions: true,
+          },
+        });
+      } catch (error) {
+        if (!isDoctorServiceLegacySchemaError(error)) throw error;
+
+        dbServices = await doctorServiceDelegate.findMany({
+          where: { doctorId: doctor.id },
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            name: true,
+            category: true,
+            price: true,
+            duration: true,
+            description: true,
+            availability: true,
+            isActive: true,
+            sessions: true,
+          },
+        });
+      }
 
       services = dbServices.map((service) => ({
         id: service.id,
@@ -78,12 +121,12 @@ export default async function DoctorServicesPage() {
           | "Therapy"
           | "Preventive",
         price: service.price,
-        discountPrice: service.discountPrice,
+        discountPrice: service.discountPrice ?? null,
         duration: service.duration,
         desc: service.description ?? "",
         avail: service.availability,
-        isOnline: service.isOnline,
-        maxSlots: service.maxSlots,
+        isOnline: typeof service.isOnline === "boolean" ? service.isOnline : true,
+        maxSlots: typeof service.maxSlots === "number" ? service.maxSlots : null,
         tags: Array.isArray(service.tags) ? service.tags : [],
         status: service.isActive ? ("Active" as const) : ("Inactive" as const),
         sessions: service.sessions,

@@ -489,7 +489,7 @@ export default function AuthForm() {
               mode={mode}
               doctorForm={doctorForm}
               setDoctorForm={setDoctorForm}
-              onSetupDashboard={() => router.push("/doctor/approvals")}
+              onSetupDashboard={() => router.push("/doctor/overview")}
             />
 
             {mode === "login" && (

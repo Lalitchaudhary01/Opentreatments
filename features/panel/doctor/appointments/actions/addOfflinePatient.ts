@@ -22,6 +22,13 @@ export async function addOfflinePatient(formData: FormData) {
       return { success: false, error: "Doctor not found" };
     }
 
+    if (doctor.status !== "APPROVED") {
+      return {
+        success: false,
+        error: "Offline patient registration is available after admin approval.",
+      };
+    }
+
     // 3. Get form data (supports both old + new modal fields)
     const firstName = ((formData.get("firstName") as string) || "").trim();
     const lastName = ((formData.get("lastName") as string) || "").trim();

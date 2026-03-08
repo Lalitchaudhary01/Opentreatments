@@ -27,6 +27,13 @@ export async function updateOfflinePatient(
       return { success: false, error: "Doctor profile not found" };
     }
 
+    if (doctor.status !== "APPROVED") {
+      return {
+        success: false,
+        error: "Offline patient updates are available after admin approval.",
+      };
+    }
+
     // Check if patient exists and belongs to this doctor
     const patient = await prisma.offlineConsultation.findFirst({
       where: { 

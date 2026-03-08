@@ -188,7 +188,6 @@ export default async function DoctorPatientsPage({
     select: { id: true, status: true },
   });
   if (!doctor) redirect("/doctor/profile/submit");
-  if (doctor.status !== "APPROVED") redirect("/doctor/approvals");
 
   const resolvedSearchParams = (await Promise.resolve(searchParams)) ?? {};
   const rawFilter = (resolvedSearchParams.filter || "all").toLowerCase();

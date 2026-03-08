@@ -13,7 +13,6 @@ export default async function DoctorEntryPage() {
   });
 
   if (!doctor) redirect("/doctor/profile/submit");
-  if (doctor.status !== "APPROVED") redirect("/doctor/approvals");
 
   redirect("/doctor/overview");
 }

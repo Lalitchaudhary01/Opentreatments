@@ -22,10 +22,6 @@ export async function updateDoctorProfile(
     throw new Error("Profile not found.");
   }
 
-  if (doctor.status !== "APPROVED") {
-    throw new Error("Only APPROVED doctors can edit their profile.");
-  }
-
   const updated = await prisma.independentDoctor.update({
     where: { userId: session.user.id },
     data: {

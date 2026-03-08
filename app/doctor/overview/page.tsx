@@ -15,7 +15,6 @@ export default async function DoctorDashboard() {
   });
 
   if (!doctor) redirect("/doctor/profile/submit");
-  if (doctor.status !== "APPROVED") redirect("/doctor/approvals");
 
   return <DoctorOverviewPage/>;
 }

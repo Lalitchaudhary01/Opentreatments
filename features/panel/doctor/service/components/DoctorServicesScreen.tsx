@@ -66,7 +66,11 @@ export default function DoctorServicesScreen({
         setOpenModal(false);
         setEditing(null);
       } catch (error) {
-        alert(error instanceof Error ? error.message : "Failed to save service");
+        const message =
+          error instanceof Error && !error.message.includes("Invalid `")
+            ? error.message
+            : "Failed to save service. Please try again.";
+        alert(message);
       }
     });
   };
