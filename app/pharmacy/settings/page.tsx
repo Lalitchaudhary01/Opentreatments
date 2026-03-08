@@ -1,10 +1,5 @@
-import { PharmacyRoutePlaceholder } from "@/features/panel/pharmacy/components";
+import { PharmacySettingsScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacySettingsPage() {
-  return (
-    <PharmacyRoutePlaceholder
-      title="Settings"
-      description="Store and panel preference settings will be handled from this page."
-    />
-  );
+  return <PharmacySettingsScreen />;
 }

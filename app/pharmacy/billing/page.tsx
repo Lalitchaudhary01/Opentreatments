@@ -1,10 +1,5 @@
-import { PharmacyRoutePlaceholder } from "@/features/panel/pharmacy/components";
+import { PharmacyBillingScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacyBillingPage() {
-  return (
-    <PharmacyRoutePlaceholder
-      title="Billing / POS"
-      description="Point of sale, billing and payment settlement screens will be rendered here."
-    />
-  );
+  return <PharmacyBillingScreen />;
 }

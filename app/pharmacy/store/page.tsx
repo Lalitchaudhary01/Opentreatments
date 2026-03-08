@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { PharmacyStoreProfileScreen } from "@/features/panel/pharmacy";
 
-export default function PharmacyStorePage() {
-  redirect("/pharmacy/profile/view");
+export default async function PharmacyStorePage() {
+  return <PharmacyStoreProfileScreen />;
 }
