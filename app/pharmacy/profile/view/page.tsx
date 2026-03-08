@@ -1,50 +1,41 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+
 import { getPharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/getPharmacyProfile";
-import { updatePharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/updatePharmacyProfile";
-import { PharmacyProfileForm } from "@/features/panel/pharmacy/pharmacy-profile/components/PharmacyProfileForm";
+import { PharmacyProfileView } from "@/features/panel/pharmacy/pharmacy-profile/components/PharmacyProfileView";
 
+type PharmacyProfile = NonNullable<Awaited<ReturnType<typeof getPharmacyProfile>>>;
 
-export default function EditPharmacyProfilePage() {
-  const [profile, setProfile] = useState<any>(null);
-  const router = useRouter();
+export default function PharmacyProfileViewPage() {
+  const [profile, setProfile] = useState<PharmacyProfile | null>(null);
 
   useEffect(() => {
     async function fetchProfile() {
       const res = await getPharmacyProfile();
       setProfile(res);
     }
+
     fetchProfile();
   }, []);
 
-  async function handleSubmit(values: any) {
-    try {
-      await updatePharmacyProfile(values);
-      toast.success("Profile updated successfully!");
-      router.push("/pharmacy/profile/view");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update profile");
-    }
-  }
-
-  if (!profile) return <p className="text-center py-6">Loading profile...</p>;
-
-  if (profile.status !== "APPROVED") {
-    return (
-      <p className="text-center py-6 text-red-600">
-        Profile cannot be edited until approved by admin.
-      </p>
-    );
-  }
+  if (!profile) return <p className="p-6 text-[#CBD5E1]">Loading profile...</p>;
 
   return (
-    <PharmacyProfileForm
-      defaultValues={profile}
-      onSubmit={handleSubmit}
-      isEdit
-    />
+    <div className="space-y-4 p-6 md:p-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-white">Store Profile</h1>
+        {profile.status === "APPROVED" ? (
+          <Link
+            href="/pharmacy/profile/edit"
+            className="rounded-lg border border-white/[0.12] px-4 py-2 text-sm font-medium text-[#CBD5E1] transition hover:bg-white/[0.06]"
+          >
+            Edit Profile
+          </Link>
+        ) : null}
+      </div>
+      <PharmacyProfileView profile={profile} />
+    </div>
   );
 }

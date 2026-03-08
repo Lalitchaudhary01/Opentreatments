@@ -10,12 +10,12 @@ export default function AddMedicinePage() {
 
   async function handleSubmit(values: any) {
     await addMedicine(values);
-    router.push("/pharmacy-medicines");
+    router.push("/pharmacy/medicines");
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Add Medicine</h1>
+    <div className="p-6 md:p-8">
+      <h1 className="mb-6 text-2xl font-bold text-white">Add Medicine</h1>
       <PharmacyMedicineForm onSubmit={handleSubmit} />
     </div>
   );

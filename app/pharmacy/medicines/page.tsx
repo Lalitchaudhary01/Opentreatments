@@ -5,8 +5,8 @@ export default async function MedicinesPage() {
   const medicines = await getMedicines();
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">My Medicines</h1>
+    <div className="p-6 md:p-8">
+      <h1 className="mb-6 text-2xl font-bold text-white">Medicine Catalog</h1>
       <PharmacyMedicineList medicines={medicines} />
     </div>
   );

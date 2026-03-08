@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { addStockEntry } from "../actions/addStockEntry";
 
 type Props = {
@@ -45,55 +44,53 @@ export default function PharmacyInventoryForm({ medicineId }: Props) {
   }
 
   return (
-    <Card className="max-w-xl">
-      <CardHeader>
-        <CardTitle>Add Stock Entry</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="grid gap-4">
+    <form onSubmit={handleSubmit} className="grid max-w-xl gap-4">
           {/* Batch Number */}
           <div>
-            <Label htmlFor="batchNumber">Batch Number</Label>
-            <Input id="batchNumber" name="batchNumber" required />
+            <Label htmlFor="batchNumber" className="text-[#94A3B8]">Batch Number</Label>
+            <Input id="batchNumber" name="batchNumber" required className="border-white/[0.1] bg-[#0B1120] text-white" />
           </div>
 
           {/* Quantity */}
           <div>
-            <Label htmlFor="quantity">Quantity</Label>
+            <Label htmlFor="quantity" className="text-[#94A3B8]">Quantity</Label>
             <Input
               id="quantity"
               type="number"
               name="quantity"
               min={1}
               required
+              className="border-white/[0.1] bg-[#0B1120] text-white"
             />
           </div>
 
           {/* Expiry Date */}
           <div>
-            <Label htmlFor="expiryDate">Expiry Date</Label>
-            <Input id="expiryDate" type="date" name="expiryDate" required />
+            <Label htmlFor="expiryDate" className="text-[#94A3B8]">Expiry Date</Label>
+            <Input id="expiryDate" type="date" name="expiryDate" required className="border-white/[0.1] bg-[#0B1120] text-white" />
           </div>
 
           {/* Purchase Price */}
           <div>
-            <Label htmlFor="purchasePrice">Purchase Price (₹)</Label>
+            <Label htmlFor="purchasePrice" className="text-[#94A3B8]">Purchase Price (₹)</Label>
             <Input
               id="purchasePrice"
               type="number"
               step="0.01"
               name="purchasePrice"
+              className="border-white/[0.1] bg-[#0B1120] text-white"
             />
           </div>
 
           {/* Selling Price */}
           <div>
-            <Label htmlFor="sellingPrice">Selling Price (₹)</Label>
+            <Label htmlFor="sellingPrice" className="text-[#94A3B8]">Selling Price (₹)</Label>
             <Input
               id="sellingPrice"
               type="number"
               step="0.01"
               name="sellingPrice"
+              className="border-white/[0.1] bg-[#0B1120] text-white"
             />
           </div>
 
@@ -101,7 +98,5 @@ export default function PharmacyInventoryForm({ medicineId }: Props) {
             {loading ? "Saving..." : "Add Stock"}
           </Button>
         </form>
-      </CardContent>
-    </Card>
   );
 }

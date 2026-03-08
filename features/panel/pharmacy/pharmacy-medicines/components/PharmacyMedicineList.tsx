@@ -9,7 +9,7 @@ type Props = {
 
 export default function PharmacyMedicineList({ medicines }: Props) {
   if (!medicines.length) {
-    return <p className="text-gray-500">No medicines available.</p>;
+    return <p className="text-[#94A3B8]">No medicines available.</p>;
   }
 
   return (

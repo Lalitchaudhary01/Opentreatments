@@ -10,11 +10,11 @@ export default async function MedicineDetailsPage({ params }: Props) {
   const medicine = await getMedicineById(id);
 
   if (!medicine) {
-    return <p className="p-6 text-red-500">Medicine not found</p>;
+    return <p className="p-6 text-red-400">Medicine not found</p>;
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 md:p-8">
       <PharmacyMedicineCard medicine={medicine} />
     </div>
   );

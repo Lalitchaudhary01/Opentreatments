@@ -23,36 +23,36 @@ export default function PharmacyMedicineCard({ medicine }: Props) {
   );
 
   return (
-    <div className="rounded-xl border p-4 shadow-sm hover:shadow-md transition space-y-2">
-      <h3 className="text-xl font-semibold">{medicine.name}</h3>
+    <div className="space-y-2 rounded-xl border border-white/[0.08] bg-[#111827] p-4 text-[#E2E8F0] shadow-sm transition hover:shadow-md">
+      <h3 className="text-xl font-semibold text-white">{medicine.name}</h3>
 
       {medicine.genericName && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#94A3B8]">
           <strong>Generic Name:</strong> {medicine.genericName}
         </p>
       )}
       {medicine.brand && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#94A3B8]">
           <strong>Brand:</strong> {medicine.brand}
         </p>
       )}
       {medicine.category && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#94A3B8]">
           <strong>Category:</strong> {medicine.category}
         </p>
       )}
       {medicine.dosageForm && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#94A3B8]">
           <strong>Dosage Form:</strong> {medicine.dosageForm}
         </p>
       )}
       {medicine.strength && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#94A3B8]">
           <strong>Strength:</strong> {medicine.strength}
         </p>
       )}
       {medicine.manufacturer && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#94A3B8]">
           <strong>Manufacturer:</strong> {medicine.manufacturer}
         </p>
       )}
@@ -102,12 +102,12 @@ export default function PharmacyMedicineCard({ medicine }: Props) {
       </p>
 
       <div className="flex gap-2 mt-3">
-        <Link href={`/pharmacy-medicines/${medicine.id}`}>
-          <Button size="sm" variant="outline">
-            View
-          </Button>
-        </Link>
-        <Link href={`/pharmacy-medicines/${medicine.id}/edit`}>
+        <Link href={`/pharmacy/medicines/${medicine.id}`}>
+              <Button size="sm" variant="outline">
+                View
+              </Button>
+            </Link>
+        <Link href={`/pharmacy/medicines/${medicine.id}/edit`}>
           <Button size="sm" variant="secondary">
             Edit
           </Button>

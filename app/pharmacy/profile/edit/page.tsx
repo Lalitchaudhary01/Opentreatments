@@ -1,44 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default function EditPharmacyProfile() {
-  const [loading, setLoading] = useState(false);
+import { getPharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/getPharmacyProfile";
+import { updatePharmacyProfile } from "@/features/panel/pharmacy/pharmacy-profile/actions/updatePharmacyProfile";
+import { PharmacyProfileForm } from "@/features/panel/pharmacy/pharmacy-profile/components/PharmacyProfileForm";
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+export default function EditPharmacyProfilePage() {
+  const [profile, setProfile] = useState<any>(null);
+  const router = useRouter();
 
-    // TODO: call updatePharmacyProfile action
-    setTimeout(() => setLoading(false), 1000);
-  };
+  useEffect(() => {
+    async function fetchProfile() {
+      const res = await getPharmacyProfile();
+      setProfile(res);
+    }
+
+    fetchProfile();
+  }, []);
+
+  async function handleSubmit(values: any) {
+    try {
+      await updatePharmacyProfile(values);
+      toast.success("Profile updated successfully");
+      router.push("/pharmacy/profile/view");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update profile");
+    }
+  }
+
+  if (!profile) return <p className="p-6 text-[#CBD5E1]">Loading profile...</p>;
+
+  if (profile.status !== "APPROVED") {
+    return (
+      <p className="p-6 text-red-400">
+        Profile cannot be edited until approved by admin.
+      </p>
+    );
+  }
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Pharmacy Profile</h1>
-      <form onSubmit={handleSave} className="space-y-4">
-        <div>
-          <Label htmlFor="name">Pharmacy Name</Label>
-          <Input id="name" defaultValue="City Medico" required />
-        </div>
-
-        <div>
-          <Label htmlFor="owner">Owner Name</Label>
-          <Input id="owner" defaultValue="John Doe" required />
-        </div>
-
-        <div>
-          <Label htmlFor="license">License Number</Label>
-          <Input id="license" defaultValue="LIC12345" required />
-        </div>
-
-        <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Save Changes"}
-        </Button>
-      </form>
+    <div className="p-6 md:p-8">
+      <PharmacyProfileForm defaultValues={profile} onSubmit={handleSubmit} isEdit />
     </div>
   );
 }

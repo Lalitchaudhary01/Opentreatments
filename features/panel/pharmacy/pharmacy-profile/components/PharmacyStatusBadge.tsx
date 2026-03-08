@@ -1,14 +1,15 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { PharmacyStatus } from "../types/pharmacyProfile";
 
-export function PharmacyStatusBadge({ status }: { status: PharmacyStatus }) {
+type PharmacyStatusValue = "PENDING" | "APPROVED" | "REJECTED";
+
+export function PharmacyStatusBadge({ status }: { status: PharmacyStatusValue }) {
   let color: "default" | "secondary" | "destructive" = "default";
 
-  if (status === PharmacyStatus.APPROVED) color = "default";
-  if (status === PharmacyStatus.PENDING) color = "secondary";
-  if (status === PharmacyStatus.REJECTED) color = "destructive";
+  if (status === "APPROVED") color = "default";
+  if (status === "PENDING") color = "secondary";
+  if (status === "REJECTED") color = "destructive";
 
   return <Badge variant={color}>{status}</Badge>;
 }

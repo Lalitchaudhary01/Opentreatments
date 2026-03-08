@@ -9,10 +9,16 @@ import type {
   DoctorOnboardingFormState,
 } from "../doctor/DoctorOnboardingSteps";
 import { completeDoctorOnboarding } from "../doctor/actions/doctorOnboardingActions";
+import type { PharmacyOnboardingFormState } from "../pharmacy/PharmacyOnboardingSteps";
+import { completePharmacyOnboarding } from "../pharmacy/actions/pharmacyOnboardingActions";
 import Image from "next/image";
 
 const DoctorOnboardingSteps = dynamic(
   () => import("../doctor/DoctorOnboardingSteps").then((mod) => mod.DoctorOnboardingSteps),
+  { ssr: false, loading: () => null }
+);
+const PharmacyOnboardingSteps = dynamic(
+  () => import("../pharmacy/PharmacyOnboardingSteps").then((mod) => mod.PharmacyOnboardingSteps),
   { ssr: false, loading: () => null }
 );
 
@@ -37,6 +43,10 @@ const VERIFY_REDIRECT_BY_ROLE: Record<Role, string> = {
 
 function isRole(value: string | null): value is Role {
   return !!value && LOGIN_ROLES.includes(value as Role);
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default function AuthForm() {
@@ -72,6 +82,18 @@ export default function AuthForm() {
     address: "",
     specialization: "General Physician",
   });
+  const [pharmacyForm, setPharmacyForm] = useState<PharmacyOnboardingFormState>({
+    name: "",
+    ownerName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "India",
+    licenseNumber: "",
+    gstNumber: "",
+  });
 
   useEffect(() => {
     const m = searchParams.get("mode");
@@ -80,6 +102,9 @@ export default function AuthForm() {
     else if (m === "doctor-details") setMode("doctor-details");
     else if (m === "doctor-clinic") setMode("doctor-clinic");
     else if (m === "doctor-success") setMode("doctor-success");
+    else if (m === "pharmacy-details") setMode("pharmacy-details");
+    else if (m === "pharmacy-location") setMode("pharmacy-location");
+    else if (m === "pharmacy-success") setMode("pharmacy-success");
     else setMode("login");
 
     const roleParam = searchParams.get("role");
@@ -90,6 +115,7 @@ export default function AuthForm() {
     const emailParam = searchParams.get("email");
     if (emailParam) {
       setForm((prev) => ({ ...prev, email: emailParam }));
+      setPharmacyForm((prev) => ({ ...prev, email: prev.email || emailParam }));
     }
   }, [searchParams]);
 
@@ -108,6 +134,9 @@ export default function AuthForm() {
     if (mode === "doctor-details") return 70;
     if (mode === "doctor-clinic") return 90;
     if (mode === "doctor-success") return 100;
+    if (mode === "pharmacy-details") return 85;
+    if (mode === "pharmacy-location") return 95;
+    if (mode === "pharmacy-success") return 100;
     return 75;
   }, [mode]);
 
@@ -124,6 +153,8 @@ export default function AuthForm() {
     if (mode === "doctor-details") return "Build your profile,<br/><em>earn patient trust.</em>";
     if (mode === "doctor-clinic") return "Clinic details,<br/><em>almost done.</em>";
     if (mode === "doctor-success") return "You're all set,<br/><em>Doctor.</em>";
+    if (mode === "pharmacy-details" || mode === "pharmacy-location") return "Set up your pharmacy,<br/><em>start serving patients.</em>";
+    if (mode === "pharmacy-success") return "You're all set,<br/><em>Pharmacy.</em>";
     return "Welcome back,<br/><em>Doctor.</em>";
   }, [mode]);
 
@@ -133,6 +164,9 @@ export default function AuthForm() {
     if (mode === "doctor-details") return "Tell us about your professional details so your profile is verification-ready.";
     if (mode === "doctor-clinic") return "Add clinic and specialisation details to complete your doctor onboarding.";
     if (mode === "doctor-success") return "Your profile is submitted and will be reviewed by admin shortly.";
+    if (mode === "pharmacy-details") return "Add owner/license details so your pharmacy verification can begin.";
+    if (mode === "pharmacy-location") return "Add address and business details to complete your pharmacy onboarding.";
+    if (mode === "pharmacy-success") return "Your pharmacy profile is submitted and under admin review.";
     return "Sign in to manage your appointments, patients and revenue.";
   }, [mode]);
 
@@ -236,11 +270,17 @@ export default function AuthForm() {
         return goMode("login");
       }
 
-      const signInRes = await signIn("credentials", {
-        redirect: false,
-        email: form.email,
-        password: form.password,
-      });
+      let signInRes: Awaited<ReturnType<typeof signIn>> | undefined;
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        signInRes = await signIn("credentials", {
+          redirect: false,
+          email: form.email,
+          password: form.password,
+        });
+        if (!signInRes?.error) break;
+        await wait(350);
+      }
 
       if (signInRes?.error) {
         alert("Email verified. Please login to continue.");
@@ -250,6 +290,11 @@ export default function AuthForm() {
       if (verifiedRole === "DOCTOR") {
         return router.push(
           `/auth?mode=doctor-details&role=DOCTOR&email=${encodeURIComponent(form.email)}`
+        );
+      }
+      if (verifiedRole === "PHARMACY") {
+        return router.push(
+          `/auth?mode=pharmacy-details&role=PHARMACY&email=${encodeURIComponent(form.email)}`
         );
       }
 
@@ -338,6 +383,65 @@ export default function AuthForm() {
     }
   }
 
+  async function submitPharmacyOnboarding() {
+    const email = pharmacyForm.email.trim() || form.email.trim();
+
+    if (!pharmacyForm.name.trim() || !pharmacyForm.ownerName.trim()) {
+      alert("Pharmacy name and owner name are required");
+      return;
+    }
+    if (!email || !pharmacyForm.phone.trim()) {
+      alert("Pharmacy email and phone are required");
+      return;
+    }
+    if (!pharmacyForm.licenseNumber.trim()) {
+      alert("License number is required");
+      return;
+    }
+    if (
+      !pharmacyForm.address.trim() ||
+      !pharmacyForm.city.trim() ||
+      !pharmacyForm.state.trim() ||
+      !pharmacyForm.country.trim()
+    ) {
+      alert("Address, city, state and country are required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await completePharmacyOnboarding({
+        ...pharmacyForm,
+        email,
+      });
+      if (!result.ok) return alert(result.error || "Unable to submit pharmacy profile");
+      router.push("/auth?mode=pharmacy-success");
+    } catch {
+      alert("Unable to submit pharmacy profile");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function continuePharmacyDetails() {
+    if (!pharmacyForm.name.trim() || !pharmacyForm.ownerName.trim()) {
+      alert("Pharmacy name and owner name are required");
+      return;
+    }
+    const email = pharmacyForm.email.trim() || form.email.trim();
+    if (!email || !pharmacyForm.phone.trim()) {
+      alert("Pharmacy email and phone are required");
+      return;
+    }
+    if (!pharmacyForm.licenseNumber.trim()) {
+      alert("License number is required");
+      return;
+    }
+    router.push(
+      `/auth?mode=pharmacy-location&role=PHARMACY&email=${encodeURIComponent(form.email)}`
+    );
+  }
+
   function handleFooterContinue() {
     if (mode === "register") {
       void registerSubmit({ preventDefault() {} } as React.FormEvent);
@@ -353,6 +457,14 @@ export default function AuthForm() {
     }
     if (mode === "doctor-clinic") {
       void submitDoctorOnboarding();
+      return;
+    }
+    if (mode === "pharmacy-details") {
+      continuePharmacyDetails();
+      return;
+    }
+    if (mode === "pharmacy-location") {
+      void submitPharmacyOnboarding();
     }
   }
 
@@ -391,9 +503,9 @@ export default function AuthForm() {
           <div className="ob-left-content">
             <div className="ob-steps-side" id="ob-steps-side">
               <div className={`ob-sp ${mode === "register" ? "active" : "done"}`}><div className="ob-sp-num">{mode === "register" ? "1" : "✓"}</div><div className="ob-sp-label">Create account</div></div>
-              <div className={`ob-sp ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "doctor-success", "login"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "verify" ? "2" : "✓"}</div><div className="ob-sp-label">Verify email</div></div>
-              <div className={`ob-sp ${mode === "doctor-details" ? "active" : ["doctor-clinic", "doctor-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-details" ? "3" : ["doctor-clinic", "doctor-success"].includes(mode) ? "✓" : "3"}</div><div className="ob-sp-label">Personal &amp; credentials</div></div>
-              <div className={`ob-sp ${mode === "doctor-clinic" ? "active" : mode === "doctor-success" ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-success" ? "✓" : "4"}</div><div className="ob-sp-label">Clinic &amp; specialisation</div></div>
+              <div className={`ob-sp ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "doctor-success", "pharmacy-details", "pharmacy-location", "pharmacy-success", "login"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "verify" ? "2" : "✓"}</div><div className="ob-sp-label">Verify email</div></div>
+              <div className={`ob-sp ${mode === "doctor-details" || mode === "pharmacy-details" ? "active" : ["doctor-clinic", "doctor-success", "pharmacy-location", "pharmacy-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-details" || mode === "pharmacy-details" ? "3" : ["doctor-clinic", "doctor-success", "pharmacy-location", "pharmacy-success"].includes(mode) ? "✓" : "3"}</div><div className="ob-sp-label">{mode.startsWith("pharmacy") ? "Pharmacy details" : "Personal &amp; credentials"}</div></div>
+              <div className={`ob-sp ${mode === "doctor-clinic" || mode === "pharmacy-location" ? "active" : ["doctor-success", "pharmacy-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{["doctor-success", "pharmacy-success"].includes(mode) ? "✓" : "4"}</div><div className="ob-sp-label">{mode.startsWith("pharmacy") ? "Address &amp; business" : "Clinic &amp; specialisation"}</div></div>
             </div>
             <div className="ob-tagline" dangerouslySetInnerHTML={{ __html: leftTagline }} />
             <div className="ob-tagsub">{leftSub}</div>
@@ -491,6 +603,12 @@ export default function AuthForm() {
               setDoctorForm={setDoctorForm}
               onSetupDashboard={() => router.push("/doctor/overview")}
             />
+            <PharmacyOnboardingSteps
+              mode={mode}
+              pharmacyForm={pharmacyForm}
+              setPharmacyForm={setPharmacyForm}
+              onSetupDashboard={() => router.push("/pharmacy/dashboard")}
+            />
 
             {mode === "login" && (
               <div id="ob-signin-panel" className="show">
@@ -553,13 +671,13 @@ export default function AuthForm() {
             )}
           </div>
 
-          {mode !== "login" && mode !== "doctor-success" ? (
+          {mode !== "login" && mode !== "doctor-success" && mode !== "pharmacy-success" ? (
             <div className="ob-footer">
               <div className="ob-dots">
                 <div className={`ob-dot ${mode === "register" ? "active" : "done"}`} />
-                <div className={`ob-dot ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic"].includes(mode) ? "done" : ""}`} />
-                <div className={`ob-dot ${mode === "doctor-details" ? "active" : mode === "doctor-clinic" ? "done" : ""}`} />
-                <div className={`ob-dot ${mode === "doctor-clinic" ? "active" : ""}`} />
+                <div className={`ob-dot ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "pharmacy-details", "pharmacy-location"].includes(mode) ? "done" : ""}`} />
+                <div className={`ob-dot ${mode === "doctor-details" || mode === "pharmacy-details" ? "active" : mode === "doctor-clinic" || mode === "pharmacy-location" ? "done" : ""}`} />
+                <div className={`ob-dot ${mode === "doctor-clinic" || mode === "pharmacy-location" ? "active" : ""}`} />
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
@@ -567,6 +685,8 @@ export default function AuthForm() {
                   onClick={() => {
                     if (mode === "verify") return goMode("register");
                     if (mode === "doctor-details") return goMode("verify");
+                    if (mode === "pharmacy-details") return goMode("verify");
+                    if (mode === "pharmacy-location") return goMode("pharmacy-details");
                     if (mode === "doctor-clinic") return goMode("doctor-details");
                     goMode("register");
                   }}
@@ -574,7 +694,7 @@ export default function AuthForm() {
                   Back
                 </button>
                 <button className="ob-btn ob-btn-primary" disabled={loading} onClick={handleFooterContinue}>
-                  {mode === "doctor-clinic" ? "Setup Dashboard" : "Continue"}
+                  {mode === "doctor-clinic" || mode === "pharmacy-location" ? "Setup Dashboard" : "Continue"}
                 </button>
               </div>
             </div>
