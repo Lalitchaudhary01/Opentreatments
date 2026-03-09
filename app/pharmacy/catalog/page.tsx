@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { PharmacyCatalogScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacyCatalogPage() {
-  redirect("/pharmacy/medicines");
+  return <PharmacyCatalogScreen />;
 }

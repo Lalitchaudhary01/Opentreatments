@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Bell, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
+import { pharmacyRoutes } from "@/features/panel/pharmacy/constants";
 
 type HeaderPageKey =
   | "dashboard"
@@ -71,16 +72,16 @@ export default function PharmacyHeader() {
 
   const handlePrimaryAction = () => {
     if (pageKey === "catalog") {
-      router.push("/pharmacy/medicines/add");
+      router.push(pharmacyRoutes.addMedicine);
       return;
     }
 
     if (pageKey === "inventory") {
-      router.push("/pharmacy/inventory");
+      router.push(pharmacyRoutes.inventory);
       return;
     }
 
-    router.push("/pharmacy/orders");
+    router.push(pharmacyRoutes.orders);
   };
 
   return (

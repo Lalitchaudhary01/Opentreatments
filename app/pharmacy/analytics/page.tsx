@@ -1,10 +1,5 @@
-import { PharmacyRoutePlaceholder } from "@/features/panel/pharmacy/components";
+import { PharmacyAnalyticsScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacyAnalyticsPage() {
-  return (
-    <PharmacyRoutePlaceholder
-      title="Analytics"
-      description="Sales and operational analytics dashboards are reserved for this section."
-    />
-  );
+  return <PharmacyAnalyticsScreen />;
 }

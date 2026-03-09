@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Store } from "lucide-react";
+import { pharmacyRoutes } from "@/features/panel/pharmacy/constants";
 
 function ChecklistRow({
   href,
@@ -101,11 +102,11 @@ export default function PharmacyOverviewEmptyState({
               <span className="text-[11px] text-[#64748B]">1 of 5 complete</span>
             </div>
             <div className="divide-y divide-white/[0.07]">
-              <ChecklistRow href="/pharmacy/profile/view" done label="Complete store profile" sub="Business and compliance details" cta="Done" />
-              <ChecklistRow href="/pharmacy/medicines/add" label="Add medicine catalog" sub="List medicines and pricing" cta="Add Medicine" />
-              <ChecklistRow href="/pharmacy/inventory" label="Set opening inventory" sub="Add stock batches and expiry dates" cta="Add Stock" />
-              <ChecklistRow href="/pharmacy/orders" label="Receive first order" sub="Manage and fulfil incoming orders" cta="View Orders" />
-              <ChecklistRow href="/pharmacy/settings" label="Configure payout settings" sub="Settlement and payment preferences" cta="Configure" />
+              <ChecklistRow href={pharmacyRoutes.store} done label="Complete store profile" sub="Business and compliance details" cta="Done" />
+              <ChecklistRow href={pharmacyRoutes.addMedicine} label="Add medicine catalog" sub="List medicines and pricing" cta="Add Medicine" />
+              <ChecklistRow href={pharmacyRoutes.inventory} label="Set opening inventory" sub="Add stock batches and expiry dates" cta="Add Stock" />
+              <ChecklistRow href={pharmacyRoutes.orders} label="Receive first order" sub="Manage and fulfil incoming orders" cta="View Orders" />
+              <ChecklistRow href={pharmacyRoutes.settings} label="Configure payout settings" sub="Settlement and payment preferences" cta="Configure" />
             </div>
           </div>
 

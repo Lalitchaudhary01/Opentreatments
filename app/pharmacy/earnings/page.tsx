@@ -1,10 +1,5 @@
-import { PharmacyRoutePlaceholder } from "@/features/panel/pharmacy/components";
+import { PharmacyEarningsScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacyEarningsPage() {
-  return (
-    <PharmacyRoutePlaceholder
-      title="Earnings"
-      description="Payouts, settlement summaries and income reports will be shown here."
-    />
-  );
+  return <PharmacyEarningsScreen />;
 }

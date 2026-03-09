@@ -1,10 +1,5 @@
-import { PharmacyRoutePlaceholder } from "@/features/panel/pharmacy/components";
+import { PharmacyMultistoreScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacyMultistorePage() {
-  return (
-    <PharmacyRoutePlaceholder
-      title="Multi-store"
-      description="Branch switching, rollups and central controls are planned for this route."
-    />
-  );
+  return <PharmacyMultistoreScreen />;
 }

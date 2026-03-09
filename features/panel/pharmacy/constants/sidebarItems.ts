@@ -16,6 +16,7 @@ import {
   Settings,
 } from "lucide-react";
 import type { ComponentType } from "react";
+import { pharmacyRoutes } from "./routes";
 
 export type PharmacySidebarGroup = {
   section: string;
@@ -32,10 +33,10 @@ export const pharmacySidebarItems: PharmacySidebarGroup[] = [
   {
     section: "Clinical",
     items: [
-      { label: "Overview", href: "/pharmacy/overview", icon: LayoutDashboard },
+      { label: "Overview", href: pharmacyRoutes.overview, icon: LayoutDashboard },
       {
         label: "Prescriptions",
-        href: "/pharmacy/prescriptions",
+        href: pharmacyRoutes.prescriptions,
         icon: FileCheck2,
         badge: "12",
         badgeTone: "amber",
@@ -44,52 +45,52 @@ export const pharmacySidebarItems: PharmacySidebarGroup[] = [
   },
   {
     section: "Dispensing",
-    items: [{ label: "Billing / POS", href: "/pharmacy/billing", icon: ShoppingCart }],
+    items: [{ label: "Billing / POS", href: pharmacyRoutes.billing, icon: ShoppingCart }],
   },
   {
     section: "Inventory",
     items: [
       {
         label: "Stock & Inventory",
-        href: "/pharmacy/inventory",
+        href: pharmacyRoutes.inventory,
         icon: Boxes,
         badge: "2",
         badgeTone: "amber",
       },
-      { label: "Catalog", href: "/pharmacy/catalog", icon: BookOpenText },
+      { label: "Catalog", href: pharmacyRoutes.catalog, icon: BookOpenText },
     ],
   },
   {
     section: "Orders",
-    items: [{ label: "Customer Orders", href: "/pharmacy/orders", icon: PackageCheck, badge: "7", badgeTone: "teal" }],
+    items: [{ label: "Customer Orders", href: pharmacyRoutes.orders, icon: PackageCheck, badge: "7", badgeTone: "teal" }],
   },
   {
     section: "Customers",
     items: [
-      { label: "Customers", href: "/pharmacy/customers", icon: Users },
-      { label: "Reviews", href: "/pharmacy/reviews", icon: Star, badge: "4", badgeTone: "amber" },
+      { label: "Customers", href: pharmacyRoutes.customers, icon: Users },
+      { label: "Reviews", href: pharmacyRoutes.reviews, icon: Star, badge: "4", badgeTone: "amber" },
     ],
   },
   {
     section: "Operations",
     items: [
-      { label: "Deliveries", href: "/pharmacy/deliveries", icon: Truck, badge: "8" },
-      { label: "Multi-store", href: "/pharmacy/multistore", icon: Store },
+      { label: "Deliveries", href: pharmacyRoutes.deliveries, icon: Truck, badge: "8" },
+      { label: "Multi-store", href: pharmacyRoutes.multistore, icon: Store },
     ],
   },
   {
     section: "Finance",
     items: [
-      { label: "Earnings", href: "/pharmacy/earnings", icon: Wallet },
-      { label: "Pricing & Offers", href: "/pharmacy/pricing", icon: Tag },
-      { label: "Analytics", href: "/pharmacy/analytics", icon: LineChart },
+      { label: "Earnings", href: pharmacyRoutes.earnings, icon: Wallet },
+      { label: "Pricing & Offers", href: pharmacyRoutes.pricing, icon: Tag },
+      { label: "Analytics", href: pharmacyRoutes.analytics, icon: LineChart },
     ],
   },
   {
     section: "Account",
     items: [
-      { label: "Store Profile", href: "/pharmacy/store", icon: Building2 },
-      { label: "Settings", href: "/pharmacy/settings", icon: Settings },
+      { label: "Store Profile", href: pharmacyRoutes.store, icon: Building2 },
+      { label: "Settings", href: pharmacyRoutes.settings, icon: Settings },
     ],
   },
 ];

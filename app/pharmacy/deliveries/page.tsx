@@ -1,10 +1,5 @@
-import { PharmacyRoutePlaceholder } from "@/features/panel/pharmacy/components";
+import { PharmacyDeliveriesScreen } from "@/features/panel/pharmacy";
 
 export default function PharmacyDeliveriesPage() {
-  return (
-    <PharmacyRoutePlaceholder
-      title="Deliveries"
-      description="Delivery dispatch board and rider tracking module will be available here."
-    />
-  );
+  return <PharmacyDeliveriesScreen />;
 }

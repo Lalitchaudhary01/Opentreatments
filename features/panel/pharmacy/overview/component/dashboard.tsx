@@ -14,6 +14,14 @@ function formatAmount(amount: number) {
   }).format(amount || 0);
 }
 
+function orderStatusTone(status: string) {
+  if (status === "DELIVERED") return "bg-[#22c55e]/15 text-[#22c55e]";
+  if (status === "CANCELLED") return "bg-[#ef4444]/15 text-[#ef4444]";
+  if (status === "PACKED") return "bg-[#14b8a6]/15 text-[#14b8a6]";
+  if (status === "CONFIRMED") return "bg-[#3b82f6]/15 text-[#3b82f6]";
+  return "bg-[#f59e0b]/15 text-[#f59e0b]";
+}
+
 export default async function PharmacyOverviewPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/auth");
@@ -80,33 +88,41 @@ export default async function PharmacyOverviewPage() {
     return sum + orderTotal;
   }, 0);
 
+  const deliveredToday = todayOrders.filter((order) => order.status === "DELIVERED").length;
+  const cancelledToday = todayOrders.filter((order) => order.status === "CANCELLED").length;
+
   const firstTime = catalogCount === 0 && todayOrders.length === 0 && recentOrders.length === 0;
   if (firstTime) {
     return <PharmacyOverviewEmptyState pharmacyFirstName={pharmacy.name.split(" ")[0] || "Pharmacy"} />;
   }
 
+  const weekRevenue = recentOrders.slice(0, 7).reduce((sum, order) => {
+    const total = order.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return sum + total;
+  }, 0);
+
   return (
-    <div className="min-h-full bg-[#0B1120] px-7 py-[22px]">
+    <div className="min-h-full bg-[#0B1120] p-6 md:p-8">
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[14px]">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
           {[
-            { label: "Prescriptions Queue", value: String(pendingOrders), tone: "text-[#f59e0b]" },
-            { label: "Low Stock Alerts", value: String(lowStockCount), tone: "text-[#ef4444]" },
-            { label: "Orders Today", value: String(todayOrders.length), tone: "text-[#14b8a6]" },
-            { label: "Daily Sales", value: formatAmount(todaySales), tone: "text-[#3b82f6]" },
-          ].map((card) => (
-            <div key={card.label} className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-[18px]">
-              <p className="text-[11px] text-[#94A3B8]">{card.label}</p>
-              <p className={`mt-[6px] text-[24px] font-bold leading-none tracking-[-0.03em] ${card.tone}`}>
-                {card.value}
-              </p>
+            ["Orders Today", String(todayOrders.length), "text-slate-100", "Live order volume"],
+            ["Pending Queue", String(pendingOrders), "text-[#f59e0b]", "Needs action"],
+            ["Delivered Today", String(deliveredToday), "text-[#22c55e]", "Successfully fulfilled"],
+            ["Daily Sales", formatAmount(todaySales), "text-[#3b82f6]", "Gross billed today"],
+            ["Low Stock", String(lowStockCount), "text-[#ef4444]", "Batches <= 20 units"],
+          ].map(([label, value, tone, sub]) => (
+            <div key={label} className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-4">
+              <div className="text-[11px] text-[#94A3B8]">{label}</div>
+              <div className={`mt-1 text-[22px] font-bold ${tone}`}>{value}</div>
+              <div className="text-[10px] text-[#64748B]">{sub}</div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
-          <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] overflow-hidden">
-            <div className="px-5 py-[15px] border-b border-white/[0.07] flex items-center justify-between">
+        <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
               <div>
                 <h2 className="text-[13px] font-semibold text-slate-100">Today&apos;s Orders</h2>
                 <p className="mt-0.5 text-[11px] text-[#94A3B8]">
@@ -114,7 +130,7 @@ export default async function PharmacyOverviewPage() {
                 </p>
               </div>
               <Link href="/pharmacy/orders" className="text-[12px] font-medium text-[#3B82F6] hover:text-blue-300">
-                Manage all →
+                Open board →
               </Link>
             </div>
 
@@ -140,21 +156,17 @@ export default async function PharmacyOverviewPage() {
                     todayOrders.map((order) => {
                       const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
                       const totalAmount = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-                      const statusTone =
-                        order.status === "DELIVERED"
-                          ? "bg-[#14b8a6]/15 text-[#14b8a6]"
-                          : order.status === "CANCELLED"
-                            ? "bg-[#ef4444]/15 text-[#ef4444]"
-                            : "bg-[#3b82f6]/15 text-[#3b82f6]";
 
                       return (
                         <tr key={order.id} className="border-b border-white/[0.07] last:border-b-0 hover:bg-white/[0.02]">
-                          <td className="px-[18px] py-[11px] align-middle text-[12px] text-slate-100">#{order.id.slice(-6).toUpperCase()}</td>
-                          <td className="px-[18px] py-[11px] align-middle text-[12px] text-slate-200">{order.user.name || "Customer"}</td>
-                          <td className="px-[18px] py-[11px] align-middle text-[12px] text-[#94A3B8]">{totalItems}</td>
-                          <td className="px-[18px] py-[11px] align-middle text-[12px] text-slate-100">{formatAmount(totalAmount)}</td>
-                          <td className="px-[18px] py-[11px] align-middle">
-                            <span className={`rounded-full px-2 py-1 text-[10px] font-medium ${statusTone}`}>{order.status}</span>
+                          <td className="px-[18px] py-[11px] text-[12px] text-slate-100">#{order.id.slice(-6).toUpperCase()}</td>
+                          <td className="px-[18px] py-[11px] text-[12px] text-slate-200">{order.user.name || "Customer"}</td>
+                          <td className="px-[18px] py-[11px] text-[12px] text-[#94A3B8]">{totalItems}</td>
+                          <td className="px-[18px] py-[11px] text-[12px] text-slate-100">{formatAmount(totalAmount)}</td>
+                          <td className="px-[18px] py-[11px]">
+                            <span className={`rounded-full px-2 py-1 text-[10px] font-medium ${orderStatusTone(order.status)}`}>
+                              {order.status}
+                            </span>
                           </td>
                         </tr>
                       );
@@ -166,37 +178,86 @@ export default async function PharmacyOverviewPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-5">
-              <div className="text-[13px] font-semibold text-slate-100">Inventory Alerts</div>
-              <div className="mt-3 space-y-2">
-                <div className="rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/10 px-3 py-2 text-[12px] text-[#fca5a5]">
-                  Low stock items: <strong>{lowStockCount}</strong>
-                </div>
-                <div className="rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-3 py-2 text-[12px] text-[#fcd34d]">
-                  Expiring batches (45 days): <strong>{expiringCount}</strong>
-                </div>
-                <div className="rounded-lg border border-[#3b82f6]/30 bg-[#3b82f6]/10 px-3 py-2 text-[12px] text-[#93c5fd]">
-                  Catalog medicines: <strong>{catalogCount}</strong>
-                </div>
+            <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+              <div className="border-b border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-100">Operations Snapshot</div>
+              <div className="space-y-3 p-4 text-xs">
+                {[
+                  ["Order fulfilment", todayOrders.length === 0 ? 0 : Math.round((deliveredToday / todayOrders.length) * 100), "#14b8a6"],
+                  ["Cancellation risk", todayOrders.length === 0 ? 0 : Math.round((cancelledToday / todayOrders.length) * 100), "#ef4444"],
+                  ["Inventory health", Math.max(0, 100 - lowStockCount * 7), "#3b82f6"],
+                ].map(([label, value, color]) => (
+                  <div key={label as string}>
+                    <div className="mb-1 flex items-center justify-between text-[#CBD5E1]">
+                      <span>{label as string}</span>
+                      <span>{value as number}%</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
+                      <div className="h-full rounded-full" style={{ width: `${value as number}%`, background: color as string }} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-5">
-              <div className="text-[13px] font-semibold text-slate-100">Quick Actions</div>
-              <div className="mt-3 grid gap-2">
-                <Link href="/pharmacy/medicines/add" className="rounded-lg border border-white/[0.1] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.05]">
-                  + Add Medicine
-                </Link>
-                <Link href="/pharmacy/inventory" className="rounded-lg border border-white/[0.1] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.05]">
-                  + Add Stock Entry
-                </Link>
-                <Link href="/pharmacy/orders" className="rounded-lg border border-white/[0.1] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.05]">
-                  Open Orders Board
-                </Link>
-                <Link href="/pharmacy/profile/view" className="rounded-lg border border-white/[0.1] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.05]">
-                  View Store Profile
-                </Link>
+            <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+              <div className="border-b border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-100">Inventory Alerts</div>
+              <div className="space-y-2 p-4 text-xs">
+                <div className="rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/10 px-3 py-2 text-[#fca5a5]">
+                  Low stock items: <strong>{lowStockCount}</strong>
+                </div>
+                <div className="rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-3 py-2 text-[#fcd34d]">
+                  Expiring in 45 days: <strong>{expiringCount}</strong>
+                </div>
+                <div className="rounded-lg border border-[#3b82f6]/30 bg-[#3b82f6]/10 px-3 py-2 text-[#93c5fd]">
+                  Active catalog: <strong>{catalogCount}</strong>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
+              <div>
+                <h2 className="text-[13px] font-semibold text-slate-100">Weekly Revenue Snapshot</h2>
+                <p className="mt-0.5 text-[11px] text-[#94A3B8]">Based on latest 7 orders</p>
+              </div>
+              <div className="text-[12px] font-semibold text-[#14b8a6]">{formatAmount(weekRevenue)}</div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-3">
+              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+                <div className="text-[10px] uppercase tracking-[0.07em] text-[#64748B]">Avg Order Value</div>
+                <div className="mt-1 text-lg font-semibold text-slate-100">
+                  {formatAmount(todayOrders.length ? Math.round(todaySales / todayOrders.length) : 0)}
+                </div>
+              </div>
+              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+                <div className="text-[10px] uppercase tracking-[0.07em] text-[#64748B]">Pending to Process</div>
+                <div className="mt-1 text-lg font-semibold text-[#f59e0b]">{pendingOrders}</div>
+              </div>
+              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+                <div className="text-[10px] uppercase tracking-[0.07em] text-[#64748B]">Store Status</div>
+                <div className="mt-1 text-lg font-semibold text-slate-100">{pharmacy.status}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
+            <div className="border-b border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-100">Quick Actions</div>
+            <div className="grid gap-2 p-4">
+              <Link href="/pharmacy/orders" className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.06]">
+                Open orders board
+              </Link>
+              <Link href="/pharmacy/inventory" className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.06]">
+                Add stock entry
+              </Link>
+              <Link href="/pharmacy/catalog" className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.06]">
+                Manage catalog
+              </Link>
+              <Link href="/pharmacy/settings" className="rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-[12px] text-[#CBD5E1] hover:bg-white/[0.06]">
+                Configure payouts
+              </Link>
             </div>
           </div>
         </div>
