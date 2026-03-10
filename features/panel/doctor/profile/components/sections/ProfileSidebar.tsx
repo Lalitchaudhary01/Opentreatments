@@ -1,5 +1,6 @@
 import { DoctorProfile } from "@/features/panel/doctor/types/doctor";
 import InfoRow from "../ui/InfoRow";
+import DoctorProfileLogoutButton from "../DoctorProfileLogoutButton";
 
 export default function ProfileSidebar({
   profile,
@@ -45,6 +46,7 @@ export default function ProfileSidebar({
         >
           Change Photo
         </button>
+        <DoctorProfileLogoutButton />
       </div>
 
       <div className="overflow-hidden rounded-[14px] border border-slate-200 bg-white dark:border-white/[0.07] dark:bg-[#161f30]">
