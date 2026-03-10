@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 import StoreProfileEmptyState from "./sections/StoreProfileEmptyState";
+import PharmacyLogoutButton from "./PharmacyLogoutButton";
 
 function initials(name?: string | null) {
   if (!name?.trim()) return "SP";
@@ -94,6 +95,9 @@ export default async function PharmacyStoreProfileScreen() {
             >
               Change Logo
             </button>
+            <div className="mt-2">
+              <PharmacyLogoutButton />
+            </div>
           </div>
 
           <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">

@@ -89,6 +89,7 @@ export default function PharmacyPrescriptionsScreen() {
   const [filter, setFilter] = useState<"all" | RxStatus>("all");
   const [selectedId, setSelectedId] = useState<string | null>(prescriptions[0]?.id ?? null);
   const [note, setNote] = useState("");
+  const [openDetailsId, setOpenDetailsId] = useState<string | null>(null);
 
   const rows = useMemo(
     () => (filter === "all" ? prescriptions : prescriptions.filter((rx) => rx.status === filter)),
@@ -97,6 +98,10 @@ export default function PharmacyPrescriptionsScreen() {
   const selected = useMemo(
     () => prescriptions.find((rx) => rx.id === selectedId) ?? rows[0] ?? null,
     [rows, selectedId]
+  );
+  const openDetails = useMemo(
+    () => prescriptions.find((rx) => rx.id === openDetailsId) ?? null,
+    [openDetailsId]
   );
 
   const stats = useMemo(
@@ -174,7 +179,14 @@ export default function PharmacyPrescriptionsScreen() {
                           <button type="button" className="rounded-md border border-[#14b8a6]/30 bg-[#14b8a6]/10 px-2 py-1 text-[10px] text-[#14b8a6]">
                             Verify
                           </button>
-                          <button type="button" className="rounded-md border border-white/[0.12] bg-white/[0.03] px-2 py-1 text-[10px] text-[#CBD5E1]">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenDetailsId(row.id);
+                            }}
+                            className="rounded-md border border-white/[0.12] bg-white/[0.03] px-2 py-1 text-[10px] text-[#CBD5E1]"
+                          >
                             View
                           </button>
                         </div>
@@ -244,6 +256,74 @@ export default function PharmacyPrescriptionsScreen() {
           </div>
         </div>
       </div>
+
+      {openDetails ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4">
+          <div className="w-full max-w-[760px] overflow-hidden rounded-2xl border border-white/[0.12] bg-[#111a2a]">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
+              <div>
+                <p className="text-xs text-[#94A3B8]">Prescription Details</p>
+                <h3 className="text-sm font-semibold text-slate-100">{openDetails.id}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpenDetailsId(null)}
+                className="rounded-md border border-white/[0.12] bg-white/[0.03] px-2 py-1 text-xs text-[#CBD5E1]"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid gap-4 p-5 md:grid-cols-[1fr_260px]">
+              <div className="rounded-xl border border-dashed border-[#3b82f6]/35 bg-[#3b82f6]/5 p-6 text-center">
+                <p className="text-sm font-medium text-slate-100">Prescription Preview</p>
+                <p className="mt-1 text-xs text-[#94A3B8]">Scanned copy area (as in HTML view panel)</p>
+                <div className="mt-4 rounded-lg border border-white/[0.08] bg-white/[0.02] p-6 text-xs text-[#64748B]">
+                  Preview placeholder
+                </div>
+              </div>
+
+              <div className="space-y-2 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#94A3B8]">Patient</span>
+                  <span className="text-slate-100">{openDetails.patient}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#94A3B8]">Doctor</span>
+                  <span className="text-slate-100">{openDetails.doctor}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#94A3B8]">Uploaded</span>
+                  <span className="text-slate-100">{openDetails.uploaded}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#94A3B8]">Order</span>
+                  <span className="text-slate-100">{openDetails.orderId}</span>
+                </div>
+                <div className="pt-1">
+                  <p className="mb-1 text-[#94A3B8]">Detected medicines</p>
+                  <div className="space-y-1">
+                    {openDetails.medicines.map((med) => (
+                      <div key={med} className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-[#CBD5E1]">
+                        {med}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  <button className="rounded-md border border-[#14b8a6]/30 bg-[#14b8a6]/10 px-2 py-1.5 text-[11px] text-[#14b8a6]">
+                    Verify Rx
+                  </button>
+                  <button className="rounded-md border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-2 py-1.5 text-[11px] text-[#f59e0b]">
+                    Ask Clarification
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
