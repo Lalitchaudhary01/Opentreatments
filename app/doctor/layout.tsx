@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";
 import { Sora } from "next/font/google";
+import PanelLoadingScreen from "@/components/layout/PanelLoadingScreen";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -24,8 +25,22 @@ export default function DoctorLayout({ children }: { children: ReactNode }) {
     }
   }, [session, status, router]);
 
+  if (status === "loading") {
+    return (
+      <PanelLoadingScreen
+        title="Loading Doctor Panel"
+        subtitle="Verifying your account and preparing your dashboard"
+      />
+    );
+  }
+
   if (!session) {
-    return <p>Redirecting...</p>; // optional loading
+    return (
+      <PanelLoadingScreen
+        title="Redirecting to Login"
+        subtitle="Please wait while we route you securely"
+      />
+    );
   }
 
   return <div className={sora.className}><DoctorShell>{children}</DoctorShell></div>;

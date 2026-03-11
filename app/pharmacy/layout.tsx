@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { Sora } from "next/font/google";
 
 import { PharmacyShell } from "@/features/panel/pharmacy";
+import PanelLoadingScreen from "@/components/layout/PanelLoadingScreen";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -24,8 +25,22 @@ export default function PharmacyLayout({ children }: { children: ReactNode }) {
     }
   }, [session, status, router]);
 
+  if (status === "loading") {
+    return (
+      <PanelLoadingScreen
+        title="Loading Pharmacy Panel"
+        subtitle="Syncing profile and preparing operations console"
+      />
+    );
+  }
+
   if (!session) {
-    return <p className="p-6 text-sm text-slate-500">Redirecting...</p>;
+    return (
+      <PanelLoadingScreen
+        title="Redirecting to Login"
+        subtitle="Please wait while we route you securely"
+      />
+    );
   }
 
   return (
