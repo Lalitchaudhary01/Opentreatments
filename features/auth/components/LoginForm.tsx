@@ -11,7 +11,11 @@ import type {
 import { completeDoctorOnboarding } from "../doctor/actions/doctorOnboardingActions";
 import type { PharmacyOnboardingFormState } from "../pharmacy/PharmacyOnboardingSteps";
 import { completePharmacyOnboarding } from "../pharmacy/actions/pharmacyOnboardingActions";
-import Image from "next/image";
+import AuthLeftPanel from "./auth-form/AuthLeftPanel";
+import AuthRegisterStep from "./auth-form/AuthRegisterStep";
+import AuthVerifyStep from "./auth-form/AuthVerifyStep";
+import AuthLoginStep from "./auth-form/AuthLoginStep";
+import type { AuthFormState, Role } from "./auth-form/types";
 
 const DoctorOnboardingSteps = dynamic(
   () => import("../doctor/DoctorOnboardingSteps").then((mod) => mod.DoctorOnboardingSteps),
@@ -21,8 +25,6 @@ const PharmacyOnboardingSteps = dynamic(
   () => import("../pharmacy/PharmacyOnboardingSteps").then((mod) => mod.PharmacyOnboardingSteps),
   { ssr: false, loading: () => null }
 );
-
-type Role = "USER" | "DOCTOR" | "PHARMACY" | "ADMIN";
 
 const REGISTER_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
 const LOGIN_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
@@ -60,7 +62,7 @@ export default function AuthForm() {
   const [resendIn, setResendIn] = useState(30);
   const [pwScore, setPwScore] = useState(0);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<AuthFormState>({
     email: "",
     password: "",
     confirmPassword: "",
@@ -471,130 +473,38 @@ export default function AuthForm() {
   return (
     <>
       <div id="ob-overlay">
-        <div className={`ob-left ${mode === "login" ? "signin-mode" : ""}`}>
-          <div className="ob-left-dots" />
-          <div className="ob-left-glow" />
-          <div className="ob-left-glow2" />
-
-          <div className="ob-brand">
-            
-            <div className="flex items-center gap-3">
-                          <Image
-                            src="/Subtract.svg"
-                            alt="Open Treatment"
-                            width={51}
-                            height={72}
-                            className="w-10 h-auto sm:w-12 lg:w-[51px]"
-                          />
-                          <span className="text-xl sm:text-2xl font-bold text-[#ECF5FF]">
-                            Open Treatment
-                          </span>
-                        </div>
-          </div>
-
-          <svg viewBox="0 0 340 300" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-55%)", width: 340, opacity: .18 }} fill="none">
-            <rect x="60" y="40" width="220" height="180" rx="18" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="6 4"/>
-            <rect x="80" y="60" width="80" height="100" rx="10" fill="rgba(59,130,246,.12)" stroke="#3b82f6" strokeWidth="1.2"/>
-            <circle cx="120" cy="95" r="22" stroke="#14b8a6" strokeWidth="1.5"/>
-            <line x1="120" y1="73" x2="120" y2="117" stroke="#14b8a6" strokeWidth="1.5"/>
-            <line x1="98" y1="95" x2="142" y2="95" stroke="#14b8a6" strokeWidth="1.5"/>
-          </svg>
-
-          <div className="ob-left-content">
-            <div className="ob-steps-side" id="ob-steps-side">
-              <div className={`ob-sp ${mode === "register" ? "active" : "done"}`}><div className="ob-sp-num">{mode === "register" ? "1" : "✓"}</div><div className="ob-sp-label">Create account</div></div>
-              <div className={`ob-sp ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "doctor-success", "pharmacy-details", "pharmacy-location", "pharmacy-success", "login"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "verify" ? "2" : "✓"}</div><div className="ob-sp-label">Verify email</div></div>
-              <div className={`ob-sp ${mode === "doctor-details" || mode === "pharmacy-details" ? "active" : ["doctor-clinic", "doctor-success", "pharmacy-location", "pharmacy-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-details" || mode === "pharmacy-details" ? "3" : ["doctor-clinic", "doctor-success", "pharmacy-location", "pharmacy-success"].includes(mode) ? "✓" : "3"}</div><div className="ob-sp-label">{mode.startsWith("pharmacy") ? "Pharmacy details" : "Personal &amp; credentials"}</div></div>
-              <div className={`ob-sp ${mode === "doctor-clinic" || mode === "pharmacy-location" ? "active" : ["doctor-success", "pharmacy-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{["doctor-success", "pharmacy-success"].includes(mode) ? "✓" : "4"}</div><div className="ob-sp-label">{mode.startsWith("pharmacy") ? "Address &amp; business" : "Clinic &amp; specialisation"}</div></div>
-            </div>
-            <div className="ob-tagline" dangerouslySetInnerHTML={{ __html: leftTagline }} />
-            <div className="ob-tagsub">{leftSub}</div>
-          </div>
-        </div>
+        <AuthLeftPanel mode={mode} leftTagline={leftTagline} leftSub={leftSub} />
 
         <div className="ob-right">
           <div className="ob-progress-bar"><div className="ob-progress-fill" style={{ width: `${progress}%` }} /></div>
 
           <div className="ob-right-inner">
             {mode === "register" && (
-              <div className="ob-step active" id="ob-s0">
-                <div className="ob-step-title">Create your account</div>
-                <div className="ob-step-sub">Get started free - no credit card required</div>
-
-                <button className="ob-social" type="button" onClick={onGoogleAuth}>
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                  Continue with Google
-                </button>
-                <button className="ob-social" type="button">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-                    <path d="M19.665 16.395c-.287.66-.42.955-.79 1.536-.517.81-1.246 1.818-2.154 1.825-.807.008-1.015-.525-2.111-.52-1.095.006-1.322.53-2.13.522-.907-.009-1.597-.918-2.114-1.727-1.447-2.27-1.599-4.93-.705-6.304.635-.976 1.637-1.549 2.58-1.549.96 0 1.564.53 2.355.53.768 0 1.236-.53 2.347-.53.84 0 1.729.457 2.361 1.244-2.077 1.14-1.74 4.102.36 4.973zm-3.715-8.59c.42-.54.739-1.303.624-2.055-.685.047-1.487.487-1.95 1.052-.42.513-.769 1.274-.632 2.002.748.022 1.522-.425 1.958-.999z" />
-                  </svg>
-                  Continue with Apple
-                </button>
-                <div className="ob-divider">or sign up with email</div>
-
-                <form onSubmit={registerSubmit}>
-                  <div className="ob-ff">
-                    <label>Select role</label>
-                    <select value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value as Role }))} required>
-                      <option value="">Choose role</option>
-                      {REGISTER_ROLES.map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="ob-ff"><label>Email address</label><input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@clinic.com" required /></div>
-                  <div className="ob-ff">
-                    <label>Password</label>
-                    <input type="password" value={form.password} onChange={(e) => updatePassword(e.target.value)} placeholder="Create a strong password" required />
-                    <div className="pw-bar-wrap"><div className="pw-bar" style={{ width: `${pwMeta.width}%`, background: pwMeta.color }} /></div>
-                    <div className="pw-lbl" style={{ color: pwMeta.color }}>{pwMeta.label}</div>
-                  </div>
-                  <div className="ob-ff"><label>Confirm password</label><input type="password" value={form.confirmPassword} onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))} placeholder="Re-enter password" required /></div>
-
-                  <div className="ob-footer-cta">
-                    <button className="ob-btn ob-btn-primary" type="submit" disabled={loading}> {loading ? "Please wait..." : "Continue"}</button>
-                  </div>
-                </form>
-
-                <div className="ob-trust">
-                  <div className="ob-trust-item">256-bit SSL</div>
-                  <div className="ob-trust-item">HIPAA aligned</div>
-                  <div className="ob-trust-item">No spam, ever</div>
-                </div>
-                <div className="ob-link-row">Already have an account? <a onClick={() => goMode("login")}>Sign in -&gt;</a></div>
-              </div>
+              <AuthRegisterStep
+                form={form}
+                setForm={setForm}
+                registerRoles={REGISTER_ROLES}
+                loading={loading}
+                onGoogleAuth={onGoogleAuth}
+                onSubmit={registerSubmit}
+                onGoLogin={() => goMode("login")}
+                onPasswordChange={updatePassword}
+                pwMeta={pwMeta}
+              />
             )}
 
             {mode === "verify" && (
-              <div className="ob-step active" id="ob-s1">
-                <div className="ob-step-title">Verify your email</div>
-                <div className="ob-step-sub">We sent a 6-digit code to your email address. Enter it below to continue.</div>
-
-                <div className="ob-email-preview"><span>{form.email || "you@clinic.com"}</span></div>
-
-                <form onSubmit={verifySubmit}>
-                  <div className="otp-wrap" id="otp-wrap">
-                    {otp.map((d, i) => (
-                      <input key={i} id={`otp-${i}`} className="otp-box" maxLength={1} inputMode="numeric" value={d} onChange={(e) => onOtpChange(i, e.target.value)} onKeyDown={(e) => onOtpKey(i, e)} />
-                    ))}
-                  </div>
-
-                  <button className="ob-btn ob-btn-primary" type="submit" disabled={loading}>{loading ? "Verifying..." : "Verify & Continue"}</button>
-                </form>
-
-                <div className="ob-resend-row">
-                  {resendIn > 0 ? (
-                    <span>Resend code in <strong>{resendIn}s</strong></span>
-                  ) : (
-                    <button type="button" onClick={() => setResendIn(30)}>Resend code</button>
-                  )}
-                </div>
-                <div className="ob-resend-row">Demo mode: use code <strong>123456</strong> <button type="button" onClick={() => setOtp(["1", "2", "3", "4", "5", "6"])}>Auto-fill</button></div>
-              </div>
+              <AuthVerifyStep
+                email={form.email}
+                otp={otp}
+                loading={loading}
+                resendIn={resendIn}
+                onSubmit={verifySubmit}
+                onOtpChange={onOtpChange}
+                onOtpKey={onOtpKey}
+                onResend={() => setResendIn(30)}
+                onAutoFill={() => setOtp(["1", "2", "3", "4", "5", "6"])}
+              />
             )}
 
             <DoctorOnboardingSteps
@@ -611,63 +521,17 @@ export default function AuthForm() {
             />
 
             {mode === "login" && (
-              <div id="ob-signin-panel" className="show">
-                <div className="ob-si-inner ob-login-view">
-                  {!showForgot ? (
-                    <>
-                  <div className="ob-step-title">Welcome back</div>
-                  <div className="ob-step-sub">Sign in to your OpenTreatment account</div>
-
-                  <button className="ob-social" type="button" onClick={onGoogleAuth}>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                    Continue with Google
-                  </button>
-                  <button className="ob-social" type="button">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-                      <path d="M19.665 16.395c-.287.66-.42.955-.79 1.536-.517.81-1.246 1.818-2.154 1.825-.807.008-1.015-.525-2.111-.52-1.095.006-1.322.53-2.13.522-.907-.009-1.597-.918-2.114-1.727-1.447-2.27-1.599-4.93-.705-6.304.635-.976 1.637-1.549 2.58-1.549.96 0 1.564.53 2.355.53.768 0 1.236-.53 2.347-.53.84 0 1.729.457 2.361 1.244-2.077 1.14-1.74 4.102.36 4.973zm-3.715-8.59c.42-.54.739-1.303.624-2.055-.685.047-1.487.487-1.95 1.052-.42.513-.769 1.274-.632 2.002.748.022 1.522-.425 1.958-.999z" />
-                    </svg>
-                    Continue with Apple
-                  </button>
-                  <div className="ob-divider">or sign in with email</div>
-
-                  <form onSubmit={loginSubmit}>
-                    <div className="ob-ff">
-                      <label>Select role</label>
-                      <select value={form.role} onChange={(e) => setForm((p) => ({ ...p, role: e.target.value as Role }))} required>
-                        <option value="">Choose role</option>
-                        {LOGIN_ROLES.map((r) => (
-                          <option key={r} value={r}>
-                            {r}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="ob-ff"><label>Email address</label><input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@clinic.com" required /></div>
-                    <div className="ob-ff">
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
-                        <label>Password</label>
-                        <a style={{ fontSize: 11.5, color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={() => setShowForgot(true)}>Forgot password?</a>
-                      </div>
-                      <input type="password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} placeholder="Your password" required />
-                    </div>
-
-                    <button className="ob-btn ob-btn-primary" type="submit" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
-                  </form>
-
-                  <div className="ob-link-row" style={{ marginTop: 22 }}>New to OpenTreatment? <a onClick={() => goMode("register")}>Create account -&gt;</a></div>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" className="ob-back-link" onClick={() => setShowForgot(false)}>Back to sign in</button>
-                      <div className="ob-step-title" style={{ fontSize: 22 }}>Reset your password</div>
-                      <div className="ob-step-sub">Enter your account email and we will send a reset link.</div>
-                      <div className="ob-ff"><label>Email address</label><input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="you@clinic.com" /></div>
-                      <button type="button" className="ob-btn ob-btn-primary" onClick={() => alert("Reset link feature will be added next.")}>Send reset link</button>
-                    </>
-                  )}
-                </div>
-              </div>
+              <AuthLoginStep
+                showForgot={showForgot}
+                setShowForgot={setShowForgot}
+                form={form}
+                setForm={setForm}
+                loginRoles={LOGIN_ROLES}
+                loading={loading}
+                onGoogleAuth={onGoogleAuth}
+                onSubmit={loginSubmit}
+                onGoRegister={() => goMode("register")}
+              />
             )}
           </div>
 
