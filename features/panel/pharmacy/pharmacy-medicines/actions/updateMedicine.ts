@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { invalidatePharmacyPanelCache } from "../../cache";
 
 export async function updateMedicine(
   medicineId: string,
@@ -29,11 +30,18 @@ export async function updateMedicine(
   });
   if (!pharmacy) throw new Error("Pharmacy not found");
 
-  return prisma.medicine.update({
+  const updated = await prisma.medicine.update({
     where: {
       id: medicineId,
       pharmacyId: pharmacy.id,
     },
     data,
   });
+
+  invalidatePharmacyPanelCache({
+    pharmacyId: pharmacy.id,
+    paths: ["/pharmacy/overview", "/pharmacy/catalog", "/pharmacy/inventory"],
+  });
+
+  return updated;
 }

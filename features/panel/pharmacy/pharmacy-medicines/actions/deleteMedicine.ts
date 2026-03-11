@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { invalidatePharmacyPanelCache } from "../../cache";
 
 export async function deleteMedicine(medicineId: string) {
   const session = await getServerSession(authOptions);
@@ -14,10 +15,17 @@ export async function deleteMedicine(medicineId: string) {
   });
   if (!pharmacy) throw new Error("Pharmacy not found");
 
-  return prisma.medicine.delete({
+  const deleted = await prisma.medicine.delete({
     where: {
       id: medicineId,
       pharmacyId: pharmacy.id,
     },
   });
+
+  invalidatePharmacyPanelCache({
+    pharmacyId: pharmacy.id,
+    paths: ["/pharmacy/overview", "/pharmacy/catalog", "/pharmacy/inventory"],
+  });
+
+  return deleted;
 }

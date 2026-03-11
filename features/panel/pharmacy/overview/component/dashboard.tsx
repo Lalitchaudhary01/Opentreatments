@@ -1,10 +1,12 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 import PharmacyOverviewEmptyState from "./sections/PharmacyOverviewEmptyState";
+import { pharmacyOverviewTag, pharmacyPanelTag } from "../../cache";
 
 function formatAmount(amount: number) {
   return new Intl.NumberFormat("en-IN", {
@@ -20,6 +22,78 @@ function orderStatusTone(status: string) {
   if (status === "PACKED") return "bg-[#14b8a6]/15 text-[#14b8a6]";
   if (status === "CONFIRMED") return "bg-[#3b82f6]/15 text-[#3b82f6]";
   return "bg-[#f59e0b]/15 text-[#f59e0b]";
+}
+
+async function getPharmacyOverviewData(params: {
+  pharmacyId: string;
+  dayStartIso: string;
+  dayEndIso: string;
+  expiryLimitIso: string;
+}) {
+  const dayKey = params.dayStartIso.slice(0, 10);
+
+  return unstable_cache(
+    async () => {
+      const dayStart = new Date(params.dayStartIso);
+      const dayEnd = new Date(params.dayEndIso);
+      const expiryLimit = new Date(params.expiryLimitIso);
+
+      const [catalogCount, lowStockCount, expiringCount, todayOrders, pendingOrders, recentOrders] = await Promise.all([
+        prisma.medicine.count({ where: { pharmacyId: params.pharmacyId } }),
+        prisma.stockEntry.count({
+          where: {
+            pharmacyId: params.pharmacyId,
+            quantity: { lte: 20 },
+          },
+        }),
+        prisma.stockEntry.count({
+          where: {
+            pharmacyId: params.pharmacyId,
+            expiryDate: { lte: expiryLimit },
+            quantity: { gt: 0 },
+          },
+        }),
+        prisma.order.findMany({
+          where: {
+            pharmacyId: params.pharmacyId,
+            createdAt: { gte: dayStart, lte: dayEnd },
+          },
+          include: {
+            user: { select: { name: true } },
+            items: { select: { quantity: true, price: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+        }),
+        prisma.order.count({
+          where: {
+            pharmacyId: params.pharmacyId,
+            status: { in: ["PENDING", "CONFIRMED", "PACKED"] },
+          },
+        }),
+        prisma.order.findMany({
+          where: { pharmacyId: params.pharmacyId },
+          include: { items: { select: { quantity: true, price: true } } },
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        }),
+      ]);
+
+      return {
+        catalogCount,
+        lowStockCount,
+        expiringCount,
+        todayOrders,
+        pendingOrders,
+        recentOrders,
+      };
+    },
+    [`pharmacy-overview:${params.pharmacyId}:${dayKey}`],
+    {
+      tags: [pharmacyOverviewTag(params.pharmacyId), pharmacyPanelTag(params.pharmacyId)],
+      revalidate: 60,
+    }
+  )();
 }
 
 export default async function PharmacyOverviewPage() {
@@ -42,46 +116,13 @@ export default async function PharmacyOverviewPage() {
   const expiryLimit = new Date(now);
   expiryLimit.setDate(expiryLimit.getDate() + 45);
 
-  const [catalogCount, lowStockCount, expiringCount, todayOrders, pendingOrders, recentOrders] = await Promise.all([
-    prisma.medicine.count({ where: { pharmacyId: pharmacy.id } }),
-    prisma.stockEntry.count({
-      where: {
-        pharmacyId: pharmacy.id,
-        quantity: { lte: 20 },
-      },
-    }),
-    prisma.stockEntry.count({
-      where: {
-        pharmacyId: pharmacy.id,
-        expiryDate: { lte: expiryLimit },
-        quantity: { gt: 0 },
-      },
-    }),
-    prisma.order.findMany({
-      where: {
-        pharmacyId: pharmacy.id,
-        createdAt: { gte: dayStart, lte: dayEnd },
-      },
-      include: {
-        user: { select: { name: true } },
-        items: { select: { quantity: true, price: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    prisma.order.count({
-      where: {
-        pharmacyId: pharmacy.id,
-        status: { in: ["PENDING", "CONFIRMED", "PACKED"] },
-      },
-    }),
-    prisma.order.findMany({
-      where: { pharmacyId: pharmacy.id },
-      include: { items: { select: { quantity: true, price: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    }),
-  ]);
+  const { catalogCount, lowStockCount, expiringCount, todayOrders, pendingOrders, recentOrders } =
+    await getPharmacyOverviewData({
+      pharmacyId: pharmacy.id,
+      dayStartIso: dayStart.toISOString(),
+      dayEndIso: dayEnd.toISOString(),
+      expiryLimitIso: expiryLimit.toISOString(),
+    });
 
   const todaySales = todayOrders.reduce((sum, order) => {
     const orderTotal = order.items.reduce((acc, item) => acc + item.price * item.quantity, 0);

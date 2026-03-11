@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { StockType } from "@prisma/client";
+import { invalidatePharmacyPanelCache } from "../../cache";
 
 export async function addStockEntry(data: {
   medicineId: string;
@@ -23,7 +24,7 @@ export async function addStockEntry(data: {
   });
   if (!pharmacy) throw new Error("Pharmacy not found");
 
-  return prisma.stockEntry.create({
+  const created = await prisma.stockEntry.create({
     data: {
       pharmacyId: pharmacy.id,
       medicineId: data.medicineId,
@@ -35,4 +36,11 @@ export async function addStockEntry(data: {
       type: StockType.INCOMING,
     },
   });
+
+  invalidatePharmacyPanelCache({
+    pharmacyId: pharmacy.id,
+    paths: ["/pharmacy/overview", "/pharmacy/inventory", "/pharmacy/catalog"],
+  });
+
+  return created;
 }

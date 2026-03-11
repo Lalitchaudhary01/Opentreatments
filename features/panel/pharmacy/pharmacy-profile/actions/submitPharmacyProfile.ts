@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { PharmacyStatus } from "../types/pharmacyProfile";
+import { invalidatePharmacyPanelCache } from "../../cache";
 
 
 export async function submitPharmacyProfile(data: {
@@ -28,7 +29,7 @@ export async function submitPharmacyProfile(data: {
   });
   if (existing) throw new Error("Pharmacy profile already exists");
 
-  return prisma.pharmacy.create({
+  const created = await prisma.pharmacy.create({
     data: {
       userId: session.user.id,
       name: data.name,
@@ -44,4 +45,11 @@ export async function submitPharmacyProfile(data: {
       status: PharmacyStatus.PENDING,
     },
   });
+
+  invalidatePharmacyPanelCache({
+    pharmacyId: created.id,
+    paths: ["/pharmacy/overview", "/pharmacy/store", "/pharmacy/approvals"],
+  });
+
+  return created;
 }

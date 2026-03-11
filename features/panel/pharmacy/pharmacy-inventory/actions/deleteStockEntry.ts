@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { invalidatePharmacyPanelCache } from "../../cache";
 
 export async function deleteStockEntry(stockEntryId: string) {
   const session = await getServerSession(authOptions);
@@ -20,7 +21,14 @@ export async function deleteStockEntry(stockEntryId: string) {
     where: { stockEntryId },
   });
 
-  return prisma.stockEntry.delete({
+  const deleted = await prisma.stockEntry.delete({
     where: { id: stockEntryId },
   });
+
+  invalidatePharmacyPanelCache({
+    pharmacyId: stock.pharmacyId,
+    paths: ["/pharmacy/overview", "/pharmacy/inventory", "/pharmacy/catalog"],
+  });
+
+  return deleted;
 }

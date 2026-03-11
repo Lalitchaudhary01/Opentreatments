@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { InventoryChangeType, StockType } from "@prisma/client";
+import { invalidatePharmacyPanelCache } from "../../cache";
 
 export async function reduceStockOnSale(data: {
   stockEntryId: string;
@@ -40,6 +41,11 @@ export async function reduceStockOnSale(data: {
       quantityChanged: data.quantity,
       note: data.note,
     },
+  });
+
+  invalidatePharmacyPanelCache({
+    pharmacyId: stock.pharmacyId,
+    paths: ["/pharmacy/overview", "/pharmacy/inventory", "/pharmacy/orders"],
   });
 
   return updatedStock;
