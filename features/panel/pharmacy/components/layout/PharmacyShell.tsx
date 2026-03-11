@@ -21,10 +21,10 @@ export default function PharmacyShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#0B1120]">
+    <div className="pharmacy-theme flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
       <PharmacySidebar collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0B1120]">
+      <main className="flex h-screen flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
         <div className="sticky top-0 z-40 shrink-0">
           <PharmacyHeader />
         </div>

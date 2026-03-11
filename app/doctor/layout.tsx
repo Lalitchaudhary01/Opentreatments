@@ -1,6 +1,6 @@
 "use client";
 
-import { DoctorShell } from "@/features/panel/doctor";
+import { DoctorShell } from "@/features/panel/doctor/components/layout";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";

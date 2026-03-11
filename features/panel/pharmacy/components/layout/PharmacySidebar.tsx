@@ -19,21 +19,21 @@ export default function PharmacySidebar({ collapsed = false, onToggleCollapse }:
   return (
     <aside
       className={cn(
-        "h-screen bg-[#111827] border-r border-white/[0.07] flex flex-col transition-all duration-200",
+        "flex h-screen flex-col border-r border-slate-200 bg-white transition-all duration-200 dark:border-white/[0.07] dark:bg-[#111827]",
         collapsed ? "w-[76px]" : "w-[240px]"
       )}
     >
       <div
         className={cn(
-          "border-b border-white/[0.07] flex items-center h-[74px]",
+          "flex h-[74px] items-center border-b border-slate-200 dark:border-white/[0.07]",
           collapsed ? "justify-center px-2" : "gap-[10px] px-[16px]"
         )}
       >
         <Image src="/Subtract.svg" alt="Open Treatment" width={32} height={32} className="object-contain" />
 
         <div className={cn("leading-none", collapsed && "hidden")}>
-          <span className="text-[13px] font-bold text-[#E2E8F0]">Open Treatment</span>
-          <p className="text-[10px] text-[#64748B] mt-1">Pharmacy Panel</p>
+          <span className="text-[13px] font-bold text-slate-800 dark:text-[#E2E8F0]">Open Treatment</span>
+          <p className="mt-1 text-[10px] text-slate-500 dark:text-[#64748B]">Pharmacy Panel</p>
         </div>
       </div>
 
@@ -42,7 +42,7 @@ export default function PharmacySidebar({ collapsed = false, onToggleCollapse }:
           <div key={group.section || index}>
             <p
               className={cn(
-                "text-[9px] font-semibold tracking-[0.1em] uppercase text-[#475569] px-2 pt-[10px] pb-1",
+                "px-2 pb-1 pt-[10px] text-[9px] font-semibold uppercase tracking-[0.1em] text-slate-500 dark:text-[#475569]",
                 collapsed && "hidden"
               )}
             >
@@ -71,7 +71,7 @@ export default function PharmacySidebar({ collapsed = false, onToggleCollapse }:
                       collapsed ? "justify-center px-2" : "gap-[9px] px-[10px]",
                       isActive
                         ? "bg-[rgba(59,130,246,0.14)] text-[#3B82F6] font-medium"
-                        : "text-[#94A3B8] hover:bg-white/[0.05] hover:text-[#F1F5F9]"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-[#94A3B8] dark:hover:bg-white/[0.05] dark:hover:text-[#F1F5F9]"
                     )}
                     title={collapsed ? item.label : undefined}
                   >
@@ -95,12 +95,12 @@ export default function PharmacySidebar({ collapsed = false, onToggleCollapse }:
         ))}
       </div>
 
-      <div className="px-[10px] py-3 border-t border-white/[0.07]">
+      <div className="border-t border-slate-200 px-[10px] py-3 dark:border-white/[0.07]">
         <button
           type="button"
           onClick={onToggleCollapse}
           className={cn(
-            "mx-auto flex items-center justify-center border border-white/[0.08] bg-white/[0.06] text-[#94A3B8] transition-colors hover:bg-white/[0.12]",
+            "mx-auto flex items-center justify-center border border-slate-200 bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 dark:border-white/[0.08] dark:bg-white/[0.06] dark:text-[#94A3B8] dark:hover:bg-white/[0.12]",
             collapsed ? "h-8 w-8 rounded-full" : "h-8 w-full rounded-lg gap-1.5 px-3 text-[11.5px] font-medium"
           )}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}

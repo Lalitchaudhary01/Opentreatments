@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Sora } from "next/font/google";
 
-import { PharmacyShell } from "@/features/panel/pharmacy";
+import { PharmacyShell } from "@/features/panel/pharmacy/components/layout";
 import PanelLoadingScreen from "@/components/layout/PanelLoadingScreen";
 
 const sora = Sora({

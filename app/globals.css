@@ -209,3 +209,38 @@ body {
 .animate-grid-float {
   animation: grid-float 6s ease-in-out infinite;
 }
+
+/* Pharmacy theme bridge: existing pharmacy screens use dark-first utility colors.
+   These overrides make light mode readable without rewriting every screen. */
+.light .pharmacy-theme .bg-\[\#0B1120\] {
+  background-color: #f8fafc !important;
+}
+.light .pharmacy-theme .bg-\[\#111827\] {
+  background-color: #ffffff !important;
+}
+.light .pharmacy-theme .bg-\[\#161f30\] {
+  background-color: #ffffff !important;
+}
+.light .pharmacy-theme .bg-\[\#1b263b\] {
+  background-color: #f1f5f9 !important;
+}
+.light .pharmacy-theme .text-slate-100 {
+  color: #0f172a !important;
+}
+.light .pharmacy-theme .text-slate-200 {
+  color: #1e293b !important;
+}
+.light .pharmacy-theme .text-\[\#CBD5E1\],
+.light .pharmacy-theme .text-\[\#94A3B8\],
+.light .pharmacy-theme .text-\[\#64748B\] {
+  color: #475569 !important;
+}
+.light .pharmacy-theme [class*=\"border-white\"] {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+.light .pharmacy-theme .bg-white\/\[0\.02\],
+.light .pharmacy-theme .bg-white\/\[0\.03\],
+.light .pharmacy-theme .bg-white\/\[0\.04\],
+.light .pharmacy-theme .bg-white\/\[0\.05\] {
+  background-color: rgba(15, 23, 42, 0.03) !important;
+}
