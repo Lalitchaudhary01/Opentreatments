@@ -1,21 +1,20 @@
 // features/panel/doctors/doctor-consultations/actions/updateConsultationStatus.ts
 "use server";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { invalidateDoctorPanelCache } from "../../cache";
 
 export async function updateConsultationStatus(
   id: string,
   status: "APPROVED" | "REJECTED"
 ) {
-  await prisma.independentConsultation.update({
+  const updated = await prisma.independentConsultation.update({
     where: { id },
     data: { status },
+    select: { doctorId: true },
   });
 
-  // Revalidate all consultation pages
-  revalidatePath("/doctor/appointments");
-  revalidatePath("/doctor/appointments/pending");
-  revalidatePath("/doctor/appointments/approved");
-  revalidatePath("/doctor/appointments/rejected");
-  revalidatePath("/doctor/appointments/today");
+  invalidateDoctorPanelCache({
+    doctorId: updated.doctorId,
+    paths: ["/doctor/overview", "/doctor/appointments"],
+  });
 }

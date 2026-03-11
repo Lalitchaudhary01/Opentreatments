@@ -3,8 +3,10 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { CalendarDays, IndianRupee, Receipt, Users } from "lucide-react";
 import OverviewFirstTimeState from "./sections/OverviewFirstTimeState";
+import { doctorOverviewTag, doctorPanelTag } from "../../cache";
 
 function initials(name?: string | null) {
   if (!name?.trim()) return "PT";
@@ -72,6 +74,63 @@ const staticRevenue = [
   { label: "Follow-ups", value: "Rs 16,300", width: 24, color: "bg-amber-500" },
 ];
 
+async function getDoctorOverviewData(params: {
+  doctorId: string;
+  startIso: string;
+  endIso: string;
+}) {
+  const dayKey = params.startIso.slice(0, 10);
+
+  return unstable_cache(
+    async () => {
+      const startOfDay = new Date(params.startIso);
+      const endOfDay = new Date(params.endIso);
+
+      const [onlinePatients, offlinePatients, todayConsultations, todayWalkins] = await Promise.all([
+        prisma.independentConsultation.count({
+          where: { doctorId: params.doctorId, status: "APPROVED" },
+        }),
+        prisma.offlineConsultation.count({
+          where: { doctorId: params.doctorId },
+        }),
+        prisma.independentConsultation.findMany({
+          where: {
+            doctorId: params.doctorId,
+            slot: { gte: startOfDay, lte: endOfDay },
+          },
+          include: {
+            user: {
+              select: { name: true },
+            },
+          },
+          orderBy: { slot: "asc" },
+          take: 12,
+        }),
+        prisma.offlineConsultation.findMany({
+          where: {
+            doctorId: params.doctorId,
+            visitTime: { gte: startOfDay, lte: endOfDay },
+          },
+          orderBy: { visitTime: "asc" },
+          take: 12,
+        }),
+      ]);
+
+      return {
+        onlinePatients,
+        offlinePatients,
+        todayConsultations,
+        todayWalkins,
+      };
+    },
+    [`doctor-overview:${params.doctorId}:${dayKey}`],
+    {
+      tags: [doctorOverviewTag(params.doctorId), doctorPanelTag(params.doctorId)],
+      revalidate: 60,
+    }
+  )();
+}
+
 export default async function DoctorOverviewPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -88,35 +147,16 @@ export default async function DoctorOverviewPage() {
   const endOfDay = new Date(now);
   endOfDay.setHours(23, 59, 59, 999);
 
-  const [onlinePatients, offlinePatients, todayConsultations, todayWalkins] = await Promise.all([
-    prisma.independentConsultation.count({
-      where: { doctorId: doctor.id, status: "APPROVED" },
-    }),
-    prisma.offlineConsultation.count({
-      where: { doctorId: doctor.id },
-    }),
-    prisma.independentConsultation.findMany({
-      where: {
-        doctorId: doctor.id,
-        slot: { gte: startOfDay, lte: endOfDay },
-      },
-      include: {
-        user: {
-          select: { name: true },
-        },
-      },
-      orderBy: { slot: "asc" },
-      take: 12,
-    }),
-    prisma.offlineConsultation.findMany({
-      where: {
-        doctorId: doctor.id,
-        visitTime: { gte: startOfDay, lte: endOfDay },
-      },
-      orderBy: { visitTime: "asc" },
-      take: 12,
-    }),
-  ]);
+  const {
+    onlinePatients,
+    offlinePatients,
+    todayConsultations,
+    todayWalkins,
+  } = await getDoctorOverviewData({
+    doctorId: doctor.id,
+    startIso: startOfDay.toISOString(),
+    endIso: endOfDay.toISOString(),
+  });
 
   const todayRows = [
     ...todayConsultations.map((row) => ({

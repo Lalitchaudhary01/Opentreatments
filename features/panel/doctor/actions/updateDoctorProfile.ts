@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { SubmitDoctorProfileInput } from "../types";
+import { invalidateDoctorPanelCache } from "../cache";
 
 export async function updateDoctorProfile(
   data: Partial<SubmitDoctorProfileInput>
@@ -27,6 +28,11 @@ export async function updateDoctorProfile(
     data: {
       ...data,
     },
+  });
+
+  invalidateDoctorPanelCache({
+    doctorId: updated.id,
+    paths: ["/doctor/overview", "/doctor/profile", "/doctor/settings"],
   });
 
   return updated;

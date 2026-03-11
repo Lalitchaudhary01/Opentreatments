@@ -3,7 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { revalidatePath } from "next/cache";
+import { invalidateDoctorPanelCache } from "../../cache";
 
 export async function updateOfflinePatient(
   id: string,
@@ -57,9 +57,10 @@ export async function updateOfflinePatient(
     });
 
     // Revalidate paths
-    revalidatePath("/doctor/offline-patients");
-    revalidatePath("/doctor/dashboard");
-    revalidatePath(`/doctor/offline-patients/${id}`);
+    invalidateDoctorPanelCache({
+      doctorId: doctor.id,
+      paths: ["/doctor/overview", "/doctor/patients", "/doctor/appointments"],
+    });
 
     return { success: true, message: "Patient updated successfully" };
 

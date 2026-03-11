@@ -4,8 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { DoctorService, ServiceCategory, ServiceStatus } from "../types";
+import { invalidateDoctorPanelCache } from "../../cache";
 
 export type DoctorServicePayload = {
   name: string;
@@ -203,7 +203,10 @@ export async function createDoctorService(
           },
         });
       }
-      revalidatePath("/doctor/services");
+      invalidateDoctorPanelCache({
+        doctorId,
+        paths: ["/doctor/services", "/doctor/overview"],
+      });
       return mapRowToUiService(created);
     } catch (error) {
       if (!isDoctorServiceTableMissing(error)) throw error;
@@ -227,7 +230,10 @@ export async function createDoctorService(
   };
   const current = await getDoctorServicesFromAvailability(doctorId);
   await saveDoctorServicesToAvailability(doctorId, [created, ...current]);
-  revalidatePath("/doctor/services");
+  invalidateDoctorPanelCache({
+    doctorId,
+    paths: ["/doctor/services", "/doctor/overview"],
+  });
   return created;
 }
 
@@ -280,7 +286,10 @@ export async function updateDoctorService(
           },
         });
       }
-      revalidatePath("/doctor/services");
+      invalidateDoctorPanelCache({
+        doctorId,
+        paths: ["/doctor/services", "/doctor/overview"],
+      });
       return mapRowToUiService(updated);
     } catch (error) {
       if (!isDoctorServiceTableMissing(error)) throw error;
@@ -309,7 +318,10 @@ export async function updateDoctorService(
     doctorId,
     current.map((item) => (item.id === id ? updated : item))
   );
-  revalidatePath("/doctor/services");
+  invalidateDoctorPanelCache({
+    doctorId,
+    paths: ["/doctor/services", "/doctor/overview"],
+  });
   return updated;
 }
 
@@ -333,7 +345,10 @@ export async function toggleDoctorServiceStatus(
         where: { id },
         data: { isActive: nextStatus === "Active" },
       });
-      revalidatePath("/doctor/services");
+      invalidateDoctorPanelCache({
+        doctorId,
+        paths: ["/doctor/services", "/doctor/overview"],
+      });
       return mapRowToUiService(updated);
     } catch (error) {
       if (!isDoctorServiceTableMissing(error)) throw error;
@@ -349,7 +364,10 @@ export async function toggleDoctorServiceStatus(
     doctorId,
     current.map((item) => (item.id === id ? updated : item))
   );
-  revalidatePath("/doctor/services");
+  invalidateDoctorPanelCache({
+    doctorId,
+    paths: ["/doctor/services", "/doctor/overview"],
+  });
   return updated;
 }
 
@@ -366,7 +384,10 @@ export async function deleteDoctorService(id: string): Promise<{ id: string }> {
       });
       if (!existing) throw new Error("Service not found");
       await doctorServiceDelegate.delete({ where: { id } });
-      revalidatePath("/doctor/services");
+      invalidateDoctorPanelCache({
+        doctorId,
+        paths: ["/doctor/services", "/doctor/overview"],
+      });
       return { id };
     } catch (error) {
       if (!isDoctorServiceTableMissing(error)) throw error;
@@ -381,6 +402,9 @@ export async function deleteDoctorService(id: string): Promise<{ id: string }> {
     current.filter((item) => item.id !== id)
   );
 
-  revalidatePath("/doctor/services");
+  invalidateDoctorPanelCache({
+    doctorId,
+    paths: ["/doctor/services", "/doctor/overview"],
+  });
   return { id };
 }
