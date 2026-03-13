@@ -60,6 +60,7 @@ model LabCompany {
   @@index([status])
   @@index([city])
   @@index([slug])
+  @@map("LabProfile")
 }
 
 model LabTest {
@@ -112,6 +113,7 @@ model LabTest {
   @@unique([labId, name])
   @@index([labId, isActive])
   @@index([category])
+  @@map("LabTestCatalog")
 }
 
 model LabPackage {
@@ -158,6 +160,7 @@ model LabPackage {
   
   @@unique([labId, slug])
   @@index([labId, isActive])
+  @@map("LabPackageCatalog")
 }
 
 model LabPackageTest {
@@ -168,6 +171,7 @@ model LabPackageTest {
   
   @@id([packageId, testId])
   @@index([testId])
+  @@map("LabPackageTestMap")
 }
 
 model LabSlot {
@@ -185,6 +189,7 @@ model LabSlot {
   updatedAt          DateTime         @updatedAt
   
   @@index([labId])
+  @@map("LabCollectionSlot")
 }
 
 model LabTechnician {
@@ -217,6 +222,7 @@ model LabTechnician {
   schedules          LabTechnicianSchedule[]
   
   @@index([labId])
+  @@map("LabTechnicianProfile")
 }
 
 model LabTechnicianSchedule {
@@ -233,6 +239,7 @@ model LabTechnicianSchedule {
   updatedAt          DateTime         @updatedAt
   
   @@index([technicianId])
+  @@map("LabTechnicianScheduleSlot")
 }
 
 model LabTechnicianAssignment {
@@ -250,6 +257,7 @@ model LabTechnicianAssignment {
   updatedAt          DateTime         @updatedAt
   
   @@index([technicianId])
+  @@map("LabTechnicianAssignmentMap")
 }
 
 model LabBooking {
@@ -329,6 +337,7 @@ model LabBooking {
   @@index([userId, status])
   @@index([bookingNumber])
   @@index([appointmentDate])
+  @@map("LabBookingOrder")
 }
 
 model LabBookingItem {
@@ -349,6 +358,7 @@ model LabBookingItem {
   createdAt          DateTime         @default(now())
   
   @@index([bookingId])
+  @@map("LabBookingOrderItem")
 }
 
 model LabBookingTimeline {
@@ -362,6 +372,7 @@ model LabBookingTimeline {
   createdAt          DateTime         @default(now())
   
   @@index([bookingId])
+  @@map("LabBookingTimelineEvent")
 }
 
 model LabReport {
@@ -394,6 +405,7 @@ model LabReport {
   updatedAt          DateTime         @updatedAt
   
   @@index([labId, status])
+  @@map("LabDiagnosticReport")
 }
 
 model LabPriceHistory {
@@ -411,6 +423,7 @@ model LabPriceHistory {
   createdAt          DateTime         @default(now())
   
   @@index([testId])
+  @@map("LabTestPriceHistory")
 }
 
 model AdminNote {
@@ -427,4 +440,5 @@ model AdminNote {
   createdAt          DateTime         @default(now())
   
   @@index([labId])
+  @@map("LabAdminNote")
 }

@@ -32,6 +32,7 @@ model Pharmacy {
 
   @@index([status, createdAt])
   @@index([city])
+  @@map("PharmacyProfile")
 }
 
 model Medicine {
@@ -62,6 +63,7 @@ model Medicine {
   @@index([pharmacyId, createdAt])
   @@index([pharmacyId, name])
   @@index([pharmacyId, genericName])
+  @@map("PharmacyMedicine")
 }
 
 model StockEntry {
@@ -83,6 +85,7 @@ model StockEntry {
   @@index([pharmacyId, createdAt])
   @@index([medicineId])
   @@index([pharmacyId, expiryDate])
+  @@map("PharmacyStockEntry")
 }
 
 model InventoryLog {
@@ -101,6 +104,7 @@ model InventoryLog {
   @@index([pharmacyId, createdAt])
   @@index([stockEntryId, createdAt])
   @@index([medicineId, createdAt])
+  @@map("PharmacyInventoryLog")
 }
 
 model Order {
@@ -117,6 +121,7 @@ model Order {
   @@index([userId, createdAt])
   @@index([pharmacyId, createdAt])
   @@index([status, createdAt])
+  @@map("PharmacyOrder")
 }
 
 model OrderItem {
@@ -130,6 +135,7 @@ model OrderItem {
 
   @@index([orderId])
   @@index([medicineId])
+  @@map("PharmacyOrderItem")
 }
 
 model PriceTrend {
@@ -140,6 +146,7 @@ model PriceTrend {
   medicine   Medicine @relation(fields: [medicineId], references: [id])
 
   @@index([medicineId, date])
+  @@map("PharmacyPriceTrend")
 }
 
 model Substitute {
@@ -151,6 +158,7 @@ model Substitute {
 
   @@index([medicineId])
   @@index([substituteMedicineId])
+  @@map("PharmacySubstitute")
 }
 
 model PharmacySettings {

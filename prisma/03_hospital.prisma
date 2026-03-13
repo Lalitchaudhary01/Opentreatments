@@ -28,6 +28,7 @@ model Hospital {
   @@index([status, createdAt])
   @@index([city])
   @@index([name])
+  @@map("HospitalProfile")
 }
 
 model Service {
@@ -40,6 +41,7 @@ model Service {
   createdAt   DateTime @default(now())
 
   @@index([hospitalId, createdAt])
+  @@map("HospitalService")
 }
 
 model Facility {
@@ -51,6 +53,7 @@ model Facility {
   createdAt   DateTime @default(now())
 
   @@index([hospitalId, createdAt])
+  @@map("HospitalFacility")
 }
 
 model Insurance {
@@ -62,6 +65,7 @@ model Insurance {
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([hospitalId])
+  @@map("HospitalInsurance")
 }
 
 model Doctor {
@@ -74,6 +78,7 @@ model Doctor {
   hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
 
   @@index([hospitalId, specialization])
+  @@map("HospitalDoctor")
 }
 
 model Procedure {
@@ -88,6 +93,7 @@ model Procedure {
   createdAt   DateTime   @default(now())
 
   @@index([hospitalId, createdAt])
+  @@map("HospitalProcedure")
 }
 
 model Policy {
@@ -109,6 +115,7 @@ model Policy {
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+  @@map("InsurancePolicy")
 }
 
 model Estimate {
@@ -127,4 +134,5 @@ model Estimate {
   @@index([hospitalId, createdAt])
   @@index([policyId])
   @@index([procedureId])
+  @@map("CoverageEstimate")
 }

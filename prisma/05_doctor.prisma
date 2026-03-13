@@ -27,6 +27,7 @@ model IndependentDoctor {
   @@index([status, createdAt])
   @@index([city])
   @@index([specialization])
+  @@map("DoctorProfile")
 }
 
 model DoctorService {
@@ -53,6 +54,7 @@ model DoctorService {
   @@index([doctorId, isActive])
   @@index([doctorId, category])
   @@index([doctorId, isOnline])
+  @@map("DoctorServiceProfile")
 }
 
 model IndependentConsultation {
@@ -79,6 +81,7 @@ model IndependentConsultation {
   @@index([doctorId, slot])
   @@index([doctorId, status, slot])
   @@index([userId, createdAt])
+  @@map("DoctorConsultation")
 }
 
 model OfflineConsultation {
@@ -99,6 +102,7 @@ model OfflineConsultation {
 
   @@index([doctorId, visitTime])
   @@index([doctorId, createdAt])
+  @@map("DoctorOfflineConsultation")
 }
 
 model IndependentReview {
@@ -115,6 +119,7 @@ model IndependentReview {
 
   @@index([doctorId, createdAt])
   @@index([userId])
+  @@map("DoctorReview")
 }
 
 model Notification {
