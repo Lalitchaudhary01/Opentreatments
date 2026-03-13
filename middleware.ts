@@ -11,14 +11,24 @@ const roleHome: Record<Role, string> = {
   [Role.ADMIN]: "/admin/dashbaord",
 };
 
+const doctorAuthModes = new Set(["doctor-details", "doctor-clinic", "doctor-success"]);
+const pharmacyAuthModes = new Set(["pharmacy-details", "pharmacy-location", "pharmacy-success"]);
+
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
     const role = token?.role as Role | undefined;
+    const mode = req.nextUrl.searchParams.get("mode");
+    const isAuthPath = path.startsWith("/auth");
+    const isRoleOnboardingAuthRoute =
+      isAuthPath &&
+      !!mode &&
+      ((role === Role.DOCTOR && doctorAuthModes.has(mode)) ||
+        (role === Role.PHARMACY && pharmacyAuthModes.has(mode)));
 
-    // If logged in and on auth page, send user to role home.
-    if (token && path.startsWith("/auth")) {
+    // If logged in and on auth page, send user to role home (except onboarding flows).
+    if (token && isAuthPath && !isRoleOnboardingAuthRoute) {
       const target = role ? roleHome[role] : "/";
       if (target && target !== path) {
         return NextResponse.redirect(new URL(target, req.url));
@@ -40,7 +50,7 @@ export default withAuth(
                   ? "/admin"
                   : null;
 
-      if (allowedPrefix && !path.startsWith(allowedPrefix)) {
+      if (allowedPrefix && !path.startsWith(allowedPrefix) && !isRoleOnboardingAuthRoute) {
         return NextResponse.redirect(new URL(roleHome[role], req.url));
       }
     }

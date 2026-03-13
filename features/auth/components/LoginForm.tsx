@@ -85,6 +85,11 @@ export default function AuthForm() {
     specialization: "General Physician",
   });
   const [pharmacyForm, setPharmacyForm] = useState<PharmacyOnboardingFormState>({
+    firstName: "",
+    lastName: "",
+    whatsAppNumber: "",
+    profileRole: "Owner",
+    pinCode: "",
     name: "",
     ownerName: "",
     email: "",
@@ -166,8 +171,8 @@ export default function AuthForm() {
     if (mode === "doctor-details") return "Tell us about your professional details so your profile is verification-ready.";
     if (mode === "doctor-clinic") return "Add clinic and specialisation details to complete your doctor onboarding.";
     if (mode === "doctor-success") return "Your profile is submitted and will be reviewed by admin shortly.";
-    if (mode === "pharmacy-details") return "Add owner/license details so your pharmacy verification can begin.";
-    if (mode === "pharmacy-location") return "Add address and business details to complete your pharmacy onboarding.";
+    if (mode === "pharmacy-details") return "Tell us about yourself so we can personalise your pharmacy dashboard.";
+    if (mode === "pharmacy-location") return "A few details about your store. You can update everything from Settings later.";
     if (mode === "pharmacy-success") return "Your pharmacy profile is submitted and under admin review.";
     return "Sign in to manage your appointments, patients and revenue.";
   }, [mode]);
@@ -387,9 +392,12 @@ export default function AuthForm() {
 
   async function submitPharmacyOnboarding() {
     const email = pharmacyForm.email.trim() || form.email.trim();
+    const ownerName =
+      `${pharmacyForm.firstName} ${pharmacyForm.lastName}`.trim() ||
+      pharmacyForm.ownerName.trim();
 
-    if (!pharmacyForm.name.trim() || !pharmacyForm.ownerName.trim()) {
-      alert("Pharmacy name and owner name are required");
+    if (!pharmacyForm.name.trim()) {
+      alert("Pharmacy / store name is required");
       return;
     }
     if (!email || !pharmacyForm.phone.trim()) {
@@ -400,13 +408,12 @@ export default function AuthForm() {
       alert("License number is required");
       return;
     }
-    if (
-      !pharmacyForm.address.trim() ||
-      !pharmacyForm.city.trim() ||
-      !pharmacyForm.state.trim() ||
-      !pharmacyForm.country.trim()
-    ) {
-      alert("Address, city, state and country are required");
+    if (!pharmacyForm.city.trim()) {
+      alert("City is required");
+      return;
+    }
+    if (!ownerName) {
+      alert("First name and last name are required");
       return;
     }
 
@@ -414,7 +421,11 @@ export default function AuthForm() {
     try {
       const result = await completePharmacyOnboarding({
         ...pharmacyForm,
+        ownerName,
         email,
+        address: pharmacyForm.address.trim() || `PIN ${pharmacyForm.pinCode || "NA"}`,
+        state: pharmacyForm.state.trim() || "NA",
+        country: pharmacyForm.country.trim() || "India",
       });
       if (!result.ok) return alert(result.error || "Unable to submit pharmacy profile");
       router.push("/auth?mode=pharmacy-success");
@@ -426,17 +437,13 @@ export default function AuthForm() {
   }
 
   function continuePharmacyDetails() {
-    if (!pharmacyForm.name.trim() || !pharmacyForm.ownerName.trim()) {
-      alert("Pharmacy name and owner name are required");
+    if (!pharmacyForm.firstName.trim() || !pharmacyForm.lastName.trim()) {
+      alert("First name and last name are required");
       return;
     }
     const email = pharmacyForm.email.trim() || form.email.trim();
     if (!email || !pharmacyForm.phone.trim()) {
       alert("Pharmacy email and phone are required");
-      return;
-    }
-    if (!pharmacyForm.licenseNumber.trim()) {
-      alert("License number is required");
       return;
     }
     router.push(
@@ -612,6 +619,13 @@ export default function AuthForm() {
         .ob-ff input,.ob-ff select{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 13px;color:#e2e8f0;font-family:Sora,sans-serif;font-size:13px;outline:none;transition:all .2s;width:100%}
         .ob-ff input:focus,.ob-ff select:focus{border-color:#3b82f6;background:rgba(59,130,246,.05)}
         .ob-ff select option{background:#111827;color:#e2e8f0}
+        .ob-hint{font-size:11px;color:#475569;margin-top:3px}
+        .role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+        .role-chip{background:rgba(255,255,255,.025);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:11px 10px;cursor:pointer;text-align:center;transition:all .2s}
+        .role-chip:hover{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.05)}
+        .role-chip.sel{border-color:#3b82f6;background:rgba(59,130,246,.08);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
+        .role-chip-lbl{font-size:11px;font-weight:600;color:#94a3b8}
+        .role-chip.sel .role-chip-lbl{color:#60a5fa}
         .spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
         .sc-chip{padding:12px 8px;border-radius:9px;border:1.5px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);cursor:pointer;transition:all .22s;text-align:center}
         .sc-chip:hover{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.06)}
@@ -646,6 +660,7 @@ export default function AuthForm() {
           .ob-step,.ob-si-inner{padding:28px 22px}
           .ob-footer,.ob-si-footer{padding:14px 22px}
           .ob-role-grid{grid-template-columns:1fr}
+          .role-grid{grid-template-columns:1fr}
           .ob-row2{grid-template-columns:1fr}
           .ob-row3{grid-template-columns:1fr}
           .spec-grid{grid-template-columns:1fr 1fr}

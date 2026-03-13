@@ -1,11 +1,22 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { unstable_cache } from "next/cache";
+import {
+  AlertTriangle,
+  CalendarClock,
+  ClipboardCheck,
+  FileClock,
+  IndianRupee,
+  PackageSearch,
+  ShoppingBag,
+  Syringe,
+  Users,
+} from "lucide-react";
 
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 import PharmacyOverviewEmptyState from "./sections/PharmacyOverviewEmptyState";
+import OverviewTodayOrdersCard, { type OverviewOrderRow } from "./sections/OverviewTodayOrdersCard";
 import { pharmacyOverviewTag, pharmacyPanelTag } from "../../cache";
 
 function formatAmount(amount: number) {
@@ -16,24 +27,6 @@ function formatAmount(amount: number) {
   }).format(amount || 0);
 }
 
-function orderStatusTone(status: string) {
-  if (status === "DELIVERED") return "bg-[#22c55e]/15 text-[#22c55e]";
-  if (status === "CANCELLED") return "bg-[#ef4444]/15 text-[#ef4444]";
-  if (status === "PACKED") return "bg-[#14b8a6]/15 text-[#14b8a6]";
-  if (status === "CONFIRMED") return "bg-[#3b82f6]/15 text-[#3b82f6]";
-  return "bg-[#f59e0b]/15 text-[#f59e0b]";
-}
-
-function initials(name?: string | null) {
-  if (!name?.trim()) return "PT";
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 type ReorderRow = {
   id: string;
   medicine: string;
@@ -41,15 +34,6 @@ type ReorderRow = {
   avgDaily: number;
   daysLeft: number;
   suggestedQty: number;
-};
-
-type DashboardOrderRow = {
-  id: string;
-  patient: string;
-  items: number;
-  hasRx: boolean;
-  amount: number;
-  status: string;
 };
 
 async function getPharmacyOverviewData(params: {
@@ -235,7 +219,7 @@ export default async function PharmacyOverviewPage() {
     };
   });
 
-  const mockOrders: DashboardOrderRow[] = [
+  const mockOrders: OverviewOrderRow[] = [
     { id: "ORD-8921", patient: "Sunita Rao", items: 4, hasRx: true, amount: 1240, status: "CONFIRMED" },
     { id: "ORD-8920", patient: "Vijay Deshmukh", items: 2, hasRx: false, amount: 560, status: "PACKED" },
     { id: "ORD-8919", patient: "Rahul Mehta", items: 6, hasRx: true, amount: 1880, status: "PENDING" },
@@ -243,7 +227,7 @@ export default async function PharmacyOverviewPage() {
     { id: "ORD-8917", patient: "Karan Patil", items: 1, hasRx: false, amount: 210, status: "CANCELLED" },
   ];
 
-  const displayOrders: DashboardOrderRow[] =
+  const displayOrders: OverviewOrderRow[] =
     todayOrders.length > 0
       ? todayOrders.map((order) => {
           const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -273,21 +257,75 @@ export default async function PharmacyOverviewPage() {
     return sum + total;
   }, 0);
 
+  const kpiCards = [
+    {
+      value: String(displayOrders.length),
+      label: "New Orders",
+      tone: "bg-[#3b82f6]/15 text-[#3b82f6]",
+      badge: "+3",
+      trend: "up" as const,
+      icon: ShoppingBag,
+    },
+    {
+      value: String(pendingRx),
+      label: "Pending Rx",
+      tone: "bg-[#f59e0b]/15 text-[#f59e0b]",
+      badge: "Urgent",
+      trend: "neutral" as const,
+      icon: FileClock,
+    },
+    {
+      value: String(lowStockCount),
+      label: "Low Stock Items",
+      tone: "bg-[#ef4444]/15 text-[#ef4444]",
+      badge: "Action needed",
+      trend: "neutral" as const,
+      icon: PackageSearch,
+    },
+    {
+      value: String(expiring30Count),
+      label: "Expiring ≤30d",
+      tone: "bg-[#f97316]/15 text-[#f97316]",
+      badge: "-2",
+      trend: "down" as const,
+      icon: CalendarClock,
+    },
+    {
+      value: formatAmount(todaySales),
+      label: "Today Revenue",
+      tone: "bg-[#22c55e]/15 text-[#22c55e]",
+      badge: "+18%",
+      trend: "up" as const,
+      icon: IndianRupee,
+    },
+    {
+      value: `${repeatRate}%`,
+      label: "Repeat Customers",
+      tone: "bg-[#14b8a6]/15 text-[#14b8a6]",
+      badge: `+${Math.max(repeatUsers, 1)}`,
+      trend: "up" as const,
+      icon: Users,
+    },
+  ];
+
   return (
     <div className="min-h-full bg-[#0B1120] p-[22px_28px]">
       <div className="flex flex-col gap-[18px]">
         <div className="flex flex-wrap gap-[10px]">
           <div className="flex min-h-[44px] min-w-[200px] flex-1 items-center gap-2 rounded-[8px] border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-3 py-2 text-[12px] text-[#fcd34d]">
+            <AlertTriangle className="h-[14px] w-[14px] shrink-0 text-[#f59e0b]" />
             <strong className="text-[12px] text-[#f59e0b]">{lowStockCount} items low on stock</strong>
             <span className="text-[#fcd34d]/90">— reorder needed</span>
             <span className="ml-auto text-[11px] opacity-70">→ Reorder</span>
           </div>
           <div className="flex min-h-[44px] min-w-[200px] flex-1 items-center gap-2 rounded-[8px] border border-[#ef4444]/30 bg-[#ef4444]/10 px-3 py-2 text-[12px] text-[#fca5a5]">
+            <CalendarClock className="h-[14px] w-[14px] shrink-0 text-[#ef4444]" />
             <strong className="text-[12px] text-[#ef4444]">{expiring30Count} batches expire within 30 days</strong>
             <span className="text-[#fca5a5]/90">— review expiry queue</span>
             <span className="ml-auto text-[11px] opacity-70">→ View</span>
           </div>
           <div className="flex min-h-[44px] min-w-[160px] flex-1 items-center gap-2 rounded-[8px] border border-[#3b82f6]/30 bg-[#3b82f6]/10 px-3 py-2 text-[12px] text-[#93c5fd]">
+            <Syringe className="h-[14px] w-[14px] shrink-0 text-[#3b82f6]" />
             <strong className="text-[12px] text-[#3b82f6]">{pendingRx} prescriptions</strong>
             <span className="text-[#93c5fd]/90">awaiting verification</span>
             <span className="ml-auto text-[11px] opacity-70">→ Review</span>
@@ -295,92 +333,35 @@ export default async function PharmacyOverviewPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-          {[
-            [String(displayOrders.length), "New Orders", "bg-[#3b82f6]/15 text-[#3b82f6]", "+3", "up"],
-            [String(pendingRx), "Pending Rx", "bg-[#f59e0b]/15 text-[#f59e0b]", "Urgent", "neutral"],
-            [String(lowStockCount), "Low Stock Items", "bg-[#ef4444]/15 text-[#ef4444]", "Action needed", "neutral"],
-            [String(expiring30Count), "Expiring ≤30d", "bg-[#f97316]/15 text-[#f97316]", "-2", "down"],
-            [formatAmount(todaySales), "Today Revenue", "bg-[#22c55e]/15 text-[#22c55e]", "+18%", "up"],
-            [`${repeatRate}%`, "Repeat Customers", "bg-[#14b8a6]/15 text-[#14b8a6]", `+${Math.max(repeatUsers, 1)}`, "up"],
-          ].map(([value, label, tone, badge, trend]) => (
-            <div key={label as string} className="cursor-pointer overflow-hidden rounded-[13px] border border-white/[0.07] bg-[#161f30] p-5 transition hover:-translate-y-[2px] hover:border-white/[0.14]">
+          {kpiCards.map((card) => (
+            <div key={card.label} className="cursor-pointer overflow-hidden rounded-[13px] border border-white/[0.07] bg-[#161f30] p-5 transition hover:-translate-y-[2px] hover:border-white/[0.14]">
               <div className="mb-3 flex items-start justify-between">
-                <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[9px] ${tone}`} />
+                <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[9px] ${card.tone}`}>
+                  <card.icon className="h-4 w-4" />
+                </div>
                 <div
                   className={`rounded-full px-[7px] py-[2px] text-[10px] font-medium ${
-                    trend === "up"
+                    card.trend === "up"
                       ? "bg-[#22c55e]/12 text-[#22c55e]"
-                      : trend === "down"
+                      : card.trend === "down"
                         ? "bg-[#ef4444]/12 text-[#ef4444]"
                         : "text-[#f59e0b]"
                   }`}
                 >
-                  {badge as string}
+                  {card.badge}
                 </div>
               </div>
-              <div className="mb-[3px] text-[26px] font-bold leading-none tracking-[-0.03em] text-slate-100">{value as string}</div>
-              <div className="text-[11px] text-[#94A3B8]">{label as string}</div>
+              <div className="mb-[3px] text-[26px] font-bold leading-none tracking-[-0.03em] text-slate-100">{card.value}</div>
+              <div className="text-[11px] text-[#94A3B8]">{card.label}</div>
             </div>
           ))}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "16px" }}>
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-[15px]">
-              <div>
-                <div className="text-[13px] font-semibold text-slate-100">Today's Orders</div>
-                <div className="mt-[2px] text-[11px] text-[#94A3B8]">
-                  {now.toLocaleDateString("en-IN", { month: "short", day: "numeric" })} · {displayOrders.length} orders
-                </div>
-              </div>
-              <Link href="/pharmacy/orders" className="text-[11.5px] font-medium text-[#3b82f6]">
-                Manage all →
-              </Link>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-white/[0.07] bg-[#1b263b] text-left text-[10px] font-semibold uppercase tracking-[0.07em] text-[#94A3B8]">
-                    <th className="px-[18px] py-[9px]"></th>
-                    <th className="px-[18px] py-[9px]">Order</th>
-                    <th className="px-[18px] py-[9px]">Patient</th>
-                    <th className="px-[18px] py-[9px]">Items</th>
-                    <th className="px-[18px] py-[9px]">Rx</th>
-                    <th className="px-[18px] py-[9px]">Amount</th>
-                    <th className="px-[18px] py-[9px]">Status</th>
-                    <th className="px-[18px] py-[9px]">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayOrders.map((order) => (
-                    <tr key={order.id} className="border-b border-white/[0.07] last:border-b-0 hover:bg-white/[0.02]">
-                      <td className="px-[18px] py-[11px]">
-                        <div className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#3b82f6]/20 text-[10px] font-bold text-[#60a5fa]">
-                          {initials(order.patient)}
-                        </div>
-                      </td>
-                      <td className="px-[18px] py-[11px] text-[12px] text-slate-100">#{order.id}</td>
-                      <td className="px-[18px] py-[11px] text-[12px] text-slate-200">{order.patient}</td>
-                      <td className="px-[18px] py-[11px] text-[12px] text-[#94A3B8]">{order.items}</td>
-                      <td className="px-[18px] py-[11px] text-[12px] text-[#f59e0b]">{order.hasRx ? "Yes" : "No"}</td>
-                      <td className="px-[18px] py-[11px] text-[12px] text-[#14b8a6]">{formatAmount(order.amount)}</td>
-                      <td className="px-[18px] py-[11px]">
-                        <span className={`rounded-full px-2 py-1 text-[10px] font-medium ${orderStatusTone(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-[18px] py-[11px]">
-                        <button className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 text-[10px] text-[#CBD5E1]">
-                          Open
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <OverviewTodayOrdersCard
+            dateLabel={now.toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+            orders={displayOrders}
+          />
 
           <div className="flex flex-col gap-[14px]">
             <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-[16px_18px]">
@@ -399,7 +380,10 @@ export default async function PharmacyOverviewPage() {
             </div>
 
             <div className="flex-1 overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-              <div className="border-b border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-100">Activity</div>
+              <div className="flex items-center gap-2 border-b border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-100">
+                <ClipboardCheck className="h-[13px] w-[13px] text-[#60a5fa]" />
+                Activity
+              </div>
               <div>
                 {activity.length === 0 ? (
                   <div className="px-4 py-6 text-[12px] text-[#94A3B8]">No recent activity</div>

@@ -4,6 +4,11 @@ import { Dispatch, SetStateAction } from "react";
 import type { AuthMode } from "../doctor/DoctorOnboardingSteps";
 
 export type PharmacyOnboardingFormState = {
+  firstName: string;
+  lastName: string;
+  whatsAppNumber: string;
+  profileRole: "Owner" | "Pharmacist" | "Manager";
+  pinCode: string;
   name: string;
   ownerName: string;
   email: string;
@@ -29,120 +34,139 @@ export function PharmacyOnboardingSteps({
   setPharmacyForm,
   onSetupDashboard,
 }: PharmacyOnboardingStepsProps) {
+  const roleOptions: Array<PharmacyOnboardingFormState["profileRole"]> = [
+    "Owner",
+    "Pharmacist",
+    "Manager",
+  ];
+
   return (
     <>
       {mode === "pharmacy-details" && (
         <div className="ob-step active" id="ob-pharmacy-details">
-          <div className="ob-step-title">Pharmacy personal details</div>
+          <div className="ob-step-title">Your details</div>
           <div className="ob-step-sub">
-            Add core owner and license details to start your pharmacy verification.
-          </div>
-
-          <div className="ob-ff">
-            <label>Pharmacy Name *</label>
-            <input
-              value={pharmacyForm.name}
-              onChange={(e) => setPharmacyForm((p) => ({ ...p, name: e.target.value }))}
-              placeholder="HealthCare Plus Pharmacy"
-            />
+            Tell us about yourself so we can personalise your dashboard.
           </div>
 
           <div className="ob-row2">
             <div className="ob-ff">
-              <label>Owner Name *</label>
+              <label>First Name *</label>
               <input
-                value={pharmacyForm.ownerName}
+                value={pharmacyForm.firstName}
                 onChange={(e) =>
-                  setPharmacyForm((p) => ({ ...p, ownerName: e.target.value }))
+                  setPharmacyForm((p) => ({ ...p, firstName: e.target.value }))
                 }
-                placeholder="Ravi Kumar"
+                placeholder="Rajesh"
               />
             </div>
             <div className="ob-ff">
-              <label>Phone *</label>
+              <label>Last Name *</label>
+              <input
+                value={pharmacyForm.lastName}
+                onChange={(e) =>
+                  setPharmacyForm((p) => ({ ...p, lastName: e.target.value }))
+                }
+                placeholder="Sharma"
+              />
+            </div>
+          </div>
+
+          <div className="ob-row2">
+            <div className="ob-ff">
+              <label>Phone number *</label>
               <input
                 value={pharmacyForm.phone}
                 onChange={(e) => setPharmacyForm((p) => ({ ...p, phone: e.target.value }))}
-                placeholder="9876543210"
-              />
-            </div>
-          </div>
-
-          <div className="ob-row2">
-            <div className="ob-ff">
-              <label>Email *</label>
-              <input
-                type="email"
-                value={pharmacyForm.email}
-                onChange={(e) => setPharmacyForm((p) => ({ ...p, email: e.target.value }))}
-                placeholder="pharmacy@example.com"
+                placeholder="+91 98765 43210"
               />
             </div>
             <div className="ob-ff">
-              <label>License Number *</label>
+              <label>WhatsApp number</label>
               <input
-                value={pharmacyForm.licenseNumber}
+                value={pharmacyForm.whatsAppNumber}
                 onChange={(e) =>
-                  setPharmacyForm((p) => ({ ...p, licenseNumber: e.target.value }))
+                  setPharmacyForm((p) => ({ ...p, whatsAppNumber: e.target.value }))
                 }
-                placeholder="DL-20B-12345"
+                placeholder="Same as phone"
               />
             </div>
           </div>
 
+          <div className="ob-ff" style={{ marginBottom: 8 }}>
+            <label>Your role *</label>
+          </div>
+          <div className="role-grid">
+            {roleOptions.map((role) => (
+              <button
+                key={role}
+                type="button"
+                className={`role-chip ${pharmacyForm.profileRole === role ? "sel" : ""}`}
+                onClick={() => setPharmacyForm((p) => ({ ...p, profileRole: role }))}
+              >
+                <div className="role-chip-lbl">{role}</div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {mode === "pharmacy-location" && (
         <div className="ob-step active" id="ob-pharmacy-location">
-          <div className="ob-step-title">Pharmacy address & business info</div>
+          <div className="ob-step-title">Pharmacy setup</div>
           <div className="ob-step-sub">
-            Add your shop location and tax details before final submission.
+            A few details about your store. You can update everything from Settings later.
           </div>
 
           <div className="ob-ff">
-            <label>Address *</label>
+            <label>Pharmacy / Store name *</label>
             <input
-              value={pharmacyForm.address}
-              onChange={(e) => setPharmacyForm((p) => ({ ...p, address: e.target.value }))}
-              placeholder="Shop no. 10, Main market"
+              value={pharmacyForm.name}
+              onChange={(e) => setPharmacyForm((p) => ({ ...p, name: e.target.value }))}
+              placeholder="Sharma Medical Hall"
             />
           </div>
 
-          <div className="ob-row3">
+          <div className="ob-row2">
             <div className="ob-ff">
               <label>City *</label>
               <input
                 value={pharmacyForm.city}
                 onChange={(e) => setPharmacyForm((p) => ({ ...p, city: e.target.value }))}
-                placeholder="Pune"
+                placeholder="Mumbai"
               />
             </div>
             <div className="ob-ff">
-              <label>State *</label>
+              <label>PIN code</label>
               <input
-                value={pharmacyForm.state}
-                onChange={(e) => setPharmacyForm((p) => ({ ...p, state: e.target.value }))}
-                placeholder="Maharashtra"
-              />
-            </div>
-            <div className="ob-ff">
-              <label>Country *</label>
-              <input
-                value={pharmacyForm.country}
-                onChange={(e) => setPharmacyForm((p) => ({ ...p, country: e.target.value }))}
-                placeholder="India"
+                value={pharmacyForm.pinCode}
+                onChange={(e) => setPharmacyForm((p) => ({ ...p, pinCode: e.target.value }))}
+                placeholder="400001"
               />
             </div>
           </div>
 
-          <div className="ob-ff">
-            <label>GST Number (optional)</label>
-            <input
-              value={pharmacyForm.gstNumber}
-              onChange={(e) => setPharmacyForm((p) => ({ ...p, gstNumber: e.target.value }))}
-              placeholder="27ABCDE1234F1Z5"
-            />
+          <div className="ob-row2">
+            <div className="ob-ff">
+              <label>Drug License No.</label>
+              <input
+                value={pharmacyForm.licenseNumber}
+                onChange={(e) =>
+                  setPharmacyForm((p) => ({ ...p, licenseNumber: e.target.value }))
+                }
+                placeholder="MH-MUM-123456"
+              />
+              <div className="ob-hint">State drug license (CA/CG/B20/B21)</div>
+            </div>
+            <div className="ob-ff">
+              <label>GSTIN</label>
+              <input
+                value={pharmacyForm.gstNumber}
+                onChange={(e) => setPharmacyForm((p) => ({ ...p, gstNumber: e.target.value }))}
+                placeholder="27AAAAA0000A1Z5"
+              />
+              <div className="ob-hint">15-digit GST number</div>
+            </div>
           </div>
         </div>
       )}
