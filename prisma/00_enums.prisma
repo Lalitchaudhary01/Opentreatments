@@ -116,3 +116,24 @@ enum ReportStatus {
   VERIFIED
   DELIVERED
 }
+
+enum PrescriptionStatus {
+  PENDING
+  VERIFIED
+  CLARIFICATION
+  REJECTED
+  DISPENSED
+}
+
+enum SalePaymentMethod {
+  CASH
+  UPI
+  CARD
+  CREDIT
+}
+
+enum SaleStatus {
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}

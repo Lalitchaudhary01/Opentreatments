@@ -17,9 +17,16 @@ model Pharmacy {
   status        PharmacyStatus @default(PENDING)
   updatedAt     DateTime       @updatedAt
   userId        String         @unique
+  branches      PharmacyBranch[]
+  customers     PharmacyCustomer[]
+  delivery      PharmacyDeliveryConfig?
   InventoryLog  InventoryLog[]
   medicines     Medicine[]
+  offers        PharmacyOffer[]
   orders        Order[]
+  prescriptions PharmacyPrescription[]
+  sales         PharmacySale[]
+  settings      PharmacySettings?
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   stock         StockEntry[]   @relation("PharmacyStock")
 
@@ -46,6 +53,7 @@ model Medicine {
   inventoryLogs InventoryLog[]
   pharmacy      Pharmacy       @relation(fields: [pharmacyId], references: [id])
   orderItems    OrderItem[]
+  pharmacySaleItems PharmacySaleItem[]
   priceTrends   PriceTrend[]
   stock         StockEntry[]
   substitutes   Substitute[]   @relation("OriginalMedicine")
@@ -143,4 +151,144 @@ model Substitute {
 
   @@index([medicineId])
   @@index([substituteMedicineId])
+}
+
+model PharmacySettings {
+  id                     String   @id @default(cuid())
+  pharmacyId             String   @unique
+  billingPrefix          String   @default("INV")
+  lowStockThreshold      Int      @default(20)
+  enableUPI              Boolean  @default(true)
+  roundOffBills          Boolean  @default(false)
+  allowSubstitutes       Boolean  @default(true)
+  requireRxForScheduleH  Boolean  @default(true)
+  sendOrderSms           Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  pharmacy               Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  @@index([pharmacyId])
+}
+
+model PharmacyOffer {
+  id             String   @id @default(cuid())
+  pharmacyId     String
+  name           String
+  offerType      String
+  discountValue  Float
+  minOrderValue  Float?
+  startDate      DateTime?
+  endDate        DateTime?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  pharmacy       Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  @@index([pharmacyId, isActive, createdAt])
+}
+
+model PharmacyCustomer {
+  id           String   @id @default(cuid())
+  pharmacyId   String
+  name         String
+  phone        String
+  email        String?
+  notes        String?
+  totalOrders  Int      @default(0)
+  totalSpend   Float    @default(0)
+  lastOrderAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  pharmacy     Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  prescriptions PharmacyPrescription[]
+  sales        PharmacySale[]
+
+  @@unique([pharmacyId, phone])
+  @@index([pharmacyId, createdAt])
+}
+
+model PharmacyPrescription {
+  id          String             @id @default(cuid())
+  pharmacyId  String
+  customerId  String?
+  orderId     String?
+  rxNumber    String
+  status      PrescriptionStatus @default(PENDING)
+  source      String?
+  notes       String?
+  imageUrl    String?
+  uploadedAt  DateTime           @default(now())
+  verifiedAt  DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  pharmacy    Pharmacy           @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  customer    PharmacyCustomer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([pharmacyId, status, createdAt])
+  @@index([customerId, createdAt])
+}
+
+model PharmacyDeliveryConfig {
+  id               String   @id @default(cuid())
+  pharmacyId       String   @unique
+  homeDeliveryOn   Boolean  @default(false)
+  maxRadiusKm      Float    @default(5)
+  baseFee          Float    @default(0)
+  freeAboveAmount  Float?
+  avgEtaMins       Int      @default(30)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  pharmacy         Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+}
+
+model PharmacyBranch {
+  id            String   @id @default(cuid())
+  pharmacyId    String
+  name          String
+  phone         String?
+  address       String?
+  city          String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  pharmacy      Pharmacy @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+
+  @@index([pharmacyId, isActive, createdAt])
+}
+
+model PharmacySale {
+  id             String            @id @default(cuid())
+  pharmacyId     String
+  customerId     String?
+  invoiceNumber  String            @unique
+  subtotal       Float
+  discount       Float             @default(0)
+  tax            Float             @default(0)
+  total          Float
+  paymentMethod  SalePaymentMethod @default(CASH)
+  status         SaleStatus        @default(COMPLETED)
+  soldAt         DateTime          @default(now())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  pharmacy       Pharmacy          @relation(fields: [pharmacyId], references: [id], onDelete: Cascade)
+  customer       PharmacyCustomer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items          PharmacySaleItem[]
+
+  @@index([pharmacyId, soldAt])
+  @@index([pharmacyId, status, soldAt])
+}
+
+model PharmacySaleItem {
+  id           String       @id @default(cuid())
+  saleId       String
+  medicineId   String?
+  medicineName String
+  quantity     Int
+  unitPrice    Float
+  lineTotal    Float
+  sale         PharmacySale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  medicine     Medicine?    @relation(fields: [medicineId], references: [id], onDelete: SetNull)
+
+  @@index([saleId])
+  @@index([medicineId])
 }
