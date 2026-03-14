@@ -1,10 +1,14 @@
 import nodemailer from "nodemailer";
+import path from "path";
 
 export function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export async function sendOTPEmail(email: string, otp: string): Promise<void> {
+  const logoCid = "open-treatment-logo";
+  const logoPath = path.join(process.cwd(), "public", "Subtract.svg");
+
   // Configure nodemailer with your email service
   const transporter = nodemailer.createTransport({
     service: "gmail", // or your email service
@@ -17,93 +21,110 @@ export async function sendOTPEmail(email: string, otp: string): Promise<void> {
   const mailOptions = {
     from: `"Open Treatment" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "🔐 Verify Your Email - Open Treatment",
+    subject: "Verify your email - Open Treatment",
     html: `
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify your email</title>
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div style="max-width: 600px; margin: 20px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-          
-          <!-- Header with Logo -->
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
-            <div style="margin-bottom: 20px;">
-              <!-- Logo - Replace with your actual logo URL -->
-              <img src="/public/Subtract.svg" 
-                   alt="Open Treatment Logo" 
-                   style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3);"
-                   onerror="this.style.display='none'">
-            </div>
-            <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Open Treatment</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0; font-size: 16px;">Your Health, Our Priority</p>
-          </div>
-          
-          <!-- Content -->
-          <div style="padding: 40px 30px; background: #f8f9fa;">
-            <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-              <h2 style="color: #333; margin: 0 0 10px; font-size: 24px; text-align: center;">Email Verification</h2>
-              <p style="color: #666; margin: 0 0 30px; text-align: center; font-size: 16px;">Please verify your email address to continue</p>
-              
-              <!-- OTP Box -->
-              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; padding: 30px; text-align: center; margin: 20px 0;">
-                <p style="color: white; margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Your Verification Code</p>
-                <div style="background: rgba(255,255,255,0.2); border-radius: 10px; padding: 15px; display: inline-block;">
-                  <span style="font-size: 48px; font-weight: 800; color: white; letter-spacing: 8px; font-family: 'Courier New', monospace;">${otp}</span>
-                </div>
-              </div>
-              
-              <!-- Timer Info -->
-              <div style="text-align: center; margin: 20px 0;">
-                <div style="display: inline-block; background: #f0f0f0; border-radius: 50px; padding: 8px 20px;">
-                  <span style="color: #666; font-size: 14px;">⏰ Valid for 15 minutes</span>
-                </div>
-              </div>
-              
-              <!-- Instructions -->
-              <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0;">
-                <p style="color: #333; margin: 0 0 10px; font-weight: 600;">📋 How to verify:</p>
-                <p style="color: #666; margin: 5px 0;">1. Enter this code in the verification field</p>
-                <p style="color: #666; margin: 5px 0;">2. Click on "Verify Email" button</p>
-                <p style="color: #666; margin: 5px 0;">3. Start your healthcare journey with us!</p>
-              </div>
-              
-              <!-- Security Note -->
-              <div style="border-top: 1px solid #e0e0e0; padding-top: 20px; margin-top: 20px;">
-                <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-                  🔒 Never share this OTP with anyone. Our team will never ask for your password or OTP.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Footer -->
-          <div style="background: #333; padding: 30px; text-align: center;">
-            <div style="margin-bottom: 20px;">
-              <!-- Social Media Icons (optional) -->
-              <a href="#" style="display: inline-block; margin: 0 10px;">
-                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width: 24px; height: 24px;">
-              </a>
-              <a href="#" style="display: inline-block; margin: 0 10px;">
-                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" style="width: 24px; height: 24px;">
-              </a>
-              <a href="#" style="display: inline-block; margin: 0 10px;">
-                <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" style="width: 24px; height: 24px;">
-              </a>
-            </div>
-            <p style="color: #999; margin: 0 0 10px; font-size: 14px;">© 2024 Open Treatment. All rights reserved.</p>
-            <p style="color: #666; margin: 0; font-size: 12px;">
-              <a href="#" style="color: #667eea; text-decoration: none;">Privacy Policy</a> • 
-              <a href="#" style="color: #667eea; text-decoration: none;">Terms of Service</a> • 
-              <a href="#" style="color: #667eea; text-decoration: none;">Contact Us</a>
-            </p>
-          </div>
-        </div>
+      <body style="margin:0;padding:0;background:#020817;font-family:Arial,'Segoe UI',sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:radial-gradient(circle at top,#0b1736 0%,#020817 60%);padding:28px 12px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#040d25;border:1px solid #1e293b;border-radius:18px;overflow:hidden;">
+                <tr>
+                  <td style="padding:28px 24px;background:linear-gradient(90deg,#0f172a 0%,#0b1f4d 70%,#093b71 100%);border-bottom:1px solid #1f2f52;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td width="56" valign="middle">
+                          <img src="cid:${logoCid}" alt="Open Treatment" width="42" height="42" style="display:block;border:0;outline:none;text-decoration:none;">
+                        </td>
+                        <td valign="middle">
+                          <p style="margin:0;color:#e2e8f0;font-size:21px;font-weight:700;letter-spacing:0.2px;">Open Treatment</p>
+                          <p style="margin:4px 0 0;color:#93c5fd;font-size:12px;">Doctor • Pharmacy • Healthcare CRM</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:30px 24px 10px;">
+                    <p style="margin:0;color:#f8fafc;font-size:26px;line-height:1.25;font-weight:800;">Verify your email</p>
+                    <p style="margin:10px 0 0;color:#94a3b8;font-size:14px;line-height:1.65;">
+                      Use the code below to continue your Open Treatment signup/login flow.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:18px 24px 12px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:linear-gradient(90deg,#0b2a66 0%,#0e7490 100%);border-radius:14px;">
+                      <tr>
+                        <td align="center" style="padding:22px 14px;">
+                          <p style="margin:0;color:#e2e8f0;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;">One-time verification code</p>
+                          <p style="margin:10px 0 0;color:#ffffff;font-size:40px;line-height:1;font-weight:800;letter-spacing:10px;font-family:'Courier New',monospace;">${otp}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:6px 24px 0;">
+                    <div style="display:inline-block;background:#0f172a;border:1px solid #1e293b;border-radius:999px;padding:8px 14px;color:#93c5fd;font-size:12px;">
+                      Code expires in 15 minutes
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#020817;border:1px solid #1e293b;border-radius:12px;">
+                      <tr>
+                        <td style="padding:14px 16px;">
+                          <p style="margin:0 0 8px;color:#e2e8f0;font-size:13px;font-weight:700;">Security note</p>
+                          <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.6;">
+                            Never share this OTP with anyone. Open Treatment support will never ask your OTP or password.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:0 24px 26px;">
+                    <p style="margin:0;color:#64748b;font-size:12px;">
+                      If you did not request this code, you can ignore this email.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:16px 24px;border-top:1px solid #1e293b;background:#020617;">
+                    <p style="margin:0;color:#64748b;font-size:11px;line-height:1.6;">
+                      © ${new Date().getFullYear()} Open Treatment. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
       </html>
     `,
+    attachments: [
+      {
+        filename: "Subtract.svg",
+        path: logoPath,
+        cid: logoCid,
+      },
+    ],
   };
 
   try {
