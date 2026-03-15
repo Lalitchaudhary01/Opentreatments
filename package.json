@@ -7,6 +7,13 @@
     "build": "prisma generate --schema=./prisma && next build",
     "start": "next start",
     "lint": "eslint",
+    "db:generate": "prisma generate --schema=./prisma",
+    "db:validate": "prisma validate --schema=./prisma",
+    "db:status": "prisma migrate status --schema=./prisma/schema.prisma",
+    "db:migrate:dev": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:migrate:deploy": "prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:migrate:reset": "prisma migrate reset --schema=./prisma/schema.prisma",
+    "db:push:danger": "prisma db push --schema=./prisma --accept-data-loss",
     "postinstall": "prisma generate --schema=./prisma"
   },
   "dependencies": {
