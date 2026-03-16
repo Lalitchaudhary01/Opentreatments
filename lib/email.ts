@@ -7,7 +7,7 @@ export function generateOTP(): string {
 
 export async function sendOTPEmail(email: string, otp: string): Promise<void> {
   const logoCid = "open-treatment-logo";
-  const logoPath = path.join(process.cwd(), "public", "Subtract.svg");
+  const logoPath = path.join(process.cwd(), "public", "logo.png");
 
   // Configure nodemailer with your email service
   const transporter = nodemailer.createTransport({
@@ -120,7 +120,7 @@ export async function sendOTPEmail(email: string, otp: string): Promise<void> {
     `,
     attachments: [
       {
-        filename: "Subtract.svg",
+        filename: "logo.png",
         path: logoPath,
         cid: logoCid,
       },
