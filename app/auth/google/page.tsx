@@ -14,7 +14,13 @@ const REDIRECT_BY_ROLE: Record<Role, string> = {
 };
 
 function isSelectableRole(value: string | undefined): value is Role {
-  return value === "USER" || value === "DOCTOR" || value === "PHARMACY" || value === "ADMIN";
+  return (
+    value === "USER" ||
+    value === "DOCTOR" ||
+    value === "PHARMACY" ||
+    value === "HOSPITAL" ||
+    value === "ADMIN"
+  );
 }
 
 export default async function GoogleRolePage({

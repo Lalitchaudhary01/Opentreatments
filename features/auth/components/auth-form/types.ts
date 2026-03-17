@@ -1,4 +1,4 @@
-export type Role = "USER" | "DOCTOR" | "PHARMACY" | "ADMIN";
+export type Role = "USER" | "DOCTOR" | "PHARMACY" | "HOSPITAL" | "ADMIN";
 
 export type AuthFormState = {
   email: string;

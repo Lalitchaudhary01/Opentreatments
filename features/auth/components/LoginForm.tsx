@@ -11,6 +11,8 @@ import type {
 import { completeDoctorOnboarding } from "../doctor/actions/doctorOnboardingActions";
 import type { PharmacyOnboardingFormState } from "../pharmacy/PharmacyOnboardingSteps";
 import { completePharmacyOnboarding } from "../pharmacy/actions/pharmacyOnboardingActions";
+import type { HospitalOnboardingFormState } from "../hospital/HospitalOnboardingSteps";
+import { completeHospitalOnboarding } from "../hospital/actions/hospitalOnboardingActions";
 import AuthLeftPanel from "./auth-form/AuthLeftPanel";
 import AuthRegisterStep from "./auth-form/AuthRegisterStep";
 import AuthVerifyStep from "./auth-form/AuthVerifyStep";
@@ -25,14 +27,19 @@ const PharmacyOnboardingSteps = dynamic(
   () => import("../pharmacy/PharmacyOnboardingSteps").then((mod) => mod.PharmacyOnboardingSteps),
   { ssr: false, loading: () => null }
 );
+const HospitalOnboardingSteps = dynamic(
+  () => import("../hospital/HospitalOnboardingSteps").then((mod) => mod.HospitalOnboardingSteps),
+  { ssr: false, loading: () => null }
+);
 
-const REGISTER_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
-const LOGIN_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "ADMIN"];
+const REGISTER_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "HOSPITAL", "ADMIN"];
+const LOGIN_ROLES: Role[] = ["USER", "DOCTOR", "PHARMACY", "HOSPITAL", "ADMIN"];
 
 const REDIRECT_BY_ROLE: Record<Role, string> = {
   USER: "/",
   DOCTOR: "/doctor",
   PHARMACY: "/pharmacy/dashboard",
+  HOSPITAL: "/hospital/dashboard",
   ADMIN: "/admin/dashbaord",
 };
 
@@ -40,6 +47,7 @@ const VERIFY_REDIRECT_BY_ROLE: Record<Role, string> = {
   USER: "/",
   DOCTOR: "/doctor/profile/submit",
   PHARMACY: "/pharmacy/profile/submit",
+  HOSPITAL: "/hospital/profile/submit",
   ADMIN: "/admin/dashbaord",
 };
 
@@ -101,6 +109,17 @@ export default function AuthForm() {
     licenseNumber: "",
     gstNumber: "",
   });
+  const [hospitalForm, setHospitalForm] = useState<HospitalOnboardingFormState>({
+    name: "",
+    contactPerson: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "India",
+    website: "",
+  });
 
   useEffect(() => {
     const m = searchParams.get("mode");
@@ -112,6 +131,9 @@ export default function AuthForm() {
     else if (m === "pharmacy-details") setMode("pharmacy-details");
     else if (m === "pharmacy-location") setMode("pharmacy-location");
     else if (m === "pharmacy-success") setMode("pharmacy-success");
+    else if (m === "hospital-details") setMode("hospital-details");
+    else if (m === "hospital-location") setMode("hospital-location");
+    else if (m === "hospital-success") setMode("hospital-success");
     else setMode("login");
 
     const roleParam = searchParams.get("role");
@@ -123,6 +145,7 @@ export default function AuthForm() {
     if (emailParam) {
       setForm((prev) => ({ ...prev, email: emailParam }));
       setPharmacyForm((prev) => ({ ...prev, email: prev.email || emailParam }));
+      setHospitalForm((prev) => ({ ...prev, email: prev.email || emailParam }));
     }
   }, [searchParams]);
 
@@ -144,6 +167,9 @@ export default function AuthForm() {
     if (mode === "pharmacy-details") return 85;
     if (mode === "pharmacy-location") return 95;
     if (mode === "pharmacy-success") return 100;
+    if (mode === "hospital-details") return 85;
+    if (mode === "hospital-location") return 95;
+    if (mode === "hospital-success") return 100;
     return 75;
   }, [mode]);
 
@@ -162,6 +188,8 @@ export default function AuthForm() {
     if (mode === "doctor-success") return "You're all set,<br/><em>Doctor.</em>";
     if (mode === "pharmacy-details" || mode === "pharmacy-location") return "Set up your pharmacy,<br/><em>start serving patients.</em>";
     if (mode === "pharmacy-success") return "You're all set,<br/><em>Pharmacy.</em>";
+    if (mode === "hospital-details" || mode === "hospital-location") return "Set up your hospital,<br/><em>go live faster.</em>";
+    if (mode === "hospital-success") return "You're all set,<br/><em>Hospital.</em>";
     return "Welcome back,<br/><em>Doctor.</em>";
   }, [mode]);
 
@@ -174,6 +202,9 @@ export default function AuthForm() {
     if (mode === "pharmacy-details") return "Tell us about yourself so we can personalise your pharmacy dashboard.";
     if (mode === "pharmacy-location") return "A few details about your store. You can update everything from Settings later.";
     if (mode === "pharmacy-success") return "Your pharmacy profile is submitted and under admin review.";
+    if (mode === "hospital-details") return "Share hospital details so we can prepare your dashboard and approval flow.";
+    if (mode === "hospital-location") return "Add hospital contact and location details. You can refine profile later.";
+    if (mode === "hospital-success") return "Your hospital profile is submitted and will be reviewed by admin.";
     return "Sign in to manage your appointments, patients and revenue.";
   }, [mode]);
 
@@ -302,6 +333,11 @@ export default function AuthForm() {
       if (verifiedRole === "PHARMACY") {
         return router.push(
           `/auth?mode=pharmacy-details&role=PHARMACY&email=${encodeURIComponent(form.email)}`
+        );
+      }
+      if (verifiedRole === "HOSPITAL") {
+        return router.push(
+          `/auth?mode=hospital-details&role=HOSPITAL&email=${encodeURIComponent(form.email)}`
         );
       }
 
@@ -451,6 +487,52 @@ export default function AuthForm() {
     );
   }
 
+  function continueHospitalDetails() {
+    const email = hospitalForm.email.trim() || form.email.trim();
+    if (!hospitalForm.name.trim()) {
+      alert("Hospital name is required");
+      return;
+    }
+    if (!hospitalForm.contactPerson.trim()) {
+      alert("Contact person is required");
+      return;
+    }
+    if (!hospitalForm.phone.trim() || !email) {
+      alert("Hospital email and phone are required");
+      return;
+    }
+    router.push(
+      `/auth?mode=hospital-location&role=HOSPITAL&email=${encodeURIComponent(form.email)}`
+    );
+  }
+
+  async function submitHospitalOnboarding() {
+    const email = hospitalForm.email.trim() || form.email.trim();
+    if (
+      !hospitalForm.address.trim() ||
+      !hospitalForm.city.trim() ||
+      !hospitalForm.state.trim() ||
+      !hospitalForm.country.trim()
+    ) {
+      alert("Address, city, state and country are required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await completeHospitalOnboarding({
+        ...hospitalForm,
+        email,
+      });
+      if (!result.ok) return alert(result.error || "Unable to submit hospital profile");
+      router.push("/auth?mode=hospital-success");
+    } catch {
+      alert("Unable to submit hospital profile");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function handleFooterContinue() {
     if (mode === "register") {
       void registerSubmit({ preventDefault() {} } as React.FormEvent);
@@ -474,6 +556,14 @@ export default function AuthForm() {
     }
     if (mode === "pharmacy-location") {
       void submitPharmacyOnboarding();
+      return;
+    }
+    if (mode === "hospital-details") {
+      continueHospitalDetails();
+      return;
+    }
+    if (mode === "hospital-location") {
+      void submitHospitalOnboarding();
     }
   }
 
@@ -526,6 +616,12 @@ export default function AuthForm() {
               setPharmacyForm={setPharmacyForm}
               onSetupDashboard={() => router.push("/pharmacy/dashboard")}
             />
+            <HospitalOnboardingSteps
+              mode={mode}
+              hospitalForm={hospitalForm}
+              setHospitalForm={setHospitalForm}
+              onSetupDashboard={() => router.push("/hospital/dashboard")}
+            />
 
             {mode === "login" && (
               <AuthLoginStep
@@ -542,13 +638,13 @@ export default function AuthForm() {
             )}
           </div>
 
-          {mode !== "login" && mode !== "doctor-success" && mode !== "pharmacy-success" ? (
+          {mode !== "login" && mode !== "doctor-success" && mode !== "pharmacy-success" && mode !== "hospital-success" ? (
             <div className="ob-footer">
               <div className="ob-dots">
                 <div className={`ob-dot ${mode === "register" ? "active" : "done"}`} />
-                <div className={`ob-dot ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "pharmacy-details", "pharmacy-location"].includes(mode) ? "done" : ""}`} />
-                <div className={`ob-dot ${mode === "doctor-details" || mode === "pharmacy-details" ? "active" : mode === "doctor-clinic" || mode === "pharmacy-location" ? "done" : ""}`} />
-                <div className={`ob-dot ${mode === "doctor-clinic" || mode === "pharmacy-location" ? "active" : ""}`} />
+                <div className={`ob-dot ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "pharmacy-details", "pharmacy-location", "hospital-details", "hospital-location"].includes(mode) ? "done" : ""}`} />
+                <div className={`ob-dot ${mode === "doctor-details" || mode === "pharmacy-details" || mode === "hospital-details" ? "active" : mode === "doctor-clinic" || mode === "pharmacy-location" || mode === "hospital-location" ? "done" : ""}`} />
+                <div className={`ob-dot ${mode === "doctor-clinic" || mode === "pharmacy-location" || mode === "hospital-location" ? "active" : ""}`} />
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
@@ -559,13 +655,15 @@ export default function AuthForm() {
                     if (mode === "pharmacy-details") return goMode("verify");
                     if (mode === "pharmacy-location") return goMode("pharmacy-details");
                     if (mode === "doctor-clinic") return goMode("doctor-details");
+                    if (mode === "hospital-details") return goMode("verify");
+                    if (mode === "hospital-location") return goMode("hospital-details");
                     goMode("register");
                   }}
                 >
                   Back
                 </button>
                 <button className="ob-btn ob-btn-primary" disabled={loading} onClick={handleFooterContinue}>
-                  {mode === "doctor-clinic" || mode === "pharmacy-location" ? "Setup Dashboard" : "Continue"}
+                  {mode === "doctor-clinic" || mode === "pharmacy-location" || mode === "hospital-location" ? "Setup Dashboard" : "Continue"}
                 </button>
               </div>
             </div>

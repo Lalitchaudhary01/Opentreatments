@@ -8,6 +8,45 @@ type Props = {
 };
 
 export default function AuthLeftPanel({ mode, leftTagline, leftSub }: Props) {
+  const isCompletedAfterVerify = [
+    "doctor-details",
+    "doctor-clinic",
+    "doctor-success",
+    "pharmacy-details",
+    "pharmacy-location",
+    "pharmacy-success",
+    "hospital-details",
+    "hospital-location",
+    "hospital-success",
+    "login",
+  ].includes(mode);
+
+  const isStep3Active =
+    mode === "doctor-details" || mode === "pharmacy-details" || mode === "hospital-details";
+  const isStep3Done = [
+    "doctor-clinic",
+    "doctor-success",
+    "pharmacy-location",
+    "pharmacy-success",
+    "hospital-location",
+    "hospital-success",
+  ].includes(mode);
+
+  const isStep4Active =
+    mode === "doctor-clinic" || mode === "pharmacy-location" || mode === "hospital-location";
+  const isStep4Done = ["doctor-success", "pharmacy-success", "hospital-success"].includes(mode);
+
+  const step3Label = mode.startsWith("pharmacy")
+    ? "Your details"
+    : mode.startsWith("hospital")
+      ? "Hospital details"
+      : "Personal &amp; credentials";
+  const step4Label = mode.startsWith("pharmacy")
+    ? "Pharmacy setup"
+    : mode.startsWith("hospital")
+      ? "Location &amp; contact"
+      : "Clinic &amp; specialisation";
+
   return (
     <div className={`ob-left ${mode === "login" ? "signin-mode" : ""}`}>
       <div className="ob-left-dots" />
@@ -49,9 +88,9 @@ export default function AuthLeftPanel({ mode, leftTagline, leftSub }: Props) {
       <div className="ob-left-content">
         <div className="ob-steps-side" id="ob-steps-side">
           <div className={`ob-sp ${mode === "register" ? "active" : "done"}`}><div className="ob-sp-num">{mode === "register" ? "1" : "✓"}</div><div className="ob-sp-label">Create account</div></div>
-          <div className={`ob-sp ${mode === "verify" ? "active" : ["doctor-details", "doctor-clinic", "doctor-success", "pharmacy-details", "pharmacy-location", "pharmacy-success", "login"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "verify" ? "2" : "✓"}</div><div className="ob-sp-label">Verify email</div></div>
-          <div className={`ob-sp ${mode === "doctor-details" || mode === "pharmacy-details" ? "active" : ["doctor-clinic", "doctor-success", "pharmacy-location", "pharmacy-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "doctor-details" || mode === "pharmacy-details" ? "3" : ["doctor-clinic", "doctor-success", "pharmacy-location", "pharmacy-success"].includes(mode) ? "✓" : "3"}</div><div className="ob-sp-label">{mode.startsWith("pharmacy") ? "Your details" : "Personal &amp; credentials"}</div></div>
-          <div className={`ob-sp ${mode === "doctor-clinic" || mode === "pharmacy-location" ? "active" : ["doctor-success", "pharmacy-success"].includes(mode) ? "done" : "dim"}`}><div className="ob-sp-num">{["doctor-success", "pharmacy-success"].includes(mode) ? "✓" : "4"}</div><div className="ob-sp-label">{mode.startsWith("pharmacy") ? "Pharmacy setup" : "Clinic &amp; specialisation"}</div></div>
+          <div className={`ob-sp ${mode === "verify" ? "active" : isCompletedAfterVerify ? "done" : "dim"}`}><div className="ob-sp-num">{mode === "verify" ? "2" : "✓"}</div><div className="ob-sp-label">Verify email</div></div>
+          <div className={`ob-sp ${isStep3Active ? "active" : isStep3Done ? "done" : "dim"}`}><div className="ob-sp-num">{isStep3Active ? "3" : isStep3Done ? "✓" : "3"}</div><div className="ob-sp-label">{step3Label}</div></div>
+          <div className={`ob-sp ${isStep4Active ? "active" : isStep4Done ? "done" : "dim"}`}><div className="ob-sp-num">{isStep4Done ? "✓" : "4"}</div><div className="ob-sp-label">{step4Label}</div></div>
         </div>
         <div className="ob-tagline" dangerouslySetInnerHTML={{ __html: leftTagline }} />
         <div className="ob-tagsub">{leftSub}</div>
