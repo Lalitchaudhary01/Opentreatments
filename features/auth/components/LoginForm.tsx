@@ -47,7 +47,7 @@ const VERIFY_REDIRECT_BY_ROLE: Record<Role, string> = {
   USER: "/",
   DOCTOR: "/doctor/profile/submit",
   PHARMACY: "/pharmacy/profile/submit",
-  HOSPITAL: "/hospital/profile/submit",
+  HOSPITAL: "/auth?mode=hospital-details&role=HOSPITAL",
   ADMIN: "/admin/dashbaord",
 };
 

@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 const roleHome: Record<Role, string> = {
   [Role.USER]: "/",
   [Role.DOCTOR]: "/doctor/overview",
-  [Role.HOSPITAL]: "/hospitals",
+  [Role.HOSPITAL]: "/hospital/dashboard",
   [Role.PHARMACY]: "/pharmacy/overview",
   [Role.INSURANCE_COMPANY]: "/insurance/dashbaord",
   [Role.ADMIN]: "/admin/dashbaord",
@@ -13,6 +13,7 @@ const roleHome: Record<Role, string> = {
 
 const doctorAuthModes = new Set(["doctor-details", "doctor-clinic", "doctor-success"]);
 const pharmacyAuthModes = new Set(["pharmacy-details", "pharmacy-location", "pharmacy-success"]);
+const hospitalAuthModes = new Set(["hospital-details", "hospital-location", "hospital-success"]);
 
 export default withAuth(
   function middleware(req) {
@@ -25,7 +26,8 @@ export default withAuth(
       isAuthPath &&
       !!mode &&
       ((role === Role.DOCTOR && doctorAuthModes.has(mode)) ||
-        (role === Role.PHARMACY && pharmacyAuthModes.has(mode)));
+        (role === Role.PHARMACY && pharmacyAuthModes.has(mode)) ||
+        (role === Role.HOSPITAL && hospitalAuthModes.has(mode)));
 
     // If logged in and on auth page, send user to role home (except onboarding flows).
     if (token && isAuthPath && !isRoleOnboardingAuthRoute) {
@@ -42,8 +44,8 @@ export default withAuth(
           ? "/doctor"
           : role === Role.PHARMACY
             ? "/pharmacy"
-            : role === Role.HOSPITAL
-              ? "/hospitals"
+          : role === Role.HOSPITAL
+              ? "/hospital"
               : role === Role.INSURANCE_COMPANY
                 ? "/insurance"
                 : role === Role.ADMIN
@@ -60,7 +62,7 @@ export default withAuth(
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
-    if (path.startsWith("/hospitals") && (!token || role !== Role.HOSPITAL)) {
+    if (path.startsWith("/hospital") && (!token || role !== Role.HOSPITAL)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
@@ -105,7 +107,7 @@ export const config = {
     "/user/:path*",
     "/blog/:path*",
     "/doctor/:path*",
-    "/hospitals/:path*",
+    "/hospital/:path*",
     "/pharmacy/:path*",
     "/insurance/:path*",
     "/admin/:path*",
