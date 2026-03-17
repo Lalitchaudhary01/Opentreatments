@@ -1,0 +1,16 @@
+export const hospitalRoutes = {
+  overview: "/hospital/dashboard",
+  appointments: "/hospital/appointments",
+  patients: "/hospital/patients",
+  services: "/hospital/services",
+  billing: "/hospital/billing",
+  reviews: "/hospital/reviews",
+  analytics: "/hospital/analytics",
+  settings: "/hospital/settings",
+  profile: "/hospital/profile",
+  doctors: "/hospital/doctors",
+  procedures: "/hospital/procedures",
+  facilities: "/hospital/facilities",
+  insurances: "/hospital/insurances",
+  estimates: "/hospital/estimates",
+} as const;
