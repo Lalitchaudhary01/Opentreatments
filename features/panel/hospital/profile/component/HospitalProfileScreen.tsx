@@ -47,10 +47,10 @@ export default async function HospitalProfileScreen() {
 
   if (!profile) {
     return (
-      <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-6">
+      <div className="rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-6">
         <p className="text-[11px] uppercase tracking-[0.1em] text-[#64748B]">Hospital Profile</p>
-        <h2 className="mt-2 text-xl font-semibold text-slate-100">Profile not submitted yet</h2>
-        <p className="mt-2 text-sm text-[#94A3B8]">
+        <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Profile not submitted yet</h2>
+        <p className="mt-2 text-sm text-slate-500 dark:text-[#94A3B8]">
           Complete hospital profile to appear in admin approval queue and unlock full dashboard access.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
@@ -62,7 +62,7 @@ export default async function HospitalProfileScreen() {
           </Link>
           <Link
             href="/hospital/dashboard"
-            className="rounded-lg border border-white/[0.12] px-4 py-2 text-sm font-medium text-[#CBD5E1] hover:bg-white/[0.05]"
+            className="rounded-lg border border-slate-200 dark:border-white/[0.12] px-4 py-2 text-sm font-medium text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-white/[0.05]"
           >
             Back to Dashboard
           </Link>
@@ -78,14 +78,14 @@ export default async function HospitalProfileScreen() {
     "Bandra West, Mumbai, Maharashtra, India";
 
   return (
-    <div className="min-h-full bg-[#0B1120] p-6 md:p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#0B1120] p-6 md:p-8">
       <div className="grid items-start gap-[18px] xl:grid-cols-[260px_1fr]">
         <div className="flex flex-col gap-[14px]">
-          <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-[22px] text-center">
+          <div className="rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-[22px] text-center">
             <div className="mx-auto mb-3 flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-gradient-to-br from-[#0284c7] to-[#0369a1] text-[26px] font-bold text-white">
               {initials(title)}
             </div>
-            <div className="text-[15px] font-bold text-slate-100">{title}</div>
+            <div className="text-[15px] font-bold text-slate-900 dark:text-slate-100">{title}</div>
             <div className="mt-0.5 text-[11.5px] text-[#38bdf8]">{location}</div>
 
             <div className="mt-2 flex justify-center gap-1.5">
@@ -99,15 +99,15 @@ export default async function HospitalProfileScreen() {
 
             <div className="flex justify-around">
               <div>
-                <div className="text-[16px] font-bold text-slate-100">4.7★</div>
+                <div className="text-[16px] font-bold text-slate-900 dark:text-slate-100">4.7★</div>
                 <div className="text-[10px] text-[#64748B]">Rating</div>
               </div>
               <div>
-                <div className="text-[16px] font-bold text-slate-100">24/7</div>
+                <div className="text-[16px] font-bold text-slate-900 dark:text-slate-100">24/7</div>
                 <div className="text-[10px] text-[#64748B]">Support</div>
               </div>
               <div>
-                <div className="text-[16px] font-bold text-slate-100">
+                <div className="text-[16px] font-bold text-slate-900 dark:text-slate-100">
                   {Math.max(1, new Date().getFullYear() - new Date(profile.createdAt).getFullYear())}yr
                 </div>
                 <div className="text-[10px] text-[#64748B]">Est.</div>
@@ -116,7 +116,7 @@ export default async function HospitalProfileScreen() {
 
             <button
               type="button"
-              className="mt-[14px] w-full rounded-lg border border-white/[0.08] bg-white/[0.04] py-2 text-[11px] text-[#CBD5E1] hover:bg-white/[0.08]"
+              className="mt-[14px] w-full rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] py-2 text-[11px] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 dark:hover:bg-white/[0.08]"
             >
               Change Logo
             </button>
@@ -125,27 +125,27 @@ export default async function HospitalProfileScreen() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="border-b border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-100">Verification & Compliance</div>
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="border-b border-slate-200 dark:border-white/[0.07] px-4 py-3 text-[12px] font-semibold text-slate-900 dark:text-slate-100">Verification & Compliance</div>
             <div className="flex flex-col gap-2 p-3">
-              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+              <div className="rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] p-3">
                 <div className="text-[10px] uppercase tracking-[0.08em] text-[#64748B]">Hospital License</div>
                 <div className="mt-1 flex items-center justify-between">
-                  <div className="text-[11.5px] text-slate-100">MH-HSP-2026-00091</div>
+                  <div className="text-[11.5px] text-slate-900 dark:text-slate-100">MH-HSP-2026-00091</div>
                   <span className="rounded-full bg-[#22c55e]/15 px-2 py-0.5 text-[9.5px] text-[#22c55e]">Valid</span>
                 </div>
               </div>
-              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+              <div className="rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] p-3">
                 <div className="text-[10px] uppercase tracking-[0.08em] text-[#64748B]">NABH Status</div>
                 <div className="mt-1 flex items-center justify-between">
-                  <div className="text-[11.5px] text-slate-100">Accredited</div>
+                  <div className="text-[11.5px] text-slate-900 dark:text-slate-100">Accredited</div>
                   <span className="rounded-full bg-[#22c55e]/15 px-2 py-0.5 text-[9.5px] text-[#22c55e]">Active</span>
                 </div>
               </div>
-              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3">
+              <div className="rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] p-3">
                 <div className="text-[10px] uppercase tracking-[0.08em] text-[#64748B]">Last Update</div>
                 <div className="mt-1 flex items-center justify-between">
-                  <div className="text-[11.5px] text-slate-100">
+                  <div className="text-[11.5px] text-slate-900 dark:text-slate-100">
                     {new Date(profile.updatedAt).toLocaleDateString("en-IN", {
                       day: "2-digit",
                       month: "short",
@@ -160,11 +160,11 @@ export default async function HospitalProfileScreen() {
         </div>
 
         <div className="flex flex-col gap-[14px]">
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-4">
               <div>
-                <div className="text-[13px] font-semibold text-slate-100">Hospital Information</div>
-                <div className="mt-0.5 text-[11px] text-[#94A3B8]">Pre-filled from registration · edit anytime</div>
+                <div className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">Hospital Information</div>
+                <div className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94A3B8]">Pre-filled from registration · edit anytime</div>
               </div>
               <Link
                 href="/hospital/profile/edit"
@@ -186,7 +186,7 @@ export default async function HospitalProfileScreen() {
                   <input
                     readOnly
                     value={field.value}
-                    className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-900 dark:text-slate-100 outline-none"
                   />
                 </div>
               ))}
@@ -196,7 +196,7 @@ export default async function HospitalProfileScreen() {
                 <input
                   readOnly
                   value={fullAddress}
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -205,7 +205,7 @@ export default async function HospitalProfileScreen() {
                 <input
                   readOnly
                   value={profile.city || "Mumbai"}
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -213,7 +213,7 @@ export default async function HospitalProfileScreen() {
                 <input
                   readOnly
                   value={profile.website || "https://hospital.example"}
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
+                  className="w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -222,18 +222,18 @@ export default async function HospitalProfileScreen() {
                 <textarea
                   readOnly
                   value={`${title} provides outpatient and inpatient care with modern diagnostics, specialist consultations, and emergency support.`}
-                  className="min-h-[70px] w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
+                  className="min-h-[70px] w-full rounded-lg border border-slate-200 dark:border-white/[0.07] bg-slate-100 dark:bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
-              <div className="text-[13px] font-semibold text-slate-100">Department Timing</div>
+          <div className="overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.07] px-5 py-4">
+              <div className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">Department Timing</div>
               <button
                 type="button"
-                className="rounded-md border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-[#CBD5E1] hover:bg-white/[0.08]"
+                className="rounded-md border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 dark:hover:bg-white/[0.08]"
               >
                 Save
               </button>
@@ -246,9 +246,9 @@ export default async function HospitalProfileScreen() {
               ].map((slot, idx) => (
                 <div key={slot.day}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[12.5px] font-medium text-slate-100">{slot.day}</span>
+                    <span className="text-[12.5px] font-medium text-slate-900 dark:text-slate-100">{slot.day}</span>
                     <div className="flex items-center gap-[10px]">
-                      <span className="text-[12px] text-[#94A3B8]">{slot.time}</span>
+                      <span className="text-[12px] text-slate-500 dark:text-[#94A3B8]">{slot.time}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] ${
                           slot.tone === "green"

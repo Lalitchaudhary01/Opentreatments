@@ -1,10 +1,13 @@
+"use client";
+
+import { useState } from "react";
 import {
   CalendarDays,
   CheckCircle2,
   CircleAlert,
   Clock3,
   Plus,
-  UserRound,
+  X,
 } from "lucide-react";
 
 const statCards = [
@@ -42,7 +45,27 @@ const statCards = [
   },
 ];
 
-const rows = [
+type AppointmentRow = {
+  initials: string;
+  patient: string;
+  patientId: string;
+  dept: string;
+  time: string;
+  type: string;
+  status: string;
+  rowTone?: string;
+};
+
+type AppointmentDetail = {
+  doctor: string;
+  ageGender: string;
+  phone: string;
+  insurance: string;
+  complaint: string;
+  vitals: [string, string, string];
+};
+
+const initialRows: AppointmentRow[] = [
   {
     initials: "AM",
     patient: "Arjun Mehta",
@@ -110,6 +133,92 @@ const rows = [
   },
 ];
 
+const appointmentDetails: Record<string, AppointmentDetail> = {
+  AM: {
+    doctor: "Dr. Priya Sadiq",
+    ageGender: "58M",
+    phone: "+91 98211 00432",
+    insurance: "Self-pay",
+    complaint: "Acute chest pain with radiation to left arm. Requires immediate cardiac evaluation.",
+    vitals: ["180/110", "102", "98.6°"],
+  },
+  EV: {
+    doctor: "Dr. Kofi Osei",
+    ageGender: "45F",
+    phone: "+91 98812 43210",
+    insurance: "Star Health",
+    complaint: "Routine cardiology follow-up. Mild chest discomfort on exertion. BP monitoring required.",
+    vitals: ["138/90", "88", "98.4°"],
+  },
+  RS: {
+    doctor: "Dr. Wei Ling",
+    ageGender: "32M",
+    phone: "+91 99200 18734",
+    insurance: "HDFC Ergo",
+    complaint: "Persistent right knee pain after sports injury. X-ray advised.",
+    vitals: ["118/76", "72", "98.2°"],
+  },
+  PN: {
+    doctor: "Dr. Jin-Hee Kim",
+    ageGender: "29F",
+    phone: "+91 97700 55621",
+    insurance: "Max Bupa",
+    complaint: "Migraine follow-up and MRI report review.",
+    vitals: ["110/70", "68", "98.0°"],
+  },
+  SO: {
+    doctor: "Dr. Amara Diallo",
+    ageGender: "41M",
+    phone: "+91 96300 22890",
+    insurance: "Self-pay",
+    complaint: "Fever and fatigue for 5 days. CBC and CRP ordered.",
+    vitals: ["122/80", "92", "100.2°"],
+  },
+  MK: {
+    doctor: "Dr. Kofi Osei",
+    ageGender: "62F",
+    phone: "+91 94400 71230",
+    insurance: "Max Bupa",
+    complaint: "Post-operative review after cardiac surgery.",
+    vitals: ["128/82", "76", "98.6°"],
+  },
+  DK: {
+    doctor: "Dr. Sunita Rao",
+    ageGender: "34F",
+    phone: "+91 98001 34520",
+    insurance: "Star Health",
+    complaint: "Routine prenatal check-up and monitoring.",
+    vitals: ["116/74", "80", "98.2°"],
+  },
+};
+
+type AppointmentFormState = {
+  patientName: string;
+  patientId: string;
+  doctor: string;
+  department: string;
+  date: string;
+  timeSlot: string;
+  consultationType: string;
+  notes: string;
+};
+
+const initialForm: AppointmentFormState = {
+  patientName: "",
+  patientId: "",
+  doctor: "Dr. Kofi Osei",
+  department: "Cardiology",
+  date: "2026-03-10",
+  timeSlot: "09:00 AM",
+  consultationType: "New Visit",
+  notes: "",
+};
+
+const doctors = ["Dr. Kofi Osei", "Dr. Wei Ling", "Dr. Priya Sadiq", "Dr. Jin-Hee Kim", "Dr. Amara Diallo"];
+const departments = ["Cardiology", "Orthopedics", "Neurology", "Pediatrics", "General"];
+const slots = ["09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM"];
+const consultationTypes = ["New Visit", "Follow-up", "Emergency", "Video Consult"];
+
 function deptPill(dept: string) {
   if (dept === "Emergency") return "bg-[rgba(239,68,68,.12)] text-[#f87171]";
   if (dept === "Cardiology") return "bg-[rgba(59,130,246,.12)] text-[#60a5fa]";
@@ -123,10 +232,63 @@ function statusPill(status: string) {
   if (status === "In Progress") return "bg-[rgba(20,184,166,.12)] text-[#2dd4bf]";
   if (status === "Waiting") return "bg-[rgba(245,158,11,.12)] text-[#fbbf24]";
   if (status === "Completed") return "bg-[rgba(34,197,94,.12)] text-[#4ade80]";
-  return "bg-[rgba(148,163,184,.1)] text-[#94a3b8]";
+  return "bg-[rgba(148,163,184,.1)] text-slate-500 dark:text-[#94a3b8]";
+}
+
+function inputClassName() {
+  return "h-9 w-full rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.04] px-3 text-[12px] text-slate-700 dark:text-[#cbd5e1] outline-none focus:border-[#3b82f6]/40";
 }
 
 export default function HospitalAppointmentsScreen() {
+  const [rows, setRows] = useState<AppointmentRow[]>(initialRows);
+  const [isBookOpen, setIsBookOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentRow | null>(null);
+  const [form, setForm] = useState<AppointmentFormState>(initialForm);
+
+  const closeModal = () => {
+    setIsBookOpen(false);
+    setForm(initialForm);
+  };
+
+  const openModal = () => {
+    setIsBookOpen(true);
+  };
+
+  const openDrawer = (row: AppointmentRow) => {
+    setSelectedAppointment(row);
+  };
+
+  const closeDrawer = () => {
+    setSelectedAppointment(null);
+  };
+
+  const handleBookAppointment = () => {
+    if (!form.patientName.trim() || !form.patientId.trim()) {
+      alert("Patient Name and Patient ID are required");
+      return;
+    }
+
+    const nameParts = form.patientName.trim().split(" ");
+    const initials = `${nameParts[0]?.[0] || "P"}${nameParts[1]?.[0] || "T"}`.toUpperCase();
+    const normalizedType = form.consultationType === "Emergency" ? "EMERGENCY" : form.consultationType;
+
+    setRows((prev) => [
+      {
+        initials,
+        patient: form.patientName,
+        patientId: form.patientId,
+        dept: form.department,
+        time: form.timeSlot,
+        type: normalizedType,
+        status: form.consultationType === "Emergency" ? "Urgent" : "Scheduled",
+        rowTone: form.consultationType === "Emergency" ? "bg-[rgba(239,68,68,.03)]" : undefined,
+      },
+      ...prev,
+    ]);
+
+    closeModal();
+  };
+
   return (
     <div className="px-6 py-5">
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -135,46 +297,46 @@ export default function HospitalAppointmentsScreen() {
           return (
             <div
               key={card.title}
-              className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-5"
+              className="rounded-[13px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-5"
             >
               <div className="mb-3 flex items-start justify-between">
-                <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-white/[0.06] ${card.color}`}>
+                <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-slate-100 dark:bg-white/[0.06] ${card.color}`}>
                   <Icon className="h-4 w-4" />
                 </div>
-                <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-[#94a3b8]">
+                <span className="rounded-full bg-slate-100 dark:bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:text-[#94a3b8]">
                   {card.delta}
                 </span>
               </div>
-              <div className="text-[28px] font-bold leading-none tracking-[-0.03em] text-[#f1f5f9]">{card.value}</div>
-              <p className="mt-1 text-[11px] text-[#94a3b8]">{card.title}</p>
+              <div className="text-[28px] font-bold leading-none tracking-[-0.03em] text-slate-900 dark:text-[#f1f5f9]">{card.value}</div>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">{card.title}</p>
               <p className="mt-1 text-[10.5px] text-[#475569]">{card.sub}</p>
             </div>
           );
         })}
       </section>
 
-      <section className="mt-4 overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
+      <section className="mt-4 overflow-hidden rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-white/[0.07] px-5 py-4">
           <div>
-            <h2 className="text-[13px] font-semibold text-[#f1f5f9]">All Appointments</h2>
-            <p className="mt-0.5 text-[11px] text-[#94a3b8]">10 March 2026</p>
+            <h2 className="text-[13px] font-semibold text-slate-900 dark:text-[#f1f5f9]">All Appointments</h2>
+            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">10 March 2026</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {['All', 'Today', 'In Progress', 'Waiting', 'Completed', 'Emergency'].map((filter, idx) => (
+            {["All", "Today", "In Progress", "Waiting", "Completed", "Emergency"].map((filter, idx) => (
               <button
                 key={filter}
                 className={`rounded-full border px-3 py-1 text-[11px] transition ${
                   idx === 0
-                    ? 'border-[#3b82f6]/40 bg-[rgba(59,130,246,.14)] text-[#60a5fa]'
-                    : 'border-white/[0.08] text-[#94a3b8] hover:border-white/[0.14] hover:text-[#e2e8f0]'
+                    ? "border-[#3b82f6]/40 bg-[rgba(59,130,246,.14)] text-[#60a5fa]"
+                    : "border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-[#94a3b8] hover:border-white/[0.14] hover:text-slate-900 dark:hover:text-[#e2e8f0]"
                 }`}
               >
                 {filter}
               </button>
             ))}
 
-            <select className="h-8 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 text-[11px] text-[#cbd5e1] outline-none">
+            <select className="h-8 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 text-[11px] text-slate-700 dark:text-[#cbd5e1] outline-none">
               <option>All Departments</option>
               <option>Cardiology</option>
               <option>Orthopedics</option>
@@ -182,7 +344,10 @@ export default function HospitalAppointmentsScreen() {
               <option>General</option>
             </select>
 
-            <button className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#3b82f6] px-3 text-[11.5px] font-medium text-white hover:bg-[#1d4ed8]">
+            <button
+              onClick={openModal}
+              className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#3b82f6] px-3 text-[11.5px] font-medium text-white hover:bg-[#1d4ed8]"
+            >
               <Plus className="h-3.5 w-3.5" />
               Book Appointment
             </button>
@@ -204,13 +369,13 @@ export default function HospitalAppointmentsScreen() {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={`${row.patient}-${row.time}`} className={`border-t border-white/[0.07] text-[12.5px] text-[#94a3b8] ${row.rowTone ?? 'hover:bg-white/[0.02]'}`}>
+                <tr key={`${row.patient}-${row.time}`} className={`border-t border-slate-200 dark:border-white/[0.07] text-[12.5px] text-slate-500 dark:text-[#94a3b8] ${row.rowTone ?? "hover:bg-slate-100 dark:hover:bg-white/[0.04] dark:bg-white/[0.02]"}`}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-[10px] font-bold text-white">
                         {row.initials}
                       </div>
-                      <span className="font-medium text-[#e2e8f0]">{row.patient}</span>
+                      <span className="font-medium text-slate-900 dark:text-[#e2e8f0]">{row.patient}</span>
                     </div>
                   </td>
                   <td className="px-5 py-3 font-mono text-[11px] text-[#60a5fa]">{row.patientId}</td>
@@ -219,7 +384,7 @@ export default function HospitalAppointmentsScreen() {
                       {row.dept}
                     </span>
                   </td>
-                  <td className="px-5 py-3 font-mono text-[11px] text-[#cbd5e1]">{row.time}</td>
+                  <td className="px-5 py-3 font-mono text-[11px] text-slate-700 dark:text-[#cbd5e1]">{row.time}</td>
                   <td className="px-5 py-3">
                     {row.type === "EMERGENCY" ? (
                       <span className="rounded px-2 py-1 text-[9.5px] font-bold text-[#f87171] bg-[rgba(239,68,68,.15)]">EMERGENCY</span>
@@ -234,10 +399,13 @@ export default function HospitalAppointmentsScreen() {
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button className="rounded border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#94a3b8] hover:bg-white/[0.08]">
+                      <button
+                        onClick={() => openDrawer(row)}
+                        className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8] hover:bg-slate-200 dark:hover:bg-white/[0.08]"
+                      >
                         View
                       </button>
-                      <button className="rounded border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#94a3b8] hover:bg-white/[0.08]">
+                      <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8] hover:bg-slate-200 dark:hover:bg-white/[0.08]">
                         Reschedule
                       </button>
                       <button className="rounded border border-[#14b8a6]/25 bg-[rgba(20,184,166,.12)] px-2.5 py-1 text-[11px] text-[#2dd4bf] hover:bg-[rgba(20,184,166,.2)]">
@@ -251,17 +419,230 @@ export default function HospitalAppointmentsScreen() {
           </table>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.07] px-5 py-3">
-          <span className="text-[11.5px] text-[#475569]">Showing 7 of 84 · Page 1 of 12</span>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 dark:border-white/[0.07] px-5 py-3">
+          <span className="text-[11.5px] text-[#475569]">Showing {rows.length} of 84 · Page 1 of 12</span>
           <div className="flex items-center gap-1.5">
-            <button className="rounded border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#94a3b8]">← Prev</button>
+            <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">← Prev</button>
             <button className="rounded border border-[#3b82f6]/35 bg-[rgba(59,130,246,.14)] px-2.5 py-1 text-[11px] text-[#60a5fa]">1</button>
-            <button className="rounded border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#94a3b8]">2</button>
-            <button className="rounded border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#94a3b8]">3</button>
-            <button className="rounded border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-[#94a3b8]">Next →</button>
+            <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">2</button>
+            <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">3</button>
+            <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">Next →</button>
           </div>
         </div>
       </section>
+
+      {isBookOpen ? (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/60 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
+        >
+          <div className="w-full max-w-[720px] overflow-hidden rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#161f30] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.08] px-5 py-4">
+              <h3 className="text-[14px] font-semibold text-slate-900 dark:text-slate-100">Book Appointment</h3>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#94a3b8] dark:hover:bg-white/[0.08]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto p-5">
+              <div className="grid gap-3 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Patient Name</label>
+                  <input className={inputClassName()} placeholder="Search patient..." value={form.patientName} onChange={(e) => setForm((p) => ({ ...p, patientName: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Patient ID</label>
+                  <input className={inputClassName()} placeholder="PT-XXXXX" value={form.patientId} onChange={(e) => setForm((p) => ({ ...p, patientId: e.target.value }))} />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Doctor</label>
+                  <select className={inputClassName()} value={form.doctor} onChange={(e) => setForm((p) => ({ ...p, doctor: e.target.value }))}>
+                    {doctors.map((doctor) => (
+                      <option key={doctor}>{doctor}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Department</label>
+                  <select className={inputClassName()} value={form.department} onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}>
+                    {departments.map((department) => (
+                      <option key={department}>{department}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Date</label>
+                  <input type="date" className={inputClassName()} value={form.date} onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Time Slot</label>
+                  <select className={inputClassName()} value={form.timeSlot} onChange={(e) => setForm((p) => ({ ...p, timeSlot: e.target.value }))}>
+                    {slots.map((slot) => (
+                      <option key={slot}>{slot}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Consultation Type</label>
+                <select className={inputClassName()} value={form.consultationType} onChange={(e) => setForm((p) => ({ ...p, consultationType: e.target.value }))}>
+                  {consultationTypes.map((type) => (
+                    <option key={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mt-3">
+                <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Notes</label>
+                <textarea
+                  rows={3}
+                  className="w-full rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.04] px-3 py-2 text-[12px] text-slate-700 dark:text-[#cbd5e1] outline-none focus:border-[#3b82f6]/40"
+                  placeholder="Chief complaint, special instructions..."
+                  value={form.notes}
+                  onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t border-slate-200 dark:border-white/[0.08] px-5 py-3">
+              <button
+                onClick={closeModal}
+                className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.04] px-3 py-1.5 text-[11px] text-slate-500 dark:text-[#94a3b8] hover:bg-slate-100 dark:hover:bg-white/[0.08]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBookAppointment}
+                className="rounded bg-[#3b82f6] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#1d4ed8]"
+              >
+                Book Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {selectedAppointment ? (
+        <div
+          className="fixed inset-0 z-[85] bg-slate-950/45"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeDrawer();
+          }}
+        >
+          <div className="absolute right-0 top-0 h-full w-full max-w-[430px] border-l border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111827] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.08] px-4 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-[12px] font-bold text-white">
+                  {selectedAppointment.initials}
+                </div>
+                <div>
+                  <div className="text-[14px] font-semibold text-slate-900 dark:text-slate-100">{selectedAppointment.patient}</div>
+                  <div className="text-[11px] text-slate-500 dark:text-[#94a3b8]">
+                    {selectedAppointment.patientId} · {selectedAppointment.type} · {selectedAppointment.dept}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeDrawer}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#94a3b8] dark:hover:bg-white/[0.08]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="h-[calc(100%-70px)] overflow-y-auto p-4">
+              <div className="mb-3 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-3">
+                <div className="mb-2 text-[11px] font-medium text-slate-500 dark:text-[#94a3b8]">Appointment Details</div>
+                <div className="grid grid-cols-2 gap-2 text-[12px]">
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Appointment ID</div>
+                    <div className="font-mono text-[#3b82f6]">APT-{selectedAppointment.patientId.slice(3)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Date & Time</div>
+                    <div className="text-slate-800 dark:text-slate-200">Mar 10 · {selectedAppointment.time}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Department</div>
+                    <div className="text-slate-800 dark:text-slate-200">{selectedAppointment.dept}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Status</div>
+                    <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${statusPill(selectedAppointment.status)}`}>
+                      {selectedAppointment.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-3 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-3">
+                <div className="mb-2 text-[11px] font-medium text-slate-500 dark:text-[#94a3b8]">Patient Information</div>
+                <div className="grid grid-cols-2 gap-2 text-[12px]">
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Age / Gender</div>
+                    <div className="text-slate-800 dark:text-slate-200">{appointmentDetails[selectedAppointment.initials]?.ageGender ?? "N/A"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Doctor</div>
+                    <div className="text-slate-800 dark:text-slate-200">{appointmentDetails[selectedAppointment.initials]?.doctor ?? "N/A"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Phone</div>
+                    <div className="text-slate-800 dark:text-slate-200">{appointmentDetails[selectedAppointment.initials]?.phone ?? "N/A"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Insurance</div>
+                    <div className="text-slate-800 dark:text-slate-200">{appointmentDetails[selectedAppointment.initials]?.insurance ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <div className="mb-1 text-[11px] font-medium text-slate-500 dark:text-[#94a3b8]">Chief Complaint</div>
+                <div className="rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-3 text-[12px] leading-5 text-slate-700 dark:text-[#cbd5e1]">
+                  {appointmentDetails[selectedAppointment.initials]?.complaint ?? "No complaint notes available."}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="mb-1 text-[11px] font-medium text-slate-500 dark:text-[#94a3b8]">Last Recorded Vitals</div>
+                <div className="grid grid-cols-3 gap-2 rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-3">
+                  {(appointmentDetails[selectedAppointment.initials]?.vitals ?? ["--", "--", "--"]).map((v, idx) => (
+                    <div key={idx} className="text-center">
+                      <div className="text-[16px] font-bold text-slate-900 dark:text-white">{v}</div>
+                      <div className="mt-0.5 text-[9.5px] text-slate-500 dark:text-[#94a3b8]">
+                        {idx === 0 ? "Blood Pressure" : idx === 1 ? "Heart Rate" : "Temperature"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button className="flex-1 rounded bg-[#3b82f6] px-3 py-2 text-[11px] font-medium text-white hover:bg-[#1d4ed8]">
+                  Patient Record
+                </button>
+                <button className="flex-1 rounded bg-[#14b8a6] px-3 py-2 text-[11px] font-medium text-white hover:bg-[#0d9488]">
+                  Start Consultation
+                </button>
+              </div>
+              <button className="mt-2 w-full rounded border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.04] px-3 py-2 text-[11px] text-slate-500 dark:text-[#94a3b8] hover:bg-slate-100 dark:hover:bg-white/[0.08]">
+                Reschedule Appointment
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

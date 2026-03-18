@@ -3,6 +3,13 @@ model IndependentDoctor {
   id                String                    @id @default(cuid())
   userId            String                    @unique
   name              String
+  medicalRegistrationNumber String?
+  qualification     String?
+  graduationYear    String?
+  experienceLabel   String?
+  clinicName        String?
+  pinCode           String?
+  address           String?
   specialties       String[]
   specialization    String
   experience        Int?

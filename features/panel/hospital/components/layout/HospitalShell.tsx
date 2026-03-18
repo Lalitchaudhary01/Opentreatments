@@ -21,10 +21,10 @@ export default function HospitalShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="hospital-theme flex h-screen w-full overflow-hidden bg-[#0b1120]">
+    <div className="hospital-theme flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-[#0b1120]">
       <HospitalSidebar collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
 
-      <main className="flex h-screen flex-1 flex-col overflow-hidden bg-[#0b1120]">
+      <main className="flex h-screen flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[#0b1120]">
         <div className="sticky top-0 z-40 shrink-0">
           <HospitalHeader />
         </div>

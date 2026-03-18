@@ -101,6 +101,13 @@ export async function completeDoctorOnboarding(
       data: {
         userId: session.user.id,
         name: fullName,
+        medicalRegistrationNumber,
+        qualification,
+        graduationYear: graduationYear || null,
+        experienceLabel: experienceLabel || null,
+        clinicName,
+        pinCode: pinCode || null,
+        address: address || null,
         specialization,
         specialties: [specialization],
         experience,

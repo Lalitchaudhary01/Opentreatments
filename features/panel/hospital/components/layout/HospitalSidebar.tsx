@@ -19,13 +19,13 @@ export default function HospitalSidebar({ collapsed = false, onToggleCollapse }:
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-white/[0.07] bg-[#111827] transition-all duration-200",
+        "flex h-screen flex-col border-r border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#111827] transition-all duration-200",
         collapsed ? "w-[76px]" : "w-[248px]"
       )}
     >
       <div
         className={cn(
-          "flex h-[76px] items-center border-b border-white/[0.07]",
+          "flex h-[76px] items-center border-b border-slate-200 dark:border-white/[0.07]",
           collapsed ? "justify-center px-2" : "gap-[10px] px-[18px]"
         )}
       >
@@ -84,7 +84,7 @@ export default function HospitalSidebar({ collapsed = false, onToggleCollapse }:
                       collapsed ? "justify-center px-2" : "gap-[9px] px-[10px]",
                       isActive
                         ? "bg-[rgba(59,130,246,.14)] text-[#3b82f6] font-medium"
-                        : "text-[#94a3b8] hover:bg-white/[0.05] hover:text-[#f1f5f9]"
+                        : "text-slate-500 dark:text-[#94a3b8] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f1f5f9]"
                     )}
                     title={collapsed ? item.label : undefined}
                   >
@@ -108,12 +108,12 @@ export default function HospitalSidebar({ collapsed = false, onToggleCollapse }:
         ))}
       </div>
 
-      <div className="border-t border-white/[0.07] px-[10px] py-3">
+      <div className="border-t border-slate-200 dark:border-white/[0.07] px-[10px] py-3">
         <button
           type="button"
           onClick={onToggleCollapse}
           className={cn(
-            "mx-auto flex items-center justify-center border border-white/[0.08] bg-white/[0.06] text-[#94a3b8] transition-colors hover:bg-white/[0.12]",
+            "mx-auto flex items-center justify-center border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-[#94a3b8] transition-colors hover:bg-white/[0.12]",
             collapsed ? "h-8 w-8 rounded-full" : "h-8 w-full rounded-lg gap-1.5 px-3 text-[11.5px] font-medium"
           )}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}

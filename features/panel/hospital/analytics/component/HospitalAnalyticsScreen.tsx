@@ -26,12 +26,12 @@ export default function HospitalAnalyticsScreen() {
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} className="rounded-[13px] border border-white/[0.07] bg-[#161f30] p-5">
-              <div className={`mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-white/[0.06] ${kpi.color}`}>
+            <div key={kpi.label} className="rounded-[13px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-5">
+              <div className={`mb-3 flex h-[34px] w-[34px] items-center justify-center rounded-[9px] bg-slate-100 dark:bg-white/[0.06] ${kpi.color}`}>
                 <Icon className="h-4 w-4" />
               </div>
-              <div className="text-[26px] font-bold leading-none tracking-[-0.03em] text-[#f1f5f9]">{kpi.value}</div>
-              <p className="mt-1 text-[11px] text-[#94a3b8]">{kpi.label}</p>
+              <div className="text-[26px] font-bold leading-none tracking-[-0.03em] text-slate-900 dark:text-[#f1f5f9]">{kpi.value}</div>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">{kpi.label}</p>
               <p className="mt-1 text-[10.5px] text-[#475569]">{kpi.trend}</p>
             </div>
           );
@@ -39,10 +39,10 @@ export default function HospitalAnalyticsScreen() {
       </section>
 
       <section className="mt-4 grid gap-4 xl:grid-cols-[2fr_1fr]">
-        <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-5">
+        <div className="rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-5">
           <div className="mb-4">
-            <h2 className="text-[13px] font-semibold text-[#f1f5f9]">Weekly Appointments Trend</h2>
-            <p className="mt-0.5 text-[11px] text-[#94a3b8]">Appointments completed per day</p>
+            <h2 className="text-[13px] font-semibold text-slate-900 dark:text-[#f1f5f9]">Weekly Appointments Trend</h2>
+            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">Appointments completed per day</p>
           </div>
           <div className="flex h-[180px] items-end gap-2">
             {bars.map((value, idx) => (
@@ -55,17 +55,17 @@ export default function HospitalAnalyticsScreen() {
           </div>
         </div>
 
-        <div className="rounded-[14px] border border-white/[0.07] bg-[#161f30] p-5">
-          <h2 className="text-[13px] font-semibold text-[#f1f5f9]">Department Mix</h2>
-          <p className="mt-0.5 text-[11px] text-[#94a3b8]">Share of active appointments</p>
+        <div className="rounded-[14px] border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#161f30] p-5">
+          <h2 className="text-[13px] font-semibold text-slate-900 dark:text-[#f1f5f9]">Department Mix</h2>
+          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">Share of active appointments</p>
           <div className="mt-4 space-y-2.5">
             {deptMix.map(([name, pct, color]) => (
               <div key={name}>
-                <div className="mb-1 flex items-center justify-between text-[11px] text-[#94a3b8]">
+                <div className="mb-1 flex items-center justify-between text-[11px] text-slate-500 dark:text-[#94a3b8]">
                   <span className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: color }} />{name}</span>
-                  <span className="font-medium text-[#e2e8f0]">{pct}%</span>
+                  <span className="font-medium text-slate-900 dark:text-[#e2e8f0]">{pct}%</span>
                 </div>
-                <div className="h-[6px] rounded bg-white/[0.06]"><div className="h-[6px] rounded" style={{ width: `${pct}%`, background: color }} /></div>
+                <div className="h-[6px] rounded bg-slate-100 dark:bg-white/[0.06]"><div className="h-[6px] rounded" style={{ width: `${pct}%`, background: color }} /></div>
               </div>
             ))}
           </div>
