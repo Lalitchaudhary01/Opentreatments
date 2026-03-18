@@ -2,6 +2,9 @@
 model IndependentDoctor {
   id                String                    @id @default(cuid())
   userId            String                    @unique
+  firstName         String?
+  lastName          String?
+  phone             String?
   name              String
   medicalRegistrationNumber String?
   qualification     String?

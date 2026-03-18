@@ -1,14 +1,24 @@
 import { withAuth } from "next-auth/middleware";
-import { Role } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-const roleHome: Record<Role, string> = {
-  [Role.USER]: "/",
-  [Role.DOCTOR]: "/doctor/overview",
-  [Role.HOSPITAL]: "/hospital/dashboard",
-  [Role.PHARMACY]: "/pharmacy/overview",
-  [Role.INSURANCE_COMPANY]: "/insurance/dashbaord",
-  [Role.ADMIN]: "/admin/dashbaord",
+const ROLE = {
+  USER: "USER",
+  DOCTOR: "DOCTOR",
+  HOSPITAL: "HOSPITAL",
+  PHARMACY: "PHARMACY",
+  INSURANCE_COMPANY: "INSURANCE_COMPANY",
+  ADMIN: "ADMIN",
+} as const;
+
+type AppRole = (typeof ROLE)[keyof typeof ROLE];
+
+const roleHome: Record<AppRole, string> = {
+  [ROLE.USER]: "/",
+  [ROLE.DOCTOR]: "/doctor/overview",
+  [ROLE.HOSPITAL]: "/hospital/dashboard",
+  [ROLE.PHARMACY]: "/pharmacy/overview",
+  [ROLE.INSURANCE_COMPANY]: "/insurance/dashbaord",
+  [ROLE.ADMIN]: "/admin/dashbaord",
 };
 
 const doctorAuthModes = new Set(["doctor-details", "doctor-clinic", "doctor-success"]);
@@ -19,15 +29,15 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
-    const role = token?.role as Role | undefined;
+    const role = token?.role as AppRole | undefined;
     const mode = req.nextUrl.searchParams.get("mode");
     const isAuthPath = path.startsWith("/auth");
     const isRoleOnboardingAuthRoute =
       isAuthPath &&
       !!mode &&
-      ((role === Role.DOCTOR && doctorAuthModes.has(mode)) ||
-        (role === Role.PHARMACY && pharmacyAuthModes.has(mode)) ||
-        (role === Role.HOSPITAL && hospitalAuthModes.has(mode)));
+      ((role === ROLE.DOCTOR && doctorAuthModes.has(mode)) ||
+        (role === ROLE.PHARMACY && pharmacyAuthModes.has(mode)) ||
+        (role === ROLE.HOSPITAL && hospitalAuthModes.has(mode)));
 
     // If logged in and on auth page, send user to role home (except onboarding flows).
     if (token && isAuthPath && !isRoleOnboardingAuthRoute) {
@@ -40,15 +50,15 @@ export default withAuth(
     // Strict role-lock: doctor/pharmacy (and others) can only access own panel routes.
     if (token && role) {
       const allowedPrefix =
-        role === Role.DOCTOR
+        role === ROLE.DOCTOR
           ? "/doctor"
-          : role === Role.PHARMACY
+          : role === ROLE.PHARMACY
             ? "/pharmacy"
-          : role === Role.HOSPITAL
+          : role === ROLE.HOSPITAL
               ? "/hospital"
-              : role === Role.INSURANCE_COMPANY
+              : role === ROLE.INSURANCE_COMPANY
                 ? "/insurance"
-                : role === Role.ADMIN
+                : role === ROLE.ADMIN
                   ? "/admin"
                   : null;
 
@@ -58,23 +68,23 @@ export default withAuth(
     }
 
     // Panel prefix protection for unauthenticated or wrong-role access.
-    if (path.startsWith("/doctor") && (!token || role !== Role.DOCTOR)) {
+    if (path.startsWith("/doctor") && (!token || role !== ROLE.DOCTOR)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
-    if (path.startsWith("/hospital") && (!token || role !== Role.HOSPITAL)) {
+    if (path.startsWith("/hospital") && (!token || role !== ROLE.HOSPITAL)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
-    if (path.startsWith("/pharmacy") && (!token || role !== Role.PHARMACY)) {
+    if (path.startsWith("/pharmacy") && (!token || role !== ROLE.PHARMACY)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
-    if (path.startsWith("/insurance") && (!token || role !== Role.INSURANCE_COMPANY)) {
+    if (path.startsWith("/insurance") && (!token || role !== ROLE.INSURANCE_COMPANY)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
-    if (path.startsWith("/admin") && (!token || role !== Role.ADMIN)) {
+    if (path.startsWith("/admin") && (!token || role !== ROLE.ADMIN)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
   },

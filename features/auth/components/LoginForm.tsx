@@ -77,8 +77,7 @@ export default function AuthForm() {
     role: "" as "" | Role,
   });
   const [doctorForm, setDoctorForm] = useState<DoctorOnboardingFormState>({
-    firstName: "",
-    lastName: "",
+    name: "",
     phone: "",
     gender: "",
     medicalRegistrationNumber: "",
@@ -383,8 +382,8 @@ export default function AuthForm() {
   }
 
   function continueDoctorDetails() {
-    if (!doctorForm.firstName.trim() || !doctorForm.lastName.trim()) {
-      alert("First name and last name are required");
+    if (!doctorForm.name.trim()) {
+      alert("Doctor name is required");
       return;
     }
     if (!doctorForm.phone.trim()) {

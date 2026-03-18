@@ -17,8 +17,7 @@ export type AuthMode =
   | "login";
 
 export type DoctorOnboardingFormState = {
-  firstName: string;
-  lastName: string;
+  name: string;
   phone: string;
   gender: string;
   medicalRegistrationNumber: string;
@@ -88,10 +87,7 @@ export function DoctorOnboardingSteps({
         <div className="ob-step active" id="ob-s2">
           <div className="ob-step-title">Your professional details</div>
           <div className="ob-step-sub">Tell us about your medical background so patients can trust you.</div>
-          <div className="ob-row2">
-            <div className="ob-ff"><label>First Name *</label><input value={doctorForm.firstName} onChange={(e) => setDoctorForm((p) => ({ ...p, firstName: e.target.value }))} placeholder="Ramesh" /></div>
-            <div className="ob-ff"><label>Last Name *</label><input value={doctorForm.lastName} onChange={(e) => setDoctorForm((p) => ({ ...p, lastName: e.target.value }))} placeholder="Iyer" /></div>
-          </div>
+          <div className="ob-ff"><label>Doctor Name *</label><input value={doctorForm.name} onChange={(e) => setDoctorForm((p) => ({ ...p, name: e.target.value }))} placeholder="Dr. Ramesh Iyer" /></div>
           <div className="ob-row2">
             <div className="ob-ff"><label>Phone Number *</label><input value={doctorForm.phone} onChange={(e) => setDoctorForm((p) => ({ ...p, phone: e.target.value }))} placeholder="+91 98765 43210" /></div>
             <div className="ob-ff">

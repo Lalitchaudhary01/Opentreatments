@@ -6,6 +6,26 @@ import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { DoctorOnboardingFormState } from "../DoctorOnboardingSteps";
 
+function isLegacyDoctorProfileSchemaError(error: unknown): boolean {
+  if (error instanceof Prisma.PrismaClientValidationError) {
+    const msg = error.message || "";
+    return (
+      msg.includes("Unknown argument `phone`") ||
+      msg.includes("Unknown argument `medicalRegistrationNumber`") ||
+      msg.includes("Unknown argument `qualification`") ||
+      msg.includes("Unknown argument `graduationYear`") ||
+      msg.includes("Unknown argument `experienceLabel`") ||
+      msg.includes("Unknown argument `clinicName`") ||
+      msg.includes("Unknown argument `pinCode`")
+    );
+  }
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    // P2022 => column does not exist in current database
+    return error.code === "P2022";
+  }
+  return false;
+}
+
 export async function completeDoctorOnboarding(
   body: DoctorOnboardingFormState
 ): Promise<{ ok: boolean; error?: string }> {
@@ -19,8 +39,7 @@ export async function completeDoctorOnboarding(
       return { ok: false, error: "Forbidden" };
     }
 
-    const firstName = (body.firstName || "").trim();
-    const lastName = (body.lastName || "").trim();
+    const doctorName = (body.name || "").trim();
     const phone = (body.phone || "").trim();
     const gender = (body.gender || "").trim();
     const medicalRegistrationNumber = (body.medicalRegistrationNumber || "").trim();
@@ -35,8 +54,7 @@ export async function completeDoctorOnboarding(
     const languagesRaw = (body.languages || "").trim();
 
     if (
-      !firstName ||
-      !lastName ||
+      !doctorName ||
       !phone ||
       !medicalRegistrationNumber ||
       !qualification ||
@@ -56,7 +74,8 @@ export async function completeDoctorOnboarding(
       return { ok: true };
     }
 
-    const fullName = `${firstName} ${lastName}`.trim();
+    const fallbackNameFromEmail = session.user.email?.split("@")[0]?.trim() || "Doctor";
+    const fullName = doctorName || session.user.name?.trim() || fallbackNameFromEmail;
     const experienceMap: Record<string, number> = {
       "Less than 1 year": 0,
       "1–3 years": 2,
@@ -97,38 +116,72 @@ export async function completeDoctorOnboarding(
       },
     });
 
-    await prisma.independentDoctor.create({
-      data: {
-        userId: session.user.id,
-        name: fullName,
+    const onboardingSnapshot = {
+      onboarding: {
         medicalRegistrationNumber,
         qualification,
-        graduationYear: graduationYear || null,
-        experienceLabel: experienceLabel || null,
+        graduationYear,
+        experienceLabel,
         clinicName,
-        pinCode: pinCode || null,
-        address: address || null,
-        specialization,
-        specialties: [specialization],
-        experience,
-        gender: gender || null,
-        languages,
-        city,
-        badges: [],
-        availability: {
-          onboarding: {
-            medicalRegistrationNumber,
-            qualification,
-            graduationYear,
-            experienceLabel,
-            clinicName,
-            pinCode,
-            address,
-          },
-        },
-        status: "PENDING",
+        pinCode,
+        address,
       },
-    });
+    };
+
+    const allDoctorData = {
+      userId: session.user.id,
+      phone,
+      name: fullName,
+      medicalRegistrationNumber,
+      qualification,
+      graduationYear: graduationYear || null,
+      experienceLabel: experienceLabel || null,
+      clinicName,
+      pinCode: pinCode || null,
+      address: address || null,
+      specialization,
+      specialties: [specialization],
+      experience,
+      gender: gender || null,
+      languages,
+      city,
+      badges: [],
+      status: "PENDING" as const,
+    };
+
+    const model = Prisma.dmmf.datamodel.models.find((m) => m.name === "IndependentDoctor");
+    const supportedDoctorFields = new Set((model?.fields || []).map((f) => f.name));
+
+    const baseDoctorData = Object.fromEntries(
+      Object.entries(allDoctorData).filter(([key]) => supportedDoctorFields.has(key))
+    );
+
+    try {
+      await prisma.independentDoctor.create({
+        data: baseDoctorData as unknown as Prisma.IndependentDoctorCreateInput,
+      });
+    } catch (error) {
+      if (!isLegacyDoctorProfileSchemaError(error)) {
+        throw error;
+      }
+
+      // Legacy DB/client fallback: if detailed columns are unavailable, keep onboarding snapshot.
+      await prisma.independentDoctor.create({
+        data: {
+          userId: session.user.id,
+          name: fullName,
+          specialization,
+          specialties: [specialization],
+          experience,
+          gender: gender || null,
+          languages,
+          city,
+          badges: [],
+          availability: onboardingSnapshot,
+          status: "PENDING",
+        },
+      });
+    }
 
     return { ok: true };
   } catch (error) {
