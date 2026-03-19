@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import Providers from "./providers";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
           >
             {children}
             <Toaster />
+            <SpeedInsights />
           </ThemeProvider>
         </Providers>
       </body>
