@@ -10,8 +10,11 @@ export type DoctorProfileViewData = {
   email: string;
   phone: string;
   gender: string;
+  dob: string;
+  bio: string;
   specialization: string;
   qualification: string;
+  medicalCouncil: string;
   medicalRegistrationNumber: string;
   languages: string[];
   experienceLabel: string;
@@ -33,8 +36,11 @@ export async function getDoctorProfileView(): Promise<DoctorProfileViewData | nu
       name: true,
       phone: true,
       gender: true,
+      dob: true,
+      bio: true,
       specialization: true,
       qualification: true,
+      medicalCouncil: true,
       medicalRegistrationNumber: true,
       languages: true,
       experienceLabel: true,
@@ -54,8 +60,11 @@ export async function getDoctorProfileView(): Promise<DoctorProfileViewData | nu
     email: session.user.email ?? "",
     phone: doctor.phone ?? "",
     gender: doctor.gender ?? "",
+    dob: doctor.dob ? doctor.dob.toISOString().slice(0, 10) : "",
+    bio: doctor.bio ?? "",
     specialization: doctor.specialization ?? "",
     qualification: doctor.qualification ?? "",
+    medicalCouncil: doctor.medicalCouncil ?? "",
     medicalRegistrationNumber: doctor.medicalRegistrationNumber ?? "",
     languages: Array.isArray(doctor.languages) ? doctor.languages : [],
     experienceLabel: doctor.experienceLabel ?? "",

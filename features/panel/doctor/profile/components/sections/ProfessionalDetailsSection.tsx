@@ -4,6 +4,7 @@ import ProfileField from "../ui/ProfileField";
 type ProfessionalState = {
   specialization: string;
   qualifications: string;
+  council: string;
   registrationNo: string;
   languages: string;
   experience: string;
@@ -12,20 +13,35 @@ type ProfessionalState = {
 export default function ProfessionalDetailsSection({
   professional,
   setProfessional,
+  onSave,
+  saving,
 }: {
   professional: ProfessionalState;
   setProfessional: Dispatch<SetStateAction<ProfessionalState>>;
+  onSave: () => void;
+  saving?: boolean;
 }) {
   return (
     <div className="overflow-hidden rounded-[14px] border border-slate-200 bg-white dark:border-white/[0.07] dark:bg-[#161f30]">
-      <div className="border-b border-slate-200 px-5 py-[15px] dark:border-white/[0.07]">
-        <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Professional Details</div>
-        <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Credentials and qualifications</div>
+      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-[15px] dark:border-white/[0.07]">
+        <div>
+          <div className="text-[13px] font-semibold text-slate-900 dark:text-[#F1F5F9]">Professional Details</div>
+          <div className="mt-[2px] text-[11px] text-slate-500 dark:text-[#94A3B8]">Credentials and qualifications</div>
+        </div>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="inline-flex h-[28px] items-center rounded-lg bg-[#3b82f6] px-3 text-[11px] font-medium text-white hover:bg-[#2563eb]"
+        >
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-[14px] px-5 py-5 md:grid-cols-2">
         <ProfileField label="Specialization" value={professional.specialization} onChange={(v) => setProfessional((p) => ({ ...p, specialization: v }))} />
         <ProfileField label="Qualifications" value={professional.qualifications} onChange={(v) => setProfessional((p) => ({ ...p, qualifications: v }))} />
+        <ProfileField label="Medical Council" value={professional.council} onChange={(v) => setProfessional((p) => ({ ...p, council: v }))} />
         <ProfileField label="Registration No." value={professional.registrationNo} onChange={(v) => setProfessional((p) => ({ ...p, registrationNo: v }))} />
         <ProfileField label="Languages Spoken" value={professional.languages} onChange={(v) => setProfessional((p) => ({ ...p, languages: v }))} />
         <ProfileField label="Years of Experience" value={professional.experience} onChange={(v) => setProfessional((p) => ({ ...p, experience: v }))} />

@@ -7,14 +7,20 @@ type PersonalState = {
   email: string;
   phone: string;
   gender: string;
+  dob: string;
+  bio: string;
 };
 
 export default function PersonalInfoSection({
   personal,
   setPersonal,
+  onSave,
+  saving,
 }: {
   personal: PersonalState;
   setPersonal: Dispatch<SetStateAction<PersonalState>>;
+  onSave: () => void;
+  saving?: boolean;
 }) {
   return (
     <div className="overflow-hidden rounded-[14px] border border-slate-200 bg-white dark:border-white/[0.07] dark:bg-[#161f30]">
@@ -25,9 +31,11 @@ export default function PersonalInfoSection({
         </div>
         <button
           type="button"
+          onClick={onSave}
+          disabled={saving}
           className="inline-flex h-[28px] items-center rounded-lg bg-[#3b82f6] px-3 text-[11px] font-medium text-white hover:bg-[#2563eb]"
         >
-          Save Changes
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
 
@@ -48,6 +56,15 @@ export default function PersonalInfoSection({
             <option>Female</option>
             <option>Other</option>
           </select>
+        </label>
+        <ProfileField label="Date of Birth" type="date" value={personal.dob} onChange={(v) => setPersonal((p) => ({ ...p, dob: v }))} />
+        <label className="space-y-[6px] md:col-span-2">
+          <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">Bio / Introduction</span>
+          <textarea
+            value={personal.bio}
+            onChange={(e) => setPersonal((p) => ({ ...p, bio: e.target.value }))}
+            className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-slate-100 px-[11px] py-2 text-[12.5px] text-slate-900 outline-none dark:border-white/[0.07] dark:bg-[#1c2840] dark:text-[#F1F5F9]"
+          />
         </label>
       </div>
     </div>

@@ -17,6 +17,9 @@ model IndependentDoctor {
   specialization    String
   experience        Int?
   gender            String?
+  dob               DateTime?
+  bio               String?
+  medicalCouncil    String?
   profilePic        String?
   fees              Float?
   rating            Float                     @default(0)
