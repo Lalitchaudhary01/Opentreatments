@@ -18,11 +18,14 @@ export default function AuthLeftPanel({ mode, leftTagline, leftSub }: Props) {
     "hospital-details",
     "hospital-location",
     "hospital-success",
+    "lab-details",
+    "lab-location",
+    "lab-success",
     "login",
   ].includes(mode);
 
   const isStep3Active =
-    mode === "doctor-details" || mode === "pharmacy-details" || mode === "hospital-details";
+    mode === "doctor-details" || mode === "pharmacy-details" || mode === "hospital-details" || mode === "lab-details";
   const isStep3Done = [
     "doctor-clinic",
     "doctor-success",
@@ -30,21 +33,27 @@ export default function AuthLeftPanel({ mode, leftTagline, leftSub }: Props) {
     "pharmacy-success",
     "hospital-location",
     "hospital-success",
+    "lab-location",
+    "lab-success",
   ].includes(mode);
 
   const isStep4Active =
-    mode === "doctor-clinic" || mode === "pharmacy-location" || mode === "hospital-location";
-  const isStep4Done = ["doctor-success", "pharmacy-success", "hospital-success"].includes(mode);
+    mode === "doctor-clinic" || mode === "pharmacy-location" || mode === "hospital-location" || mode === "lab-location";
+  const isStep4Done = ["doctor-success", "pharmacy-success", "hospital-success", "lab-success"].includes(mode);
 
   const step3Label = mode.startsWith("pharmacy")
     ? "Your details"
     : mode.startsWith("hospital")
       ? "Hospital details"
+      : mode.startsWith("lab")
+        ? "Lab details"
       : "Personal &amp; credentials";
   const step4Label = mode.startsWith("pharmacy")
     ? "Pharmacy setup"
     : mode.startsWith("hospital")
       ? "Location &amp; contact"
+      : mode.startsWith("lab")
+        ? "Lab setup"
       : "Clinic &amp; specialisation";
 
   return (

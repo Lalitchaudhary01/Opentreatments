@@ -6,6 +6,7 @@ const ROLE = {
   DOCTOR: "DOCTOR",
   HOSPITAL: "HOSPITAL",
   PHARMACY: "PHARMACY",
+  LABORATORY: "LABORATORY",
   INSURANCE_COMPANY: "INSURANCE_COMPANY",
   ADMIN: "ADMIN",
 } as const;
@@ -17,6 +18,7 @@ const roleHome: Record<AppRole, string> = {
   [ROLE.DOCTOR]: "/doctor/overview",
   [ROLE.HOSPITAL]: "/hospital/dashboard",
   [ROLE.PHARMACY]: "/pharmacy/overview",
+  [ROLE.LABORATORY]: "/lab/overview",
   [ROLE.INSURANCE_COMPANY]: "/insurance/dashbaord",
   [ROLE.ADMIN]: "/admin/dashbaord",
 };
@@ -24,6 +26,7 @@ const roleHome: Record<AppRole, string> = {
 const doctorAuthModes = new Set(["doctor-details", "doctor-clinic", "doctor-success"]);
 const pharmacyAuthModes = new Set(["pharmacy-details", "pharmacy-location", "pharmacy-success"]);
 const hospitalAuthModes = new Set(["hospital-details", "hospital-location", "hospital-success"]);
+const labAuthModes = new Set(["lab-details", "lab-location", "lab-success"]);
 
 export default withAuth(
   function middleware(req) {
@@ -37,7 +40,8 @@ export default withAuth(
       !!mode &&
       ((role === ROLE.DOCTOR && doctorAuthModes.has(mode)) ||
         (role === ROLE.PHARMACY && pharmacyAuthModes.has(mode)) ||
-        (role === ROLE.HOSPITAL && hospitalAuthModes.has(mode)));
+        (role === ROLE.HOSPITAL && hospitalAuthModes.has(mode)) ||
+        (role === ROLE.LABORATORY && labAuthModes.has(mode)));
 
     // If logged in and on auth page, send user to role home (except onboarding flows).
     if (token && isAuthPath && !isRoleOnboardingAuthRoute) {
@@ -56,6 +60,8 @@ export default withAuth(
             ? "/pharmacy"
           : role === ROLE.HOSPITAL
               ? "/hospital"
+            : role === ROLE.LABORATORY
+              ? "/lab"
               : role === ROLE.INSURANCE_COMPANY
                 ? "/insurance"
                 : role === ROLE.ADMIN
@@ -77,6 +83,10 @@ export default withAuth(
     }
 
     if (path.startsWith("/pharmacy") && (!token || role !== ROLE.PHARMACY)) {
+      return NextResponse.redirect(new URL("/auth", req.url));
+    }
+
+    if (path.startsWith("/lab") && (!token || role !== ROLE.LABORATORY)) {
       return NextResponse.redirect(new URL("/auth", req.url));
     }
 
@@ -119,6 +129,7 @@ export const config = {
     "/doctor/:path*",
     "/hospital/:path*",
     "/pharmacy/:path*",
+    "/lab/:path*",
     "/insurance/:path*",
     "/admin/:path*",
   ],

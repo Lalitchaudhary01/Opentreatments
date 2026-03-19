@@ -14,6 +14,9 @@ export type AuthMode =
   | "hospital-details"
   | "hospital-location"
   | "hospital-success"
+  | "lab-details"
+  | "lab-location"
+  | "lab-success"
   | "login";
 
 export type DoctorOnboardingFormState = {

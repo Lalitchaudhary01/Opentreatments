@@ -1,26 +1,31 @@
 import prisma from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
+import { Prisma, Role } from "@prisma/client";
 import { generateOTP, sendOTPEmail } from "@/lib/email"; // You'll need to create these
+
+function parseRole(value: unknown): Role | null {
+  if (
+    value === "USER" ||
+    value === "DOCTOR" ||
+    value === "ADMIN" ||
+    value === "HOSPITAL" ||
+    value === "PHARMACY" ||
+    value === "LABORATORY" ||
+    value === "INSURANCE_COMPANY"
+  ) {
+    return value as Role;
+  }
+  return null;
+}
 
 export async function POST(req: Request) {
   try {
     const { email, password, confirmPassword, name, phone, role } =
       await req.json();
 
-    // Validate role
-    // Validate role
-    if (
-      !role ||
-      ![
-        "USER",
-        "DOCTOR",
-        "ADMIN",
-        "HOSPITAL",
-        "PHARMACY",
-        "INSURANCE_COMPANY",
-      ].includes(role)
-    ) {
+    const parsedRole = parseRole(role);
+    if (!parsedRole) {
       return NextResponse.json(
         { error: "Please select a valid role" },
         { status: 400 }
@@ -65,7 +70,7 @@ export async function POST(req: Request) {
         phone,
         otp,
         otpExpiry,
-        role, // ✅ Save the selected role
+        role: parsedRole,
       },
     });
 
@@ -80,6 +85,18 @@ export async function POST(req: Request) {
       userId: user.id,
     });
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientValidationError &&
+      error.message.includes("Invalid value for argument `role`")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Role enum is stale in running dev server. Stop dev server and run: npx prisma generate --schema=./prisma, then npm run dev",
+        },
+        { status: 500 }
+      );
+    }
     console.error(error);
     return NextResponse.json(
       { error: "Something went wrong" },

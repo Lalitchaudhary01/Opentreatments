@@ -8,6 +8,7 @@ const REDIRECT_BY_ROLE: Record<Role, string> = {
   USER: "/",
   DOCTOR: "/doctor/profile/submit",
   PHARMACY: "/pharmacy/profile/submit",
+  LABORATORY: "/auth?mode=lab-details&role=LABORATORY",
   ADMIN: "/admin/dashbaord",
   HOSPITAL: "/hospital/profile/submit",
   INSURANCE_COMPANY: "/insurance/profile/submit",
@@ -19,6 +20,7 @@ function isSelectableRole(value: string | undefined): value is Role {
     value === "DOCTOR" ||
     value === "PHARMACY" ||
     value === "HOSPITAL" ||
+    value === "LABORATORY" ||
     value === "ADMIN"
   );
 }

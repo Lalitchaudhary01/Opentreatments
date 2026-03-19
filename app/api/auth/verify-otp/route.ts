@@ -8,6 +8,7 @@ const NEXT_PATH_BY_ROLE: Record<Role, string> = {
   DOCTOR: "/doctor/profile/submit",
   HOSPITAL: "/auth?mode=hospital-details&role=HOSPITAL",
   PHARMACY: "/pharmacy/profile/submit",
+  LABORATORY: "/auth?mode=lab-details&role=LABORATORY",
   INSURANCE_COMPANY: "/insurance/profile/submit",
 };
 

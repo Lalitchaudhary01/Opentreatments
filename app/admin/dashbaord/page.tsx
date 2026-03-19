@@ -8,6 +8,7 @@ import {
   Building,
   CreditCard,
   ShoppingCart,
+  FlaskConical,
   Users,
   Activity,
   TrendingUp,
@@ -26,6 +27,7 @@ export default function AdminDashboardPage() {
     hospitals: { total: 0, pending: 0, approved: 0 },
     insurance: { total: 0, pending: 0, approved: 0 },
     pharmacies: { total: 0, pending: 0, approved: 0 },
+    labs: { total: 0, pending: 0, approved: 0 },
   });
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export default function AdminDashboardPage() {
       hospitals: { total: 8, pending: 2, approved: 6 },
       insurance: { total: 15, pending: 3, approved: 12 },
       pharmacies: { total: 20, pending: 4, approved: 16 },
+      labs: { total: 10, pending: 2, approved: 8 },
     });
   }, []);
 
@@ -75,25 +78,37 @@ export default function AdminDashboardPage() {
       link: "/admin/pharmacy",
       gradient: "from-cyan-500 via-sky-500 to-teal-500",
     },
+    {
+      title: "Laboratories",
+      total: stats.labs.total,
+      pending: stats.labs.pending,
+      approved: stats.labs.approved,
+      icon: FlaskConical,
+      link: "/admin/lab",
+      gradient: "from-emerald-500 via-cyan-500 to-sky-500",
+    },
   ];
 
   const totalUsers =
     stats.doctors.total +
     stats.hospitals.total +
     stats.insurance.total +
-    stats.pharmacies.total;
+    stats.pharmacies.total +
+    stats.labs.total;
 
   const totalPending =
     stats.doctors.pending +
     stats.hospitals.pending +
     stats.insurance.pending +
-    stats.pharmacies.pending;
+    stats.pharmacies.pending +
+    stats.labs.pending;
 
   const totalApproved =
     stats.doctors.approved +
     stats.hospitals.approved +
     stats.insurance.approved +
-    stats.pharmacies.approved;
+    stats.pharmacies.approved +
+    stats.labs.approved;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden">
@@ -194,7 +209,7 @@ export default function AdminDashboardPage() {
           <h2 className="text-3xl font-black bg-gradient-to-r from-slate-900 to-slate-800 bg-clip-text text-transparent mb-6">
             Entity Management
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {statCards.map((stat) => (
               <Link key={stat.title} href={stat.link}>
                 <Card className="group border-2 border-cyan-200 hover:border-cyan-400 transition-all duration-300 hover:shadow-2xl overflow-hidden cursor-pointer h-full">
