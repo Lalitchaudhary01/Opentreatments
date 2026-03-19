@@ -1,38 +1,37 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { DoctorProfile } from "@/features/panel/doctor/types/doctor";
+import { DoctorProfileViewData } from "../actions/getDoctorProfileView";
 import ProfileSidebar from "./sections/ProfileSidebar";
 import PersonalInfoSection from "./sections/PersonalInfoSection";
 import ProfessionalDetailsSection from "./sections/ProfessionalDetailsSection";
 
 type Props = {
-  profile: DoctorProfile;
-  email?: string | null;
+  profile: DoctorProfileViewData;
 };
 
-export default function DoctorProfileScreen({ profile, email }: Props) {
+export default function DoctorProfileScreen({ profile }: Props) {
+  const [firstName, ...rest] = profile.name.trim().split(" ");
+  const lastName = rest.join(" ");
+
   const [personal, setPersonal] = useState({
-    firstName: profile.name?.split(" ")[0] || "Ramesh",
-    lastName: profile.name?.split(" ").slice(1).join(" ") || "Iyer",
-    email: email || "dr.ramesh@sunriseclinic.in",
-    phone: "+91 98765 43210",
-    dob: "1982-06-14",
-    gender: profile.gender || "Male",
-    bio: "Dr. Ramesh Iyer is a General Physician with 12 years of experience in primary care, preventive medicine, and chronic disease management. Practicing at Sunrise Clinic, Pune.",
+    firstName: firstName || "",
+    lastName: lastName || "",
+    email: profile.email || "",
+    phone: profile.phone || "",
+    gender: profile.gender || "",
   });
 
   const [professional, setProfessional] = useState({
-    specialization: profile.specialization || "General Physician",
-    qualifications: "MBBS, MD (General Medicine)",
-    council: "Maharashtra Medical Council",
-    registrationNo: "MMC-2013-04821",
-    languages: (profile.languages || []).join(", ") || "English, Hindi, Marathi",
-    experience: String(profile.experience || 12),
+    specialization: profile.specialization || "",
+    qualifications: profile.qualification || "",
+    registrationNo: profile.medicalRegistrationNumber || "",
+    languages: (profile.languages || []).join(", "),
+    experience: profile.experienceLabel || "",
   });
 
   const initials = useMemo(() => {
-    const n = profile.name?.trim() || "Ramesh Iyer";
+    const n = profile.name?.trim() || "DR";
     return n
       .split(" ")
       .map((p) => p[0])

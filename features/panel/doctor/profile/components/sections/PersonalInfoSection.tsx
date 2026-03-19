@@ -6,9 +6,7 @@ type PersonalState = {
   lastName: string;
   email: string;
   phone: string;
-  dob: string;
   gender: string;
-  bio: string;
 };
 
 export default function PersonalInfoSection({
@@ -38,7 +36,6 @@ export default function PersonalInfoSection({
         <ProfileField label="Last Name" value={personal.lastName} onChange={(v) => setPersonal((p) => ({ ...p, lastName: v }))} />
         <ProfileField label="Email" type="email" value={personal.email} onChange={(v) => setPersonal((p) => ({ ...p, email: v }))} />
         <ProfileField label="Phone" value={personal.phone} onChange={(v) => setPersonal((p) => ({ ...p, phone: v }))} />
-        <ProfileField label="Date of Birth" type="date" value={personal.dob} onChange={(v) => setPersonal((p) => ({ ...p, dob: v }))} />
 
         <label className="space-y-[6px]">
           <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">Gender</span>
@@ -51,15 +48,6 @@ export default function PersonalInfoSection({
             <option>Female</option>
             <option>Other</option>
           </select>
-        </label>
-
-        <label className="space-y-[6px] md:col-span-2">
-          <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">Bio / Introduction</span>
-          <textarea
-            value={personal.bio}
-            onChange={(e) => setPersonal((p) => ({ ...p, bio: e.target.value }))}
-            className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-slate-100 px-[11px] py-2 text-[12.5px] text-slate-900 outline-none dark:border-white/[0.07] dark:bg-[#1c2840] dark:text-[#F1F5F9]"
-          />
         </label>
       </div>
     </div>

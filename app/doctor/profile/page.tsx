@@ -1,15 +1,8 @@
 import { DoctorProfileScreen } from "@/features/panel/doctor/profile";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
-import prisma from "@/lib/prisma";
+import { getDoctorProfileView } from "@/features/panel/doctor/profile/actions/getDoctorProfileView";
 
 export default async function DoctorProfilePage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return null;
-
-  const doctor = await prisma.independentDoctor.findUnique({
-    where: { userId: session.user.id },
-  });
+  const doctor = await getDoctorProfileView();
 
   if (!doctor) {
     return (
@@ -20,5 +13,5 @@ export default async function DoctorProfilePage() {
     );
   }
 
-  return <DoctorProfileScreen profile={doctor as any} email={session.user.email} />;
+  return <DoctorProfileScreen profile={doctor} />;
 }

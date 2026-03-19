@@ -4,7 +4,6 @@ import ProfileField from "../ui/ProfileField";
 type ProfessionalState = {
   specialization: string;
   qualifications: string;
-  council: string;
   registrationNo: string;
   languages: string;
   experience: string;
@@ -27,10 +26,9 @@ export default function ProfessionalDetailsSection({
       <div className="grid grid-cols-1 gap-[14px] px-5 py-5 md:grid-cols-2">
         <ProfileField label="Specialization" value={professional.specialization} onChange={(v) => setProfessional((p) => ({ ...p, specialization: v }))} />
         <ProfileField label="Qualifications" value={professional.qualifications} onChange={(v) => setProfessional((p) => ({ ...p, qualifications: v }))} />
-        <ProfileField label="Medical Council" value={professional.council} onChange={(v) => setProfessional((p) => ({ ...p, council: v }))} />
         <ProfileField label="Registration No." value={professional.registrationNo} onChange={(v) => setProfessional((p) => ({ ...p, registrationNo: v }))} />
         <ProfileField label="Languages Spoken" value={professional.languages} onChange={(v) => setProfessional((p) => ({ ...p, languages: v }))} />
-        <ProfileField label="Years of Experience" type="number" value={professional.experience} onChange={(v) => setProfessional((p) => ({ ...p, experience: v }))} />
+        <ProfileField label="Years of Experience" value={professional.experience} onChange={(v) => setProfessional((p) => ({ ...p, experience: v }))} />
       </div>
     </div>
   );
