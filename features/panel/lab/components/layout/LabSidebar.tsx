@@ -96,26 +96,7 @@ export default function LabSidebar({ collapsed = false, onToggleCollapse }: Prop
         ))}
       </div>
 
-      {!collapsed ? (
-        <div className="border-t border-slate-200 px-[10px] py-2 dark:border-white/[0.07]">
-          <div className="flex items-center gap-2 rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-white/[0.05]">
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-[10px] font-bold text-white">
-              {(session?.user?.name || "Lab")
-                .split(" ")
-                .map((part) => part[0])
-                .slice(0, 2)
-                .join("")
-                .toUpperCase()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[12px] font-medium text-slate-800 dark:text-[#F1F5F9]">
-                {session?.user?.name || "Lab Admin"}
-              </p>
-              <p className="truncate text-[10px] text-slate-500 dark:text-[#64748B]">Laboratory</p>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      
 
       <div className="border-t border-slate-200 px-[10px] py-3 dark:border-white/[0.07]">
         <button

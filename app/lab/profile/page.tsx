@@ -1,10 +1,5 @@
-import { LabRoutePlaceholder } from "@/features/panel/lab";
+import LabProfileScreen from "@/features/panel/lab/profile/components/LabProfileScreen";
 
 export default function LabProfilePage() {
-  return (
-    <LabRoutePlaceholder
-      title="Lab Profile"
-      description="Manage lab identity, contact details and compliance information."
-    />
-  );
+  return <LabProfileScreen />;
 }

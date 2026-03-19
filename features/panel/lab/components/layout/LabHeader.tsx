@@ -19,6 +19,7 @@ type HeaderPageKey =
   | "logistics"
   | "analytics"
   | "settings"
+  | "profile"
   | "default";
 
 function getHeaderPageKey(pathname: string): HeaderPageKey {
@@ -33,6 +34,7 @@ function getHeaderPageKey(pathname: string): HeaderPageKey {
   if (pathname.startsWith("/lab/logistics")) return "logistics";
   if (pathname.startsWith("/lab/analytics")) return "analytics";
   if (pathname.startsWith("/lab/settings")) return "settings";
+  if (pathname.startsWith("/lab/profile")) return "profile";
   return "default";
 }
 
@@ -62,6 +64,7 @@ export default function LabHeader() {
     if (pageKey === "logistics") return "Logistics";
     if (pageKey === "analytics") return "Reports & Analytics";
     if (pageKey === "settings") return "Settings";
+    if (pageKey === "profile") return "Profile";
     return "Laboratory Panel";
   }, [pageKey]);
 
@@ -77,6 +80,7 @@ export default function LabHeader() {
     if (pageKey === "logistics") return "Field logistics and route operations";
     if (pageKey === "analytics") return "Operational and revenue insights";
     if (pageKey === "settings") return "Manage notification and workflow settings";
+    if (pageKey === "profile") return "Manage lab identity, compliance and contact details";
     return "Operations console";
   }, [pageKey]);
 

@@ -10,4 +10,5 @@ export const labRoutes = {
   logistics: "/lab/logistics",
   analytics: "/lab/analytics",
   settings: "/lab/settings",
+  profile: "/lab/profile",
 } as const;

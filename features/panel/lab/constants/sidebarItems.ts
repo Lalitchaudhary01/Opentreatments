@@ -10,6 +10,7 @@ import {
   RefreshCw,
   LineChart,
   Settings,
+  UserCircle2,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { labRoutes } from "./routes";
@@ -64,5 +65,9 @@ export const labSidebarItems: LabSidebarGroup[] = [
       { label: "Reports & Analytics", href: labRoutes.analytics, icon: LineChart },
       { label: "Settings", href: labRoutes.settings, icon: Settings },
     ],
+  },
+  {
+    section: "Account",
+    items: [{ label: "Profile", href: labRoutes.profile, icon: UserCircle2 }],
   },
 ];
