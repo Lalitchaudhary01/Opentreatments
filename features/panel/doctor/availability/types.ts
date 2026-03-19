@@ -26,3 +26,10 @@ export type SlotConfig = {
   maxAppt: number;
   leadTime: string;
 };
+
+export type DoctorAvailabilityPayload = {
+  weeklyHours: WeeklyHour[];
+  breaks: BreakSlot[];
+  holidays: HolidayBlock[];
+  slotConfig: SlotConfig;
+};

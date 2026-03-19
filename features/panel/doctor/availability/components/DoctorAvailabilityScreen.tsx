@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Clock3, Info, Minus, Plus, Trash2, X } from "lucide-react";
 import HolidayModal from "./HolidayModal";
-import { BreakSlot, HolidayBlock, SlotConfig, WeeklyHour } from "../types";
+import { BreakSlot, DoctorAvailabilityPayload, HolidayBlock, SlotConfig, WeeklyHour } from "../types";
+import { getDoctorAvailability, saveDoctorAvailability } from "../actions";
 
 const weeklySeed: WeeklyHour[] = [
   { day: "Monday", enabled: true, open: "09:00", close: "17:00" },
@@ -71,6 +72,8 @@ export default function DoctorAvailabilityScreen() {
   const [breaks, setBreaks] = useState<BreakSlot[]>(breakSeed);
   const [holidays, setHolidays] = useState<HolidayBlock[]>(holidaySeed);
   const [slotConfig, setSlotConfig] = useState<SlotConfig>(slotSeed);
+  const [loadingData, setLoadingData] = useState(true);
+  const [savingData, setSavingData] = useState(false);
   const [openHolidayModal, setOpenHolidayModal] = useState(false);
   const [calMonth, setCalMonth] = useState(() => {
     const now = new Date();
@@ -83,6 +86,26 @@ export default function DoctorAvailabilityScreen() {
     holidays: holidaySeed,
     slotConfig: slotSeed,
   }));
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getDoctorAvailability();
+        if (!mounted || !data) return;
+        setWeeklyHours(data.weeklyHours);
+        setBreaks(data.breaks);
+        setHolidays(data.holidays);
+        setSlotConfig(data.slotConfig);
+        setSavedSnapshot(data);
+      } finally {
+        if (mounted) setLoadingData(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const hasUnsaved =
     JSON.stringify(weeklyHours) !== JSON.stringify(savedSnapshot.weeklyHours) ||
@@ -159,8 +182,25 @@ export default function DoctorAvailabilityScreen() {
     setSlotConfig(savedSnapshot.slotConfig);
   };
 
-  const save = () => {
-    setSavedSnapshot({ weeklyHours, breaks, holidays, slotConfig });
+  const save = async () => {
+    setSavingData(true);
+    try {
+      const payload: DoctorAvailabilityPayload = {
+        weeklyHours,
+        breaks,
+        holidays,
+        slotConfig,
+      };
+      const result = await saveDoctorAvailability(payload);
+      if (!result.ok) {
+        alert(result.error || "Unable to save availability");
+        return;
+      }
+      setSavedSnapshot(payload);
+      alert("Availability saved");
+    } finally {
+      setSavingData(false);
+    }
   };
 
   return (
@@ -182,10 +222,11 @@ export default function DoctorAvailabilityScreen() {
               </button>
               <button
                 type="button"
-                onClick={save}
+                onClick={() => void save()}
+                disabled={savingData || loadingData}
                 className="rounded-lg bg-[#3b82f6] px-[14px] py-[5px] text-[11.5px] font-medium text-white hover:bg-[#2563eb]"
               >
-                Save Changes
+                {savingData ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>

@@ -18,8 +18,17 @@ function initials(name?: string | null) {
     .slice(0, 2);
 }
 
-function formatTime(slot: Date) {
-  return slot.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+function formatTime(slot: Date | string) {
+  const dateValue = slot instanceof Date ? slot : new Date(slot);
+  if (Number.isNaN(dateValue.getTime())) return "—";
+  return dateValue.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+}
+
+function toTime(value: Date | string | null | undefined): number {
+  if (!value) return 0;
+  const dateValue = value instanceof Date ? value : new Date(value);
+  const t = dateValue.getTime();
+  return Number.isNaN(t) ? 0 : t;
 }
 
 function mapStatus(status: string) {
@@ -183,12 +192,12 @@ export default async function DoctorOverviewPage() {
       slot: row.visitTime,
       notes: row.complaint,
       mode: "walk-in",
-      status: row.visitTime.getTime() <= now.getTime() ? "COMPLETED" : "APPROVED",
+      status: toTime(row.visitTime) <= now.getTime() ? "COMPLETED" : "APPROVED",
       userName: row.patientName || "Walk-in Patient",
       isWalkIn: true,
     })),
   ]
-    .sort((a, b) => a.slot.getTime() - b.slot.getTime())
+    .sort((a, b) => toTime(a.slot) - toTime(b.slot))
     .slice(0, 12);
 
   const todayAppointmentsCount = todayRows.length;
@@ -282,7 +291,7 @@ export default async function DoctorOverviewPage() {
   }));
 
   const upcoming = todayRows
-    .filter((row) => row.slot.getTime() >= now.getTime())
+    .filter((row) => toTime(row.slot) >= now.getTime())
     .slice(0, 4)
     .map((row) => ({
       id: row.id,
