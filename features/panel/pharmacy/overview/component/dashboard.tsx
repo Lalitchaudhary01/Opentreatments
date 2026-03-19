@@ -15,7 +15,7 @@ import {
 
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
-import PharmacyOverviewEmptyState from "./sections/PharmacyOverviewEmptyState";
+import PharmacyOverviewEmptyState, { type PharmacySetupStep } from "./sections/PharmacyOverviewEmptyState";
 import OverviewTodayOrdersCard, { type OverviewOrderRow } from "./sections/OverviewTodayOrdersCard";
 import { pharmacyOverviewTag, pharmacyPanelTag } from "../../cache";
 
@@ -54,15 +54,21 @@ async function getPharmacyOverviewData(params: {
 
       const [
         catalogCount,
+        inventoryCount,
         lowStockCount,
         expiring30Count,
         expiring45Count,
+        branchCount,
+        offerCount,
+        hasSettings,
+        hasDelivery,
         todayOrders,
         pendingOrders,
         recentOrders,
         reorderRows,
       ] = await Promise.all([
         prisma.medicine.count({ where: { pharmacyId: params.pharmacyId } }),
+        prisma.stockEntry.count({ where: { pharmacyId: params.pharmacyId } }),
         prisma.stockEntry.count({
           where: {
             pharmacyId: params.pharmacyId,
@@ -82,6 +88,16 @@ async function getPharmacyOverviewData(params: {
             expiryDate: { lte: expiry45 },
             quantity: { gt: 0 },
           },
+        }),
+        prisma.pharmacyBranch.count({ where: { pharmacyId: params.pharmacyId } }),
+        prisma.pharmacyOffer.count({ where: { pharmacyId: params.pharmacyId, isActive: true } }),
+        prisma.pharmacySettings.findUnique({
+          where: { pharmacyId: params.pharmacyId },
+          select: { id: true },
+        }),
+        prisma.pharmacyDeliveryConfig.findUnique({
+          where: { pharmacyId: params.pharmacyId },
+          select: { id: true },
         }),
         prisma.order.findMany({
           where: {
@@ -122,9 +138,14 @@ async function getPharmacyOverviewData(params: {
 
       return {
         catalogCount,
+        inventoryCount,
         lowStockCount,
         expiring30Count,
         expiring45Count,
+        branchCount,
+        offerCount,
+        hasSettings: Boolean(hasSettings),
+        hasDelivery: Boolean(hasDelivery),
         todayOrders,
         pendingOrders,
         recentOrders,
@@ -146,7 +167,18 @@ export default async function PharmacyOverviewPage() {
 
   const pharmacy = await prisma.pharmacy.findUnique({
     where: { userId: session.user.id },
-    select: { id: true, name: true, status: true },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      ownerName: true,
+      phone: true,
+      address: true,
+      city: true,
+      state: true,
+      country: true,
+      licenseNumber: true,
+    },
   });
 
   if (!pharmacy) redirect("/auth?mode=pharmacy-details");
@@ -163,9 +195,14 @@ export default async function PharmacyOverviewPage() {
 
   const {
     catalogCount,
+    inventoryCount,
     lowStockCount,
     expiring30Count,
     expiring45Count,
+    branchCount,
+    offerCount,
+    hasSettings,
+    hasDelivery,
     todayOrders,
     pendingOrders,
     recentOrders,
@@ -183,9 +220,69 @@ export default async function PharmacyOverviewPage() {
     return sum + orderTotal;
   }, 0);
 
-  const firstTime = catalogCount === 0 && todayOrders.length === 0 && recentOrders.length === 0;
-  if (firstTime) {
-    return <PharmacyOverviewEmptyState pharmacyFirstName={pharmacy.name.split(" ")[0] || "Pharmacy"} />;
+  const isProfileDone = Boolean(
+    pharmacy.name?.trim() &&
+      pharmacy.ownerName?.trim() &&
+      pharmacy.phone?.trim() &&
+      pharmacy.address?.trim() &&
+      pharmacy.city?.trim() &&
+      pharmacy.state?.trim() &&
+      pharmacy.country?.trim() &&
+      pharmacy.licenseNumber?.trim()
+  );
+  const isInventoryDone = catalogCount > 0 || inventoryCount > 0;
+  const isStaffDone = branchCount > 0;
+  const isPricingDone = offerCount > 0 || hasSettings;
+  const isFirstSaleDone = recentOrders.length > 0;
+  const isIntegrationsDone = hasDelivery;
+
+  const setupSteps: PharmacySetupStep[] = [
+    {
+      title: "Set Up Store Profile",
+      desc: "Add your store name, GSTIN, address and license details",
+      href: "/pharmacy/store",
+      completed: isProfileDone,
+    },
+    {
+      title: "Add Your Inventory",
+      desc: "Import medicines or add stock manually to start billing",
+      href: "/pharmacy/inventory",
+      completed: isInventoryDone,
+    },
+    {
+      title: "Configure Staff Access",
+      desc: "Add pharmacists and define role-based permissions",
+      href: "/pharmacy/multi-store",
+      completed: isStaffDone,
+    },
+    {
+      title: "Set Pricing & Margins",
+      desc: "Define default margins, GST slabs and launch offers",
+      href: "/pharmacy/pricing",
+      completed: isPricingDone,
+    },
+    {
+      title: "Make Your First Sale",
+      desc: "Open the billing counter and process your first transaction",
+      href: "/pharmacy/billing",
+      completed: isFirstSaleDone,
+    },
+    {
+      title: "Connect Integrations",
+      desc: "Link your accounting software, WhatsApp and payment gateway",
+      href: "/pharmacy/settings",
+      completed: isIntegrationsDone,
+    },
+  ];
+  const completedSetup = setupSteps.filter((step) => step.completed).length;
+
+  if (completedSetup < setupSteps.length) {
+    return (
+      <PharmacyOverviewEmptyState
+        pharmacyFirstName={pharmacy.name.split(" ")[0] || "Pharmacy"}
+        setupSteps={setupSteps}
+      />
+    );
   }
 
   const uniqueCustomers = new Map<string, number>();

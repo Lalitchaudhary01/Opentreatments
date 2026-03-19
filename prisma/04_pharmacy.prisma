@@ -4,6 +4,7 @@ model Pharmacy {
   name          String
   address       String?
   city          String?
+  pinCode       String?
   state         String?
   phone         String
   latitude      Float?
@@ -12,6 +13,7 @@ model Pharmacy {
   createdAt     DateTime       @default(now())
   email         String
   gstNumber     String?
+  bio           String?
   licenseNumber String
   ownerName     String
   status        PharmacyStatus @default(PENDING)

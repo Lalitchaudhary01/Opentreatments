@@ -2,10 +2,11 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
 import StoreProfileEmptyState from "./sections/StoreProfileEmptyState";
 import PharmacyLogoutButton from "./PharmacyLogoutButton";
+import { getPharmacyStoreProfileView } from "../actions/getPharmacyStoreProfileView";
+import StoreProfileEditor from "./sections/StoreProfileEditor";
 
 function initials(name?: string | null) {
   if (!name?.trim()) return "SP";
@@ -28,23 +29,7 @@ export default async function PharmacyStoreProfileScreen() {
   if (!session?.user?.id) redirect("/auth");
   if (session.user.role !== "PHARMACY") redirect("/auth");
 
-  const profile = await prisma.pharmacy.findUnique({
-    where: { userId: session.user.id },
-    select: {
-      name: true,
-      ownerName: true,
-      email: true,
-      phone: true,
-      address: true,
-      city: true,
-      state: true,
-      country: true,
-      licenseNumber: true,
-      gstNumber: true,
-      status: true,
-      createdAt: true,
-    },
-  });
+  const profile = await getPharmacyStoreProfileView();
 
   if (!profile) return <StoreProfileEmptyState />;
 
@@ -129,73 +114,7 @@ export default async function PharmacyStoreProfileScreen() {
         </div>
 
         <div className="flex flex-col gap-[14px]">
-          <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
-            <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">
-              <div>
-                <div className="text-[13px] font-semibold text-slate-100">Store Information</div>
-                <div className="mt-0.5 text-[11px] text-[#94A3B8]">Pre-filled from registration · edit anytime</div>
-              </div>
-              <Link
-                href="/pharmacy/profile/edit"
-                className="rounded-md bg-[#3B82F6] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-blue-600"
-              >
-                Save Changes
-              </Link>
-            </div>
-
-            <div className="grid gap-3 p-[18px] md:grid-cols-2">
-              {[
-                { label: "Store Name", value: title },
-                { label: "Owner Name", value: profile.ownerName || "Ramesh Kumar" },
-                { label: "Phone", value: profile.phone || "+91 98765 43210" },
-                { label: "Email", value: profile.email || "sunrise.pharmacy@gmail.com" },
-              ].map((field) => (
-                <div key={field.label} className="flex flex-col gap-1">
-                  <label className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-[#64748B]">{field.label}</label>
-                  <input
-                    readOnly
-                    value={field.value}
-                    className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
-                  />
-                </div>
-              ))}
-
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-[#64748B]">Address</label>
-                <input
-                  readOnly
-                  value={fullAddress}
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-[#64748B]">City</label>
-                <input
-                  readOnly
-                  value={profile.city || "Pune"}
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-[#64748B]">PIN Code</label>
-                <input
-                  readOnly
-                  value="411001"
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-[#64748B]">About Store</label>
-                <textarea
-                  readOnly
-                  value={`${title} is a trusted retail pharmacy serving nearby areas. We provide prescription medicines, OTC products, and home delivery support.`}
-                  className="min-h-[70px] w-full rounded-lg border border-white/[0.07] bg-white/[0.04] px-3 py-2 text-[12.5px] text-slate-100 outline-none"
-                />
-              </div>
-            </div>
-          </div>
+          <StoreProfileEditor profile={profile} />
 
           <div className="overflow-hidden rounded-[14px] border border-white/[0.07] bg-[#161f30]">
             <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4">

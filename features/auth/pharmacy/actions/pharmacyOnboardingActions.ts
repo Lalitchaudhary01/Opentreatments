@@ -3,6 +3,7 @@
 import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";
 import { PharmacyStatus } from "@/features/panel/pharmacy/pharmacy-profile/types/pharmacyProfile";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 export type PharmacyOnboardingPayload = {
@@ -12,6 +13,7 @@ export type PharmacyOnboardingPayload = {
   phone: string;
   address: string;
   city: string;
+  pinCode?: string;
   state: string;
   country: string;
   licenseNumber: string;
@@ -38,12 +40,36 @@ export async function completePharmacyOnboarding(payload: PharmacyOnboardingPayl
       phone: payload.phone.trim(),
       address: payload.address.trim() || null,
       city: payload.city.trim() || null,
+      pinCode: payload.pinCode?.trim() || null,
       state: payload.state.trim() || null,
       country: payload.country.trim() || null,
       licenseNumber: payload.licenseNumber.trim(),
       gstNumber: payload.gstNumber?.trim() || null,
       status: PharmacyStatus.PENDING,
     };
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true },
+    });
+
+    if (currentUser && currentUser.phone !== data.phone) {
+      const phoneOwner = await prisma.user.findUnique({
+        where: { phone: data.phone },
+        select: { id: true },
+      });
+      if (phoneOwner && phoneOwner.id !== session.user.id) {
+        return { ok: false as const, error: "Phone number already used by another account" };
+      }
+    }
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        name: data.ownerName,
+        phone: data.phone,
+      },
+    });
 
     if (existing) {
       await prisma.pharmacy.update({
@@ -61,8 +87,13 @@ export async function completePharmacyOnboarding(payload: PharmacyOnboardingPayl
 
     return { ok: true as const };
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return { ok: false as const, error: "Duplicate value found. Please check phone/email fields." };
+    }
     console.error("completePharmacyOnboarding error:", error);
     return { ok: false as const, error: "Unable to submit pharmacy profile" };
   }
 }
-

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   Box,
+  Check,
   ClipboardPlus,
   CreditCard,
   Settings,
@@ -8,33 +9,12 @@ import {
   UserPlus,
 } from "lucide-react";
 
-const setupSteps = [
-  {
-    title: "Set Up Store Profile",
-    desc: "Add your store name, GSTIN, address and license details",
-    active: true,
-  },
-  {
-    title: "Add Your Inventory",
-    desc: "Import medicines or add stock manually to start billing",
-  },
-  {
-    title: "Configure Staff Access",
-    desc: "Add pharmacists and define role-based permissions",
-  },
-  {
-    title: "Set Pricing & Margins",
-    desc: "Define default margins, GST slabs and launch offers",
-  },
-  {
-    title: "Make Your First Sale",
-    desc: "Open the billing counter and process your first transaction",
-  },
-  {
-    title: "Connect Integrations",
-    desc: "Link your accounting software, WhatsApp and payment gateway",
-  },
-];
+export type PharmacySetupStep = {
+  title: string;
+  desc: string;
+  href?: string;
+  completed: boolean;
+};
 
 const quickCards = [
   {
@@ -69,9 +49,19 @@ const quickCards = [
 
 export default function PharmacyOverviewEmptyState({
   pharmacyFirstName,
+  setupSteps,
 }: {
   pharmacyFirstName: string;
+  setupSteps: PharmacySetupStep[];
 }) {
+  const totalSteps = Math.max(setupSteps.length, 1);
+  const completedCount = setupSteps.filter((step) => step.completed).length;
+  const progressPct = Math.round((completedCount / totalSteps) * 100);
+  const activeIndex = setupSteps.findIndex((step) => !step.completed);
+  const activeStepIndex = activeIndex === -1 ? totalSteps - 1 : activeIndex;
+  const circleLength = 188;
+  const circleOffset = circleLength - (progressPct / 100) * circleLength;
+
   return (
     <div className="min-h-full bg-[#0B1120] px-7 py-[22px]">
       <div className="flex flex-col gap-6">
@@ -88,20 +78,20 @@ export default function PharmacyOverviewEmptyState({
                   stroke="#14b8a6"
                   strokeWidth="6"
                   strokeLinecap="round"
-                  strokeDasharray="188"
-                  strokeDashoffset="188"
+                  strokeDasharray={circleLength}
+                  strokeDashoffset={circleOffset}
                   transform="rotate(-90 40 40)"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-[16px] font-bold text-slate-100">0%</div>
+                <div className="text-[16px] font-bold text-slate-100">{progressPct}%</div>
                 <div className="text-[9px] text-[#64748B]">done</div>
               </div>
             </div>
             <div className="flex-1">
               <h2 className="text-[24px] font-semibold tracking-[-.02em] text-slate-100">Welcome to PharmOS</h2>
               <p className="mt-2 text-[13px] leading-relaxed text-[#94A3B8]">
-                You&apos;re 6 steps away from running your pharmacy at full speed. Complete each step,
+                You&apos;re {Math.max(totalSteps - completedCount, 0)} steps away from running your pharmacy at full speed. Complete each step,
                 or load demo data to explore instantly.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -122,28 +112,33 @@ export default function PharmacyOverviewEmptyState({
 
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
           {setupSteps.map((step, idx) => (
-            <div
+            <Link
               key={step.title}
+              href={step.href || "#"}
               className={`flex cursor-pointer items-start gap-3 rounded-[12px] border p-4 transition ${
-                step.active
-                  ? "border-[#3b82f6]/50 bg-[#3b82f6]/10"
-                  : "border-white/[0.07] bg-[#161f30] hover:border-[#3b82f6]/40 hover:bg-[#3b82f6]/8"
+                step.completed
+                  ? "border-[#22c55e]/40 bg-[#22c55e]/10"
+                  : idx === activeStepIndex
+                    ? "border-[#3b82f6]/50 bg-[#3b82f6]/10"
+                    : "border-white/[0.07] bg-[#161f30] hover:border-[#3b82f6]/40 hover:bg-[#3b82f6]/8"
               }`}
             >
               <div
                 className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border text-[11px] font-bold ${
-                  step.active
-                    ? "border-[#3b82f6] bg-[#3b82f6]/15 text-[#60a5fa]"
-                    : "border-white/[0.15] bg-[#1d2637] text-[#94A3B8]"
+                  step.completed
+                    ? "border-[#22c55e] bg-[#22c55e]/15 text-[#22c55e]"
+                    : idx === activeStepIndex
+                      ? "border-[#3b82f6] bg-[#3b82f6]/15 text-[#60a5fa]"
+                      : "border-white/[0.15] bg-[#1d2637] text-[#94A3B8]"
                 }`}
               >
-                {idx + 1}
+                {step.completed ? <Check className="h-3.5 w-3.5" /> : idx + 1}
               </div>
               <div>
                 <div className="mb-1 text-[13px] font-semibold text-slate-100">{step.title}</div>
                 <div className="text-[11.5px] leading-relaxed text-[#64748B]">{step.desc}</div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
