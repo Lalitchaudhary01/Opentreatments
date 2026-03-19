@@ -137,7 +137,17 @@ export default async function DoctorOverviewPage() {
 
   const doctor = await prisma.independentDoctor.findUnique({
     where: { userId: session.user.id },
-    select: { id: true, name: true },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      medicalRegistrationNumber: true,
+      qualification: true,
+      clinicName: true,
+      city: true,
+      specialization: true,
+      availability: true,
+    },
   });
   if (!doctor) redirect("/register-doctor");
 
@@ -185,8 +195,52 @@ export default async function DoctorOverviewPage() {
   const totalPatients = onlinePatients + offlinePatients;
   const firstTimeDoctor = todayAppointmentsCount === 0 && totalPatients === 0;
 
+  const doctorServiceDelegate = (prisma as unknown as { doctorService?: typeof prisma.doctorService })
+    .doctorService;
+  let serviceCount = 0;
+  if (doctorServiceDelegate?.count) {
+    try {
+      serviceCount = await doctorServiceDelegate.count({ where: { doctorId: doctor.id } });
+    } catch {
+      serviceCount = 0;
+    }
+  }
+  if (serviceCount === 0) {
+    const availability = (doctor.availability ?? {}) as Record<string, unknown>;
+    const fallbackServices = Array.isArray(availability.services) ? availability.services : [];
+    serviceCount = fallbackServices.length;
+  }
+
+  const availability = (doctor.availability ?? {}) as Record<string, unknown>;
+  const availabilityDone =
+    !!availability &&
+    Object.keys(availability).some((key) => key !== "onboarding" && key !== "services");
+
+  const profileDone = Boolean(
+    doctor.name?.trim() &&
+      doctor.phone?.trim() &&
+      doctor.medicalRegistrationNumber?.trim() &&
+      doctor.qualification?.trim() &&
+      doctor.clinicName?.trim() &&
+      doctor.city?.trim() &&
+      doctor.specialization?.trim()
+  );
+
+  const setup = {
+    profileDone,
+    servicesDone: serviceCount > 0,
+    availabilityDone,
+    firstPatientDone: totalPatients > 0,
+    payoutDone: false,
+  };
+
   if (firstTimeDoctor) {
-    return <OverviewFirstTimeState doctorFirstName={doctor.name?.split(" ")[0] || "Doctor"} />;
+    return (
+      <OverviewFirstTimeState
+        doctorFirstName={doctor.name?.split(" ")[0] || "Doctor"}
+        setup={setup}
+      />
+    );
   }
 
   const stats = [

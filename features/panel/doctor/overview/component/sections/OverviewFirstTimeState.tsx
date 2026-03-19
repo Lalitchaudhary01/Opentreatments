@@ -36,9 +36,58 @@ function ChecklistRow({
 
 export default function OverviewFirstTimeState({
   doctorFirstName,
+  setup,
 }: {
   doctorFirstName: string;
+  setup: {
+    profileDone: boolean;
+    servicesDone: boolean;
+    availabilityDone: boolean;
+    firstPatientDone: boolean;
+    payoutDone: boolean;
+  };
 }) {
+  const steps = [
+    {
+      href: "/doctor/profile",
+      label: "Complete your profile",
+      sub: "Profile details and verification info",
+      cta: setup.profileDone ? "Done" : "Complete",
+      done: setup.profileDone,
+    },
+    {
+      href: "/doctor/services",
+      label: "Add your services",
+      sub: "List consultation and procedure offerings",
+      cta: setup.servicesDone ? "Done" : "Add Services",
+      done: setup.servicesDone,
+    },
+    {
+      href: "/doctor/availability",
+      label: "Set your availability",
+      sub: "Configure clinic timings and slots",
+      cta: setup.availabilityDone ? "Done" : "Set Hours",
+      done: setup.availabilityDone,
+    },
+    {
+      href: "/doctor/patients?new=1",
+      label: "Register first patient",
+      sub: "Add first patient manually or walk-in",
+      cta: setup.firstPatientDone ? "Done" : "Add Patient",
+      done: setup.firstPatientDone,
+    },
+    {
+      href: "/doctor/settings",
+      label: "Link your payout account",
+      sub: "Add bank details to receive payments",
+      cta: setup.payoutDone ? "Done" : "Add Bank",
+      done: setup.payoutDone,
+    },
+  ];
+  const doneCount = steps.filter((step) => step.done).length;
+  const dashArray = 150.8;
+  const dashOffset = dashArray - (dashArray * doneCount) / steps.length;
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#111827] px-7 py-[22px]">
       <div className="w-full space-y-4">
@@ -65,12 +114,12 @@ export default function OverviewFirstTimeState({
                   fill="none"
                   stroke="#3b82f6"
                   strokeWidth="4"
-                  strokeDasharray="150.8"
-                  strokeDashoffset="120"
+                  strokeDasharray={dashArray}
+                  strokeDashoffset={dashOffset}
                   strokeLinecap="round"
                   transform="rotate(-90 30 30)"
                 />
-                <text x="30" y="35" textAnchor="middle" fontSize="13" fontWeight="700" fill="currentColor">1/5</text>
+                <text x="30" y="35" textAnchor="middle" fontSize="13" fontWeight="700" fill="currentColor">{doneCount}/5</text>
               </svg>
               <div className="mt-1 text-[10px] text-slate-500 dark:text-[#64748B]">setup steps</div>
             </div>
@@ -98,14 +147,19 @@ export default function OverviewFirstTimeState({
                 <div className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">Getting Started</div>
                 <div className="text-[11px] text-slate-500 dark:text-[#94A3B8] mt-0.5">Complete these steps to go live</div>
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-[#64748B]">1 of 5 complete</span>
+              <span className="text-[11px] text-slate-500 dark:text-[#64748B]">{doneCount} of 5 complete</span>
             </div>
             <div className="divide-y divide-slate-200 dark:divide-white/[0.07]">
-              <ChecklistRow href="/doctor/profile" done label="Complete your profile" sub="Profile details and verification info" cta="Done" />
-              <ChecklistRow href="/doctor/services" label="Add your services" sub="List consultation and procedure offerings" cta="Add Services" />
-              <ChecklistRow href="/doctor/availability" label="Set your availability" sub="Configure clinic timings and slots" cta="Set Hours" />
-              <ChecklistRow href="/doctor/patients?new=1" label="Register first patient" sub="Add first patient manually or walk-in" cta="Add Patient" />
-              <ChecklistRow href="/doctor/settings" label="Link your payout account" sub="Add bank details to receive payments" cta="Add Bank" />
+              {steps.map((step) => (
+                <ChecklistRow
+                  key={step.label}
+                  href={step.href}
+                  done={step.done}
+                  label={step.label}
+                  sub={step.sub}
+                  cta={step.cta}
+                />
+              ))}
             </div>
           </div>
 
