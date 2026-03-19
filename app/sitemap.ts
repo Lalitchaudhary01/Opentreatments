@@ -14,6 +14,7 @@ const STATIC_PUBLIC_ROUTES = [
   "/user/doctors",
   "/user/hospitals",
   "/user/pharmacy",
+  "/user/labs",
   
 ] as const;
 
@@ -59,12 +60,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         where: { status: "APPROVED" },
         select: { id: true, updatedAt: true },
       }),
+      prisma.labCompany.findMany({
+        where: { status: "APPROVED", isActive: true },
+        select: { id: true, updatedAt: true },
+      }),
     ]);
 
     const blogs = settled[0].status === "fulfilled" ? settled[0].value : [];
     const doctors = settled[1].status === "fulfilled" ? settled[1].value : [];
     const hospitals = settled[2].status === "fulfilled" ? settled[2].value : [];
     const pharmacies = settled[3].status === "fulfilled" ? settled[3].value : [];
+    const labs = settled[4].status === "fulfilled" ? settled[4].value : [];
 
     const dynamicEntries: MetadataRoute.Sitemap = [
       ...blogs.map((blog) => ({
@@ -82,6 +88,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...pharmacies.map((pharmacy) => ({
         url: withSite(`/user/pharmacy/${pharmacy.id}`),
         lastModified: pharmacy.updatedAt ?? now,
+      })),
+      ...labs.map((lab) => ({
+        url: withSite(`/user/labs/${lab.id}`),
+        lastModified: lab.updatedAt ?? now,
       })),
     ];
 
