@@ -76,16 +76,6 @@ export async function completeDoctorOnboarding(
 
     const fallbackNameFromEmail = session.user.email?.split("@")[0]?.trim() || "Doctor";
     const fullName = doctorName || session.user.name?.trim() || fallbackNameFromEmail;
-    const experienceMap: Record<string, number> = {
-      "Less than 1 year": 0,
-      "1–3 years": 2,
-      "3–5 years": 4,
-      "5–10 years": 7,
-      "10–15 years": 12,
-      "15–20 years": 17,
-      "20+ years": 20,
-    };
-    const experience = experienceMap[experienceLabel] ?? undefined;
     const languages = languagesRaw
       ? languagesRaw
           .split(",")
@@ -116,18 +106,6 @@ export async function completeDoctorOnboarding(
       },
     });
 
-    const onboardingSnapshot = {
-      onboarding: {
-        medicalRegistrationNumber,
-        qualification,
-        graduationYear,
-        experienceLabel,
-        clinicName,
-        pinCode,
-        address,
-      },
-    };
-
     const allDoctorData = {
       userId: session.user.id,
       phone,
@@ -140,12 +118,10 @@ export async function completeDoctorOnboarding(
       pinCode: pinCode || null,
       address: address || null,
       specialization,
-      specialties: [specialization],
-      experience,
       gender: gender || null,
       languages,
       city,
-      badges: [],
+      specialties: [specialization],
       status: "PENDING" as const,
     };
 
@@ -165,19 +141,16 @@ export async function completeDoctorOnboarding(
         throw error;
       }
 
-      // Legacy DB/client fallback: if detailed columns are unavailable, keep onboarding snapshot.
+      // Legacy fallback for older generated client: create row with minimum mandatory fields.
       await prisma.independentDoctor.create({
         data: {
           userId: session.user.id,
           name: fullName,
           specialization,
           specialties: [specialization],
-          experience,
           gender: gender || null,
           languages,
           city,
-          badges: [],
-          availability: onboardingSnapshot,
           status: "PENDING",
         },
       });
