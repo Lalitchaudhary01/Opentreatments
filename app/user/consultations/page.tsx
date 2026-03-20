@@ -1,39 +1,16 @@
-// app/user/consultations/page.tsx
-import { authOptions } from "@/lib/auth-options";
-import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
+import { getMyConsultations } from "@/features/user-doctors/actions/getMyConsultations";
 
 export default async function UserConsultationsPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.email) {
+  let consultations: Awaited<ReturnType<typeof getMyConsultations>> = [];
+  try {
+    consultations = await getMyConsultations();
+  } catch {
     return (
       <div className="p-6">
         <p>You need to be logged in to view your consultations.</p>
       </div>
     );
   }
-
-  // ✅ yahan session se user ko identify karo
-  const userEmail = session.user.email;
-
-  const user = await prisma.user.findUnique({
-    where: { email: userEmail },
-  });
-
-  if (!user) {
-    return (
-      <div className="p-6">
-        <p>User not found.</p>
-      </div>
-    );
-  }
-
-  const consultations = await prisma.independentConsultation.findMany({
-    where: { userId: user.id },
-    include: { doctor: true },
-    orderBy: { createdAt: "desc" },
-  });
 
   return (
     <div className="p-6 space-y-4">
@@ -53,7 +30,7 @@ export default async function UserConsultationsPage() {
             }`}
           >
             <p>
-              <strong>Doctor:</strong> {c.doctor?.name || "Unknown"}
+              <strong>Doctor:</strong> {c.doctorName || "Unknown"}
             </p>
             <p>
               <strong>Slot:</strong> {new Date(c.slot).toLocaleString()}

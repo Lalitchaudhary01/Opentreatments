@@ -18,6 +18,8 @@ model Hospital {
   status     HospitalStatus @default(PENDING)
   userId     String         @unique
   estimates  Estimate[]
+  consultations HospitalConsultation[]
+  offlineConsultations HospitalOfflineConsultation[]
  
   user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   
@@ -27,6 +29,52 @@ model Hospital {
   @@index([city])
   @@index([name])
   @@map("HospitalProfile")
+}
+
+model HospitalConsultation {
+  id            String             @id @default(cuid())
+  hospitalId    String
+  userId        String
+  slot          DateTime
+  duration      Int?
+  status        ConsultationStatus @default(PENDING)
+  mode          String             @default("online")
+  fee           Float?
+  department    String?
+  doctorName    String?
+  notes         String?
+  prescription  String?
+  cancelReason  String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  hospital      Hospital           @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, slot])
+  @@index([hospitalId, status, slot])
+  @@index([userId, createdAt])
+  @@map("HospitalConsultation")
+}
+
+model HospitalOfflineConsultation {
+  id             String   @id @default(cuid())
+  hospitalId     String
+  patientName    String
+  patientAge     Int?
+  patientGender  String?
+  phoneNumber    String?
+  department     String?
+  doctorName     String?
+  complaint      String
+  prescription   String?
+  followUpDate   DateTime?
+  visitTime      DateTime @default(now())
+  createdAt      DateTime @default(now())
+  hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, visitTime])
+  @@index([hospitalId, createdAt])
+  @@map("HospitalOfflineConsultation")
 }
 
 model Service {

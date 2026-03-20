@@ -17,6 +17,7 @@ model User {
   claims                   Claim[]
   comments                 Comment[]
   Hospital                 Hospital?
+  hospitalConsultations    HospitalConsultation[]
   independentConsultations IndependentConsultation[]
   IndependentDoctor        IndependentDoctor?
   IndependentReview        IndependentReview[]
