@@ -60,11 +60,13 @@ model HospitalOfflineConsultation {
   id             String   @id @default(cuid())
   hospitalId     String
   patientName    String
+  patientId      String?
   patientAge     Int?
   patientGender  String?
   phoneNumber    String?
   department     String?
   doctorName     String?
+  consultationType String?
   complaint      String
   prescription   String?
   followUpDate   DateTime?
@@ -74,6 +76,7 @@ model HospitalOfflineConsultation {
 
   @@index([hospitalId, visitTime])
   @@index([hospitalId, createdAt])
+  @@index([hospitalId, patientId])
   @@map("HospitalOfflineConsultation")
 }
 

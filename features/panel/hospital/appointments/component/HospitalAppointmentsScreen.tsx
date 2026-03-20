@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   CalendarDays,
   CheckCircle2,
@@ -9,6 +9,11 @@ import {
   Plus,
   X,
 } from "lucide-react";
+import {
+  createHospitalAppointment,
+  getHospitalOfflinePatients,
+  getHospitalOnlineConsultations,
+} from "../actions";
 
 const statCards = [
   {
@@ -46,6 +51,7 @@ const statCards = [
 ];
 
 type AppointmentRow = {
+  id: string;
   initials: string;
   patient: string;
   patientId: string;
@@ -53,6 +59,8 @@ type AppointmentRow = {
   time: string;
   type: string;
   status: string;
+  doctor?: string;
+  complaint?: string;
   rowTone?: string;
 };
 
@@ -65,73 +73,7 @@ type AppointmentDetail = {
   vitals: [string, string, string];
 };
 
-const initialRows: AppointmentRow[] = [
-  {
-    initials: "AM",
-    patient: "Arjun Mehta",
-    patientId: "PT-00430",
-    dept: "Emergency",
-    time: "10:00 AM",
-    type: "EMERGENCY",
-    status: "Urgent",
-    rowTone: "bg-[rgba(239,68,68,.03)]",
-  },
-  {
-    initials: "EV",
-    patient: "Elena Vasquez",
-    patientId: "PT-00421",
-    dept: "Cardiology",
-    time: "09:30 AM",
-    type: "Follow-up",
-    status: "In Progress",
-  },
-  {
-    initials: "RS",
-    patient: "Rohan Sharma",
-    patientId: "PT-00418",
-    dept: "Orthopedics",
-    time: "09:45 AM",
-    type: "New Visit",
-    status: "Waiting",
-  },
-  {
-    initials: "PN",
-    patient: "Priya Nair",
-    patientId: "PT-00415",
-    dept: "Neurology",
-    time: "10:15 AM",
-    type: "Follow-up",
-    status: "Scheduled",
-  },
-  {
-    initials: "SO",
-    patient: "Samuel Okafor",
-    patientId: "PT-00428",
-    dept: "General",
-    time: "10:30 AM",
-    type: "New Visit",
-    status: "Scheduled",
-  },
-  {
-    initials: "MK",
-    patient: "Meera Krishnan",
-    patientId: "PT-00412",
-    dept: "Cardiology",
-    time: "11:00 AM",
-    type: "Post-Op",
-    status: "Scheduled",
-  },
-  {
-    initials: "DK",
-    patient: "Deepa Kulkarni",
-    patientId: "PT-00409",
-    dept: "OB-GYN",
-    time: "08:00 AM",
-    type: "Routine Check",
-    status: "Completed",
-    rowTone: "opacity-60",
-  },
-];
+const initialRows: AppointmentRow[] = [];
 
 const appointmentDetails: Record<string, AppointmentDetail> = {
   AM: {
@@ -195,6 +137,10 @@ const appointmentDetails: Record<string, AppointmentDetail> = {
 type AppointmentFormState = {
   patientName: string;
   patientId: string;
+  patientAge: string;
+  patientGender: string;
+  phoneNumber: string;
+  followUpDate: string;
   doctor: string;
   department: string;
   date: string;
@@ -206,6 +152,10 @@ type AppointmentFormState = {
 const initialForm: AppointmentFormState = {
   patientName: "",
   patientId: "",
+  patientAge: "",
+  patientGender: "Female",
+  phoneNumber: "",
+  followUpDate: "",
   doctor: "Dr. Kofi Osei",
   department: "Cardiology",
   date: "2026-03-10",
@@ -218,6 +168,7 @@ const doctors = ["Dr. Kofi Osei", "Dr. Wei Ling", "Dr. Priya Sadiq", "Dr. Jin-He
 const departments = ["Cardiology", "Orthopedics", "Neurology", "Pediatrics", "General"];
 const slots = ["09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM"];
 const consultationTypes = ["New Visit", "Follow-up", "Emergency", "Video Consult"];
+const patientGenders = ["Female", "Male", "Other"];
 
 function deptPill(dept: string) {
   if (dept === "Emergency") return "bg-[rgba(239,68,68,.12)] text-[#f87171]";
@@ -239,11 +190,88 @@ function inputClassName() {
   return "h-9 w-full rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.04] px-3 text-[12px] text-slate-700 dark:text-[#cbd5e1] outline-none focus:border-[#3b82f6]/40";
 }
 
+function toInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "PT";
+  if (parts.length === 1) return `${parts[0][0] ?? "P"}T`.toUpperCase();
+  return `${parts[0][0] ?? "P"}${parts[1][0] ?? "T"}`.toUpperCase();
+}
+
+function formatTime(value: string | Date) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--:--";
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+function consultationStatusLabel(status: string) {
+  if (status === "APPROVED") return "In Progress";
+  if (status === "COMPLETED") return "Completed";
+  if (status === "REJECTED" || status === "CANCELLED") return "Cancelled";
+  return "Scheduled";
+}
+
 export default function HospitalAppointmentsScreen() {
   const [rows, setRows] = useState<AppointmentRow[]>(initialRows);
   const [isBookOpen, setIsBookOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentRow | null>(null);
   const [form, setForm] = useState<AppointmentFormState>(initialForm);
+  const [isSaving, startSaving] = useTransition();
+  const [isLoadingRows, startLoadingRows] = useTransition();
+
+  const loadRows = () => {
+    startLoadingRows(async () => {
+      try {
+        const [offline, online] = await Promise.all([
+          getHospitalOfflinePatients(),
+          getHospitalOnlineConsultations(),
+        ]);
+
+        const offlineRows: AppointmentRow[] = offline.map((item) => {
+          const type = item.consultationType || "New Visit";
+          return {
+            id: item.id,
+            initials: toInitials(item.patientName),
+            patient: item.patientName,
+            patientId: item.patientId || `PT-${item.id.slice(-5).toUpperCase()}`,
+            dept: item.department || "General",
+            time: formatTime(item.visitTime),
+            type,
+            status: type === "Emergency" ? "Urgent" : "Scheduled",
+            doctor: item.doctorName,
+            complaint: item.complaint,
+            rowTone: type === "Emergency" ? "bg-[rgba(239,68,68,.03)]" : undefined,
+          };
+        });
+
+        const onlineRows: AppointmentRow[] = online.map((item) => ({
+          id: item.id,
+          initials: toInitials(item.userName),
+          patient: item.userName,
+          patientId: `PT-${item.userId.slice(-5).toUpperCase()}`,
+          dept: item.department || "General",
+          time: formatTime(item.slot),
+          type: item.mode?.toLowerCase() === "offline" ? "Offline" : "Video Consult",
+          status: consultationStatusLabel(item.status),
+          doctor: item.doctorName,
+          complaint: item.notes,
+        }));
+
+        setRows([...offlineRows, ...onlineRows]);
+      } catch (error) {
+        const err = error as { message?: string };
+        alert(err?.message || "Failed to load appointments");
+      }
+    });
+  };
+
+  useEffect(() => {
+    loadRows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const closeModal = () => {
     setIsBookOpen(false);
@@ -268,25 +296,36 @@ export default function HospitalAppointmentsScreen() {
       return;
     }
 
-    const nameParts = form.patientName.trim().split(" ");
-    const initials = `${nameParts[0]?.[0] || "P"}${nameParts[1]?.[0] || "T"}`.toUpperCase();
-    const normalizedType = form.consultationType === "Emergency" ? "EMERGENCY" : form.consultationType;
+    startSaving(async () => {
+      const age = form.patientAge.trim() ? Number(form.patientAge.trim()) : null;
+      if (age !== null && Number.isNaN(age)) {
+        alert("Patient age must be a valid number");
+        return;
+      }
 
-    setRows((prev) => [
-      {
-        initials,
-        patient: form.patientName,
+      const result = await createHospitalAppointment({
+        patientName: form.patientName,
         patientId: form.patientId,
-        dept: form.department,
-        time: form.timeSlot,
-        type: normalizedType,
-        status: form.consultationType === "Emergency" ? "Urgent" : "Scheduled",
-        rowTone: form.consultationType === "Emergency" ? "bg-[rgba(239,68,68,.03)]" : undefined,
-      },
-      ...prev,
-    ]);
+        patientAge: age,
+        patientGender: form.patientGender,
+        phoneNumber: form.phoneNumber,
+        followUpDate: form.followUpDate || null,
+        doctor: form.doctor,
+        department: form.department,
+        date: form.date,
+        timeSlot: form.timeSlot,
+        consultationType: form.consultationType,
+        notes: form.notes,
+      });
 
-    closeModal();
+      if (!result.success) {
+        alert(result.error || "Failed to book appointment");
+        return;
+      }
+
+      closeModal();
+      loadRows();
+    });
   };
 
   return (
@@ -369,7 +408,7 @@ export default function HospitalAppointmentsScreen() {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={`${row.patient}-${row.time}`} className={`border-t border-slate-200 dark:border-white/[0.07] text-[12.5px] text-slate-500 dark:text-[#94a3b8] ${row.rowTone ?? "hover:bg-slate-100 dark:hover:bg-white/[0.04] dark:bg-white/[0.02]"}`}>
+                <tr key={row.id} className={`border-t border-slate-200 dark:border-white/[0.07] text-[12.5px] text-slate-500 dark:text-[#94a3b8] ${row.rowTone ?? "hover:bg-slate-100 dark:hover:bg-white/[0.04] dark:bg-white/[0.02]"}`}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-[10px] font-bold text-white">
@@ -420,7 +459,9 @@ export default function HospitalAppointmentsScreen() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 dark:border-white/[0.07] px-5 py-3">
-          <span className="text-[11.5px] text-[#475569]">Showing {rows.length} of 84 · Page 1 of 12</span>
+          <span className="text-[11.5px] text-[#475569]">
+            {isLoadingRows ? "Loading appointments..." : `Showing ${rows.length} appointments`}
+          </span>
           <div className="flex items-center gap-1.5">
             <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">← Prev</button>
             <button className="rounded border border-[#3b82f6]/35 bg-[rgba(59,130,246,.14)] px-2.5 py-1 text-[11px] text-[#60a5fa]">1</button>
@@ -459,6 +500,44 @@ export default function HospitalAppointmentsScreen() {
                 <div>
                   <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Patient ID</label>
                   <input className={inputClassName()} placeholder="PT-XXXXX" value={form.patientId} onChange={(e) => setForm((p) => ({ ...p, patientId: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Patient Age</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={150}
+                    className={inputClassName()}
+                    placeholder="e.g. 32"
+                    value={form.patientAge}
+                    onChange={(e) => setForm((p) => ({ ...p, patientAge: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Patient Gender</label>
+                  <select className={inputClassName()} value={form.patientGender} onChange={(e) => setForm((p) => ({ ...p, patientGender: e.target.value }))}>
+                    {patientGenders.map((gender) => (
+                      <option key={gender}>{gender}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Phone Number</label>
+                  <input
+                    className={inputClassName()}
+                    placeholder="+91 9876543210"
+                    value={form.phoneNumber}
+                    onChange={(e) => setForm((p) => ({ ...p, phoneNumber: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] text-slate-500 dark:text-[#94a3b8]">Follow-up Date</label>
+                  <input
+                    type="date"
+                    className={inputClassName()}
+                    value={form.followUpDate}
+                    onChange={(e) => setForm((p) => ({ ...p, followUpDate: e.target.value }))}
+                  />
                 </div>
 
                 <div>
@@ -522,9 +601,10 @@ export default function HospitalAppointmentsScreen() {
               </button>
               <button
                 onClick={handleBookAppointment}
+                disabled={isSaving}
                 className="rounded bg-[#3b82f6] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#1d4ed8]"
               >
-                Book Appointment
+                {isSaving ? "Booking..." : "Book Appointment"}
               </button>
             </div>
           </div>
@@ -594,7 +674,9 @@ export default function HospitalAppointmentsScreen() {
                   </div>
                   <div>
                     <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Doctor</div>
-                    <div className="text-slate-800 dark:text-slate-200">{appointmentDetails[selectedAppointment.initials]?.doctor ?? "N/A"}</div>
+                    <div className="text-slate-800 dark:text-slate-200">
+                      {selectedAppointment.doctor || appointmentDetails[selectedAppointment.initials]?.doctor || "N/A"}
+                    </div>
                   </div>
                   <div>
                     <div className="text-[10px] text-slate-500 dark:text-[#64748b]">Phone</div>
@@ -610,7 +692,7 @@ export default function HospitalAppointmentsScreen() {
               <div className="mb-3">
                 <div className="mb-1 text-[11px] font-medium text-slate-500 dark:text-[#94a3b8]">Chief Complaint</div>
                 <div className="rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.02] p-3 text-[12px] leading-5 text-slate-700 dark:text-[#cbd5e1]">
-                  {appointmentDetails[selectedAppointment.initials]?.complaint ?? "No complaint notes available."}
+                  {selectedAppointment.complaint || appointmentDetails[selectedAppointment.initials]?.complaint || "No complaint notes available."}
                 </div>
               </div>
 

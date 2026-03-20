@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { AlertTriangle, Plus, UserPlus, Users, UserRoundCheck, X } from "lucide-react";
+import {
+  addHospitalOfflinePatient,
+  getHospitalOfflinePatients,
+  getHospitalOnlineConsultations,
+} from "../../appointments/actions";
 
 const stats = [
   { label: "Currently Admitted", value: "218", sub: "14 discharged today", delta: "+3", icon: Users, color: "text-[#3b82f6]" },
@@ -11,22 +16,17 @@ const stats = [
 ];
 
 type PatientRow = {
+  id: string;
   initials: string;
   name: string;
   patientNo: string;
   ageGender: string;
   department: string;
   status: string;
+  sortTime: number;
 };
 
-const initialRows: PatientRow[] = [
-  { initials: "EV", name: "Elena Vasquez", patientNo: "PT-00421", ageGender: "45F", department: "Cardiology", status: "Under Observation" },
-  { initials: "RS", name: "Rohan Sharma", patientNo: "PT-00418", ageGender: "32M", department: "Orthopedics", status: "Stable" },
-  { initials: "AM", name: "Arjun Mehta", patientNo: "PT-00430", ageGender: "58M", department: "Emergency / Cardiology", status: "Critical" },
-  { initials: "PN", name: "Priya Nair", patientNo: "PT-00415", ageGender: "29F", department: "Neurology", status: "Stable" },
-  { initials: "SO", name: "Samuel Okafor", patientNo: "PT-00428", ageGender: "41M", department: "General Medicine", status: "Recovering" },
-  { initials: "MK", name: "Meera Krishnan", patientNo: "PT-00412", ageGender: "62F", department: "Cardiology", status: "Post-Op" },
-];
+const initialRows: PatientRow[] = [];
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 const genders = ["Female", "Male", "Other"];
@@ -84,10 +84,71 @@ function inputClassName() {
   return "h-9 w-full rounded-lg border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-white/[0.04] px-3 text-[12px] text-slate-700 dark:text-[#cbd5e1] outline-none focus:border-[#3b82f6]/40";
 }
 
+function toInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "PT";
+  if (parts.length === 1) return `${parts[0][0] ?? "P"}T`.toUpperCase();
+  return `${parts[0][0] ?? "P"}${parts[1][0] ?? "T"}`.toUpperCase();
+}
+
 export default function HospitalPatientsScreen() {
   const [rows, setRows] = useState<PatientRow[]>(initialRows);
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
   const [form, setForm] = useState<PatientFormState>(initialForm);
+  const [isSaving, startSaving] = useTransition();
+  const [isLoadingRows, startLoadingRows] = useTransition();
+
+  const loadRows = () => {
+    startLoadingRows(async () => {
+      try {
+        const [offline, online] = await Promise.all([
+          getHospitalOfflinePatients(),
+          getHospitalOnlineConsultations(),
+        ]);
+
+        const mappedOffline: PatientRow[] = offline.map((p) => ({
+          id: p.id,
+          initials: toInitials(p.patientName),
+          name: p.patientName,
+          patientNo: p.patientId || `PT-${p.id.slice(-5).toUpperCase()}`,
+          ageGender: p.patientAge ? `${p.patientAge}${(p.patientGender || "").slice(0, 1).toUpperCase()}` : `--${(p.patientGender || "").slice(0, 1).toUpperCase()}`,
+          department: p.department || "General Medicine",
+          status: "Under Observation",
+          sortTime: new Date(p.visitTime).getTime(),
+        }));
+
+        const mappedOnline: PatientRow[] = online.map((c) => ({
+          id: c.id,
+          initials: toInitials(c.userName),
+          name: c.userName,
+          patientNo: `PT-${c.userId.slice(-5).toUpperCase()}`,
+          ageGender: "--",
+          department: c.department || "General Medicine",
+          status: "From Online Booking",
+          sortTime: new Date(c.createdAt).getTime(),
+        }));
+
+        const merged = new Map<string, PatientRow>();
+        [...mappedOffline, ...mappedOnline]
+          .sort((a, b) => b.sortTime - a.sortTime)
+          .forEach((row) => {
+            if (!merged.has(row.patientNo)) {
+              merged.set(row.patientNo, row);
+            }
+          });
+
+        setRows(Array.from(merged.values()).sort((a, b) => b.sortTime - a.sortTime));
+      } catch (error) {
+        const err = error as { message?: string };
+        alert(err?.message || "Failed to load patients");
+      }
+    });
+  };
+
+  useEffect(() => {
+    loadRows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const closeModal = () => {
     setIsAddPatientOpen(false);
@@ -104,25 +165,33 @@ export default function HospitalPatientsScreen() {
       return;
     }
 
-    const patientNo = `PT-${String(4000 + rows.length + 1)}`;
-    const initials = `${form.firstName[0] || ""}${form.lastName[0] || ""}`.toUpperCase();
-    const ageGender = form.dob
-      ? `${Math.max(0, new Date().getFullYear() - new Date(form.dob).getFullYear())}${form.gender[0] || ""}`
-      : `--${form.gender[0] || ""}`;
+    startSaving(async () => {
+      const fullName = `${form.firstName} ${form.lastName}`.trim();
+      const age = form.dob
+        ? Math.max(0, new Date().getFullYear() - new Date(form.dob).getFullYear())
+        : null;
 
-    setRows((prev) => [
-      {
-        initials,
-        name: `${form.firstName} ${form.lastName}`.trim(),
-        patientNo,
-        ageGender,
+      const generatedPatientId = `PT-${Date.now().toString().slice(-5)}`;
+      const result = await addHospitalOfflinePatient({
+        patientName: fullName,
+        patientId: generatedPatientId,
+        patientAge: age,
+        patientGender: form.gender,
+        phoneNumber: form.phone || null,
         department: form.department,
-        status: "Under Observation",
-      },
-      ...prev,
-    ]);
+        consultationType: "Walk-in",
+        complaint: form.complaint.trim() || "Walk-in registration",
+        prescription: null,
+      });
 
-    closeModal();
+      if (!result.success) {
+        alert(result.error || "Failed to register patient");
+        return;
+      }
+
+      closeModal();
+      loadRows();
+    });
   };
 
   return (
@@ -148,7 +217,9 @@ export default function HospitalPatientsScreen() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-white/[0.07] px-5 py-4">
           <div>
             <h2 className="text-[13px] font-semibold text-slate-900 dark:text-[#f1f5f9]">Patient Registry</h2>
-            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">218 admitted · sorted by last activity</p>
+            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">
+              {isLoadingRows ? "Loading registry..." : `${rows.length} patients · sorted by last activity`}
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {["All", "Admitted", "Discharged", "New"].map((f, i) => (
@@ -211,7 +282,9 @@ export default function HospitalPatientsScreen() {
         </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/[0.07] px-5 py-3">
-          <span className="text-[11.5px] text-[#475569]">Showing {rows.length} of 218 · Page 1 of 37</span>
+          <span className="text-[11.5px] text-[#475569]">
+            {isLoadingRows ? "Loading patients..." : `Showing ${rows.length} patients`}
+          </span>
           <div className="flex items-center gap-1.5">
             <button className="rounded border border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-500 dark:text-[#94a3b8]">← Prev</button>
             <button className="rounded border border-[#3b82f6]/35 bg-[rgba(59,130,246,.14)] px-2.5 py-1 text-[11px] text-[#60a5fa]">1</button>
@@ -335,9 +408,10 @@ export default function HospitalPatientsScreen() {
               </button>
               <button
                 onClick={handleRegisterPatient}
+                disabled={isSaving}
                 className="rounded bg-[#3b82f6] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#1d4ed8]"
               >
-                Register Patient
+                {isSaving ? "Registering..." : "Register Patient"}
               </button>
             </div>
           </div>

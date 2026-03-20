@@ -6,11 +6,13 @@ import { getHospitalFromSession } from "./_helpers";
 
 type AddHospitalOfflineInput = {
   patientName: string;
+  patientId?: string | null;
   patientAge?: number | null;
   patientGender?: string | null;
   phoneNumber?: string | null;
   department?: string | null;
   doctorName?: string | null;
+  consultationType?: string | null;
   complaint: string;
   prescription?: string | null;
   followUpDate?: string | Date | null;
@@ -20,6 +22,11 @@ type AddHospitalOfflineInput = {
 export async function addHospitalOfflinePatient(input: AddHospitalOfflineInput) {
   try {
     const hospital = await getHospitalFromSession();
+    const offlineDelegate = (prisma as unknown as {
+      hospitalOfflineConsultation?: {
+        create?: typeof prisma.offlineConsultation.create;
+      };
+    }).hospitalOfflineConsultation;
 
     const patientName = (input.patientName || "").trim();
     const complaint = (input.complaint || "").trim();
@@ -37,15 +44,25 @@ export async function addHospitalOfflinePatient(input: AddHospitalOfflineInput) 
       return { success: false, error: "Phone number format is invalid" };
     }
 
-    const record = await prisma.hospitalOfflineConsultation.create({
+    if (!offlineDelegate?.create) {
+      return {
+        success: false,
+        error:
+          "Hospital appointment model is not available in current Prisma client. Run prisma generate and restart dev server.",
+      };
+    }
+
+    const record = await offlineDelegate.create({
       data: {
         hospitalId: hospital.id,
         patientName,
+        patientId: input.patientId?.trim() || null,
         patientAge: input.patientAge ?? null,
         patientGender: input.patientGender?.trim() || null,
         phoneNumber: phone,
         department: input.department?.trim() || null,
         doctorName: input.doctorName?.trim() || null,
+        consultationType: input.consultationType?.trim() || null,
         complaint,
         prescription: input.prescription?.trim() || null,
         followUpDate: input.followUpDate ? new Date(input.followUpDate) : null,

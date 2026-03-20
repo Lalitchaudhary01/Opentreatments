@@ -247,8 +247,8 @@ function statusPill(tone: string) {
 
 export default function HospitalOverviewDashboard() {
   return (
-    <div className="px-6 py-5">
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+    <div className="space-y-[18px] px-6 py-5">
+      <section className="grid gap-[14px] md:grid-cols-2 xl:grid-cols-5">
         {statCards.map((card) => {
           const Icon =
             card.tone === "teal"
@@ -294,7 +294,7 @@ export default function HospitalOverviewDashboard() {
         })}
       </section>
 
-      <section className="mt-4">
+      <section>
         <div className="overflow-hidden rounded-[14px] border border-slate-200 bg-white dark:border-white/[0.07] dark:bg-[#161f30]">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 dark:border-white/[0.07]">
             <div>
@@ -392,21 +392,24 @@ export default function HospitalOverviewDashboard() {
         </div>
       </section>
 
-      <section className="mt-4 grid gap-4 xl:grid-cols-2">
+      <section className="grid gap-4 xl:grid-cols-2">
         <div className="rounded-[14px] border border-slate-200 bg-white dark:border-white/[0.07] dark:bg-[#161f30]">
           <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-white/[0.07]">
             <div>
               <h2 className="text-[13px] font-semibold text-slate-900 dark:text-[#f1f5f9]">Recent Activity</h2>
               <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">Today · last 2 hours</p>
             </div>
-            <span className="text-[11px] text-[#3b82f6]">All logs →</span>
+            <button className="text-[11px] text-[#3b82f6]">All logs →</button>
           </div>
 
-          <div className="p-4">
+          <div>
             {recentActivity.map((item) => (
-              <div key={`${item.time}-${item.text}`} className="mb-3 flex items-start gap-2.5 last:mb-0">
-                <div className="w-9 pt-0.5 text-[10px] font-mono text-slate-500 dark:text-[#94a3b8]">{item.time}</div>
-                <div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded ${toneClasses(item.tone)}`}>
+              <div
+                key={`${item.time}-${item.text}`}
+                className="flex items-start gap-2.5 border-b border-slate-200 px-5 py-3 last:border-b-0 hover:bg-slate-50 dark:border-white/[0.07] dark:hover:bg-white/[0.02]"
+              >
+                <div className="w-[42px] pt-0.5 text-[10px] font-mono text-slate-500 dark:text-[#94a3b8]">{item.time}</div>
+                <div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-md ${toneClasses(item.tone)}`}>
                   {item.tone === "red" ? (
                     <TriangleAlert className="h-3.5 w-3.5" />
                   ) : item.tone === "green" ? (
@@ -419,7 +422,7 @@ export default function HospitalOverviewDashboard() {
                     <CalendarDays className="h-3.5 w-3.5" />
                   )}
                 </div>
-                <div className="flex-1 text-[12px] leading-5 text-slate-700 dark:text-[#cbd5e1]">
+                <div className="min-w-0 flex-1 text-[12px] leading-5 text-slate-700 dark:text-[#cbd5e1]">
                   {item.text}{" "}
                   {item.cta && item.href ? (
                     <Link href={item.href} className="font-medium text-[#3b82f6]">
@@ -441,21 +444,21 @@ export default function HospitalOverviewDashboard() {
             <span className="rounded-full bg-[#ef4444]/15 px-2 py-0.5 text-[10px] font-medium text-[#f87171]">5</span>
           </div>
 
-          <div className="p-3">
+          <div>
             {pendingActions.map((item) => (
               <Link
                 href={item.href}
                 key={`${item.title}-${item.time}`}
-                className="mb-2.5 flex items-start gap-2.5 rounded-lg border border-slate-200 bg-slate-50 p-3 last:mb-0 hover:border-slate-300 dark:border-white/[0.08] dark:bg-white/[0.02] dark:hover:border-white/[0.14]"
+                className="flex items-start gap-3 border-b border-slate-200 px-[18px] py-[13px] last:border-b-0 hover:bg-slate-50 dark:border-white/[0.07] dark:hover:bg-white/[0.02]"
               >
-                <div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded ${toneClasses(item.tone)}`}>
+                <div className={`flex h-[30px] w-[30px] items-center justify-center rounded-lg ${toneClasses(item.tone)}`}>
                   <Clock3 className="h-3.5 w-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[12.5px] font-medium text-slate-800 dark:text-[#e2e8f0]">{item.title}</div>
                   <div className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">{item.sub}</div>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] font-mono text-slate-500 dark:text-[#94a3b8]">
+                <div className="flex items-center gap-1 pt-0.5 text-[10px] font-mono text-slate-500 dark:text-[#94a3b8]">
                   {item.time}
                   <ChevronRight className="h-3 w-3" />
                 </div>
