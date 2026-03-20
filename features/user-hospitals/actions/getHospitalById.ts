@@ -8,15 +8,15 @@ export async function getHospitalById(
   const hospital = await prisma.hospital.findUnique({
     where: { id },
     include: {
-      doctors: { select: { id: true, name: true, specialization: true } },
-      procedures: {
-        select: { id: true, name: true, cost: true, duration: true },
-      },
       services: {
-        select: { id: true, name: true, cost: true, description: true },
-      },
-      facilities: {
-        select: { id: true, name: true, description: true },
+        select: {
+          id: true,
+          name: true,
+          cost: true,
+          description: true,
+          category: true,
+          duration: true,
+        },
       },
     },
   });
@@ -40,23 +40,21 @@ export async function getHospitalById(
     image: hospital.image ?? undefined,
     verified: hospital.verified,
     status: hospital.status,
-    doctors: hospital.doctors,
-    procedures: hospital.procedures.map((procedure) => ({
-      id: procedure.id,
-      name: procedure.name,
-      cost: procedure.cost ?? undefined,
-      duration: procedure.duration ?? undefined,
-    })),
+    doctors: [],
+    procedures: hospital.services
+      .filter((service) => service.category === "Procedure")
+      .map((service) => ({
+        id: service.id,
+        name: service.name,
+        cost: service.cost ?? undefined,
+        duration: service.duration ?? undefined,
+      })),
     services: hospital.services?.map((service) => ({
       id: service.id,
       name: service.name,
       cost: service.cost ?? undefined,
       description: service.description ?? undefined,
     })),
-    facilities: hospital.facilities?.map((facility) => ({
-      id: facility.id,
-      name: facility.name,
-      description: facility.description ?? undefined,
-    })),
+    facilities: [],
   };
 }

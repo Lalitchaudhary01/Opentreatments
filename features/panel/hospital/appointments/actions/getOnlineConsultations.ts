@@ -25,7 +25,7 @@ export async function getHospitalOnlineConsultations(): Promise<HospitalOnlineCo
 
   const consultationDelegate = (prisma as unknown as {
     hospitalConsultation?: {
-      findMany?: typeof prisma.independentConsultation.findMany;
+      findMany?: (args: unknown) => Promise<unknown[]>;
     };
   }).hospitalConsultation;
 
@@ -36,15 +36,15 @@ export async function getHospitalOnlineConsultations(): Promise<HospitalOnlineCo
   let rows: Array<{
     id: string;
     userId: string;
-    user: { name: string | null; email: string; phone: string | null };
+    user?: { name: string | null; email: string; phone: string | null } | null;
     slot: Date;
     duration: number | null;
     status: string;
     mode: string;
     fee: number | null;
-    department: string | null;
-    doctorName: string | null;
-    notes: string | null;
+    department?: string | null;
+    doctorName?: string | null;
+    notes?: string | null;
     createdAt: Date;
   }> = [];
 
@@ -74,9 +74,9 @@ export async function getHospitalOnlineConsultations(): Promise<HospitalOnlineCo
   return rows.map((row) => ({
     id: row.id,
     userId: row.userId,
-    userName: row.user.name || "Unknown User",
-    userEmail: row.user.email,
-    userPhone: row.user.phone ?? undefined,
+    userName: row.user?.name || "Unknown User",
+    userEmail: row.user?.email || "",
+    userPhone: row.user?.phone ?? undefined,
     slot: row.slot.toISOString(),
     duration: row.duration ?? undefined,
     status: row.status,

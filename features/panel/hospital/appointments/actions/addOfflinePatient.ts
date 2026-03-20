@@ -24,7 +24,7 @@ export async function addHospitalOfflinePatient(input: AddHospitalOfflineInput) 
     const hospital = await getHospitalFromSession();
     const offlineDelegate = (prisma as unknown as {
       hospitalOfflineConsultation?: {
-        create?: typeof prisma.offlineConsultation.create;
+        create?: typeof prisma.hospitalOfflineConsultation.create;
       };
     }).hospitalOfflineConsultation;
 

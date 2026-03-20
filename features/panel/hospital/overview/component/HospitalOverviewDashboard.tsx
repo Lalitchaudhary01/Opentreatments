@@ -9,6 +9,7 @@ import {
   TriangleAlert,
   Users,
 } from "lucide-react";
+import { getHospitalOverviewUpcomingAppointments } from "../actions/getUpcomingAppointments";
 
 type StatCard = {
   title: string;
@@ -65,70 +66,6 @@ const statCards: StatCard[] = [
     tone: "purple",
     fill: "94%",
     href: "/hospital/reviews",
-  },
-];
-
-const tableRows = [
-  {
-    initials: "EV",
-    name: "Elena Vasquez",
-    patientNo: "PT-00421",
-    dept: "Cardiology",
-    deptTone: "blue",
-    time: "09:30",
-    type: "Follow-up",
-    status: "In Progress",
-    statusTone: "teal",
-    avatarTone: "from-blue-500 to-blue-700",
-  },
-  {
-    initials: "RS",
-    name: "Rohan Sharma",
-    patientNo: "PT-00418",
-    dept: "Orthopedics",
-    deptTone: "amber",
-    time: "09:45",
-    type: "New Visit",
-    status: "Waiting",
-    statusTone: "amber",
-    avatarTone: "from-teal-500 to-teal-700",
-  },
-  {
-    initials: "AM",
-    name: "Arjun Mehta",
-    patientNo: "PT-00430",
-    dept: "Emergency",
-    deptTone: "red",
-    time: "10:00",
-    type: "EMER",
-    status: "Urgent",
-    statusTone: "red",
-    avatarTone: "from-red-500 to-red-700",
-    emergency: true,
-  },
-  {
-    initials: "PN",
-    name: "Priya Nair",
-    patientNo: "PT-00415",
-    dept: "Neurology",
-    deptTone: "purple",
-    time: "10:15",
-    type: "Follow-up",
-    status: "Scheduled",
-    statusTone: "slate",
-    avatarTone: "from-green-500 to-green-700",
-  },
-  {
-    initials: "MK",
-    name: "Meera Krishnan",
-    patientNo: "PT-00412",
-    dept: "Cardiology",
-    deptTone: "blue",
-    time: "11:00",
-    type: "Post-Op",
-    status: "Scheduled",
-    statusTone: "slate",
-    avatarTone: "from-violet-400 to-violet-700",
   },
 ];
 
@@ -245,7 +182,13 @@ function statusPill(tone: string) {
   return "bg-slate-100 text-slate-600 dark:bg-white/[0.06] dark:text-slate-300";
 }
 
-export default function HospitalOverviewDashboard() {
+export default async function HospitalOverviewDashboard() {
+  const upcoming = await getHospitalOverviewUpcomingAppointments().catch(() => ({
+    rows: [],
+    total: 0,
+  }));
+  const tableRows = upcoming.rows;
+
   return (
     <div className="space-y-[18px] px-6 py-5">
       <section className="grid gap-[14px] md:grid-cols-2 xl:grid-cols-5">
@@ -299,7 +242,9 @@ export default function HospitalOverviewDashboard() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 dark:border-white/[0.07]">
             <div>
               <h2 className="text-[13px] font-semibold text-slate-900 dark:text-[#f1f5f9]">Upcoming Appointments</h2>
-              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">Next 3 hours · 26 scheduled</p>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-[#94a3b8]">
+                Online + Offline upcoming · {upcoming.total} scheduled
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <select className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[11px] text-slate-700 outline-none dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#cbd5e1]">
@@ -328,65 +273,75 @@ export default function HospitalOverviewDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {tableRows.map((row) => (
-                  <tr
-                    key={`${row.patientNo}-${row.time}`}
-                    className={`border-t border-slate-200 text-[12.5px] text-slate-500 dark:border-white/[0.07] dark:text-[#94a3b8] ${
-                      row.emergency ? "bg-[#ef4444]/[0.03]" : "hover:bg-slate-50 dark:hover:bg-white/[0.02]"
-                    }`}
-                  >
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br ${row.avatarTone} text-[10px] font-semibold text-white`}
-                        >
-                          {row.initials}
-                        </div>
-                        <div className="font-medium text-slate-800 dark:text-[#e2e8f0]">{row.name}</div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 font-mono text-[11px] text-[#3b82f6]">{row.patientNo}</td>
-                    <td className="px-5 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${deptPill(row.deptTone)}`}>
-                        {row.dept}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 font-mono">{row.time}</td>
-                    <td className="px-5 py-3">
-                      {row.type === "EMER" ? (
-                        <span className="rounded bg-[#ef4444]/15 px-2 py-0.5 text-[9.5px] font-bold text-[#f87171]">EMER</span>
-                      ) : (
-                        row.type
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${statusPill(row.statusTone)}`}>
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button className="rounded border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-500 hover:bg-slate-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#94a3b8] dark:hover:bg-white/[0.08]">
-                          {row.emergency ? "Cancel" : row.status === "Waiting" ? "Confirm" : "Reschedule"}
-                        </button>
-                        <button className={`rounded px-2.5 py-1 text-[11px] font-medium text-white ${row.emergency ? "bg-[#ef4444]" : "bg-[#14b8a6]"}`}>
-                          {row.emergency ? "Attend" : "Start"}
-                        </button>
-                      </div>
+                {tableRows.length === 0 ? (
+                  <tr className="border-t border-slate-200 text-[12.5px] dark:border-white/[0.07]">
+                    <td colSpan={7} className="px-5 py-6 text-center text-slate-500 dark:text-[#94a3b8]">
+                      No upcoming appointments found.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  tableRows.map((row) => (
+                    <tr
+                      key={`${row.patientNo}-${row.time}-${row.id}`}
+                      className={`border-t border-slate-200 text-[12.5px] text-slate-500 dark:border-white/[0.07] dark:text-[#94a3b8] ${
+                        row.emergency ? "bg-[#ef4444]/[0.03]" : "hover:bg-slate-50 dark:hover:bg-white/[0.02]"
+                      }`}
+                    >
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br ${row.avatarTone} text-[10px] font-semibold text-white`}
+                          >
+                            {row.initials}
+                          </div>
+                          <div className="font-medium text-slate-800 dark:text-[#e2e8f0]">{row.name}</div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 font-mono text-[11px] text-[#3b82f6]">{row.patientNo}</td>
+                      <td className="px-5 py-3">
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${deptPill(row.deptTone)}`}>
+                          {row.dept}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 font-mono">{row.time}</td>
+                      <td className="px-5 py-3">
+                        {row.type === "EMER" ? (
+                          <span className="rounded bg-[#ef4444]/15 px-2 py-0.5 text-[9.5px] font-bold text-[#f87171]">EMER</span>
+                        ) : (
+                          row.type
+                        )}
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${statusPill(row.statusTone)}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button className="rounded border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-500 hover:bg-slate-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#94a3b8] dark:hover:bg-white/[0.08]">
+                            {row.emergency ? "Cancel" : row.status === "Waiting" ? "Confirm" : "Reschedule"}
+                          </button>
+                          <button className={`rounded px-2.5 py-1 text-[11px] font-medium text-white ${row.emergency ? "bg-[#ef4444]" : "bg-[#14b8a6]"}`}>
+                            {row.emergency ? "Attend" : "Start"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="flex items-center justify-between border-t border-slate-200 px-5 py-3 dark:border-white/[0.07]">
-            <span className="text-[11.5px] text-slate-500 dark:text-[#94a3b8]">Showing 5 of 26</span>
+            <span className="text-[11.5px] text-slate-500 dark:text-[#94a3b8]">
+              Showing {tableRows.length} of {upcoming.total}
+            </span>
             <Link
               href="/hospital/appointments"
               className="rounded border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-500 hover:bg-slate-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#94a3b8] dark:hover:bg-white/[0.08]"
             >
-              View all 26 →
+              View all →
             </Link>
           </div>
         </div>
