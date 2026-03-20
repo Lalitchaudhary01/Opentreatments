@@ -17,12 +17,10 @@ model Hospital {
   updatedAt  DateTime       @updatedAt
   status     HospitalStatus @default(PENDING)
   userId     String         @unique
-  doctors    Doctor[]
   estimates  Estimate[]
-  facilities Facility[]
+ 
   user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Insurance  Insurance[]
-  procedures Procedure[]
+  
   services   Service[]
 
   @@index([status, createdAt])
@@ -44,80 +42,6 @@ model Service {
   @@map("HospitalService")
 }
 
-model Facility {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  hospitalId  String
-  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-
-  @@index([hospitalId, createdAt])
-  @@map("HospitalFacility")
-}
-
-model Insurance {
-  id         String   @id @default(cuid())
-  name       String
-  provider   String?
-  cashless   Boolean  @default(false)
-  hospitalId String
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-
-  @@index([hospitalId])
-  @@map("HospitalInsurance")
-}
-
-model Doctor {
-  id             String   @id @default(cuid())
-  name           String
-  specialization String
-  experience     Int?
-  profilePic     String?
-  hospitalId     String
-  hospital       Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-
-  @@index([hospitalId, specialization])
-  @@map("HospitalDoctor")
-}
-
-model Procedure {
-  id          String     @id @default(cuid())
-  name        String
-  description String?
-  cost        Float?
-  duration    String?
-  hospitalId  String
-  estimates   Estimate[]
-  hospital    Hospital   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  createdAt   DateTime   @default(now())
-
-  @@index([hospitalId, createdAt])
-  @@map("HospitalProcedure")
-}
-
-model Policy {
-  id           String     @id @default(cuid())
-  userId       String
-  name         String
-  provider     String?
-  policyNumber String?
-  sumInsured   Float
-  deductible   Float      @default(0)
-  coPay        Float      @default(0)
-  startDate    DateTime
-  endDate      DateTime
-  cashless     Boolean    @default(false)
-  pdfUrl       String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  estimates    Estimate[]
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, createdAt])
-  @@map("InsurancePolicy")
-}
-
 model Estimate {
   id            String    @id @default(cuid())
   policyId      String
@@ -128,11 +52,9 @@ model Estimate {
   outOfPocket   Float
   createdAt     DateTime  @default(now())
   hospital      Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  policy        Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
-  procedure     Procedure @relation(fields: [procedureId], references: [id], onDelete: Cascade)
 
   @@index([hospitalId, createdAt])
   @@index([policyId])
   @@index([procedureId])
-  @@map("CoverageEstimate")
+  @@map("HospitalCoverageEstimate")
 }

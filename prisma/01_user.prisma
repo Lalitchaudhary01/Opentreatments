@@ -25,7 +25,6 @@ model User {
   Notification             Notification[]
   Orders                   Order[]
   Pharmacy                 Pharmacy?
-  policies                 Policy[]
   sessions                 Session[]
   LabCompany               LabCompany?
   labBookings              LabBooking[]
